@@ -1,4 +1,564 @@
-/// src/pages/checker/ReportsPage.jsx
+// import React, { useMemo, useState, useEffect } from "react";
+// import { 
+//   Button, 
+//   Divider, 
+//   Table, 
+//   Tag, 
+//   Spin, 
+//   Empty, 
+//   Card, 
+//   Row, 
+//   Col,
+//   Input,
+//   Badge,
+//   Typography
+// } from "antd";
+// import { 
+//   SearchOutlined,
+//   FileTextOutlined,
+//   UserOutlined,
+//   CustomerServiceOutlined,
+//   CheckCircleOutlined,
+//   DownloadOutlined
+// } from "@ant-design/icons";
+// import dayjs from "dayjs";
+
+// // Theme Colors
+// const PRIMARY_BLUE = "#164679";
+// const ACCENT_LIME = "#b5d334";
+// const HIGHLIGHT_GOLD = "#fcb116";
+// const LIGHT_YELLOW = "#fcd716";
+// const SECONDARY_PURPLE = "#7e6496";
+// const SUCCESS_GREEN = "#52c41a";
+// const ERROR_RED = "#ff4d4f";
+// const WARNING_ORANGE = "#faad14";
+
+// const { Text } = Typography;
+
+// // MOCK DATA for Checker Reports
+// const MOCK_CHECKER_REPORTS = [
+//   {
+//     _id: "r1",
+//     dclNo: "DCL-2024-001",
+//     customerNumber: "CUST001",
+//     customerName: "Alpha Enterprises Ltd",
+//     loanType: "Business Loan",
+//     title: "Business Expansion Loan",
+//     approvedBy: { _id: "checker1", name: "Michael Chen", email: "michael.c@ncba.co.ke" },
+//     checkerComments: "All documents properly verified and complete. Excellent work!",
+//     status: "approved",
+//     priority: "high",
+//     completionDate: "2024-12-18T10:30:00Z",
+//     createdAt: "2024-12-01T09:30:00Z",
+//     updatedAt: "2024-12-18T10:30:00Z",
+//     documents: [
+//       {
+//         category: "Business Registration",
+//         docList: [
+//           { 
+//             _id: "doc1_1", 
+//             name: "Certificate of Incorporation", 
+//             status: "approved"
+//           },
+//           { 
+//             _id: "doc1_2", 
+//             name: "CR12 Certificate", 
+//             status: "approved"
+//           }
+//         ]
+//       }
+//     ]
+//   },
+//   {
+//     _id: "r2",
+//     dclNo: "DCL-2024-002",
+//     customerNumber: "CUST002",
+//     customerName: "Beta Manufacturing Inc",
+//     loanType: "Equipment Finance",
+//     title: "Machinery Upgrade",
+//     approvedBy: { _id: "checker2", name: "David Omondi", email: "david.o@ncba.co.ke" },
+//     checkerComments: "Minor revisions required on invoice. Overall good work.",
+//     status: "approved_with_revisions",
+//     priority: "medium",
+//     completionDate: "2024-12-17T14:15:00Z",
+//     createdAt: "2024-12-03T14:15:00Z",
+//     updatedAt: "2024-12-17T14:15:00Z",
+//     documents: [
+//       {
+//         category: "Technical Documents",
+//         docList: [
+//           { 
+//             _id: "doc2_1", 
+//             name: "Equipment Quotations", 
+//             status: "approved"
+//           },
+//           { 
+//             _id: "doc2_2", 
+//             name: "Technical Specifications", 
+//             status: "approved"
+//           }
+//         ]
+//       }
+//     ]
+//   },
+//   {
+//     _id: "r3",
+//     dclNo: "DCL-2024-003",
+//     customerNumber: "CUST003",
+//     customerName: "Premium Motors Ltd",
+//     loanType: "Asset Finance",
+//     title: "Fleet Vehicle Purchase",
+//     approvedBy: { _id: "checker1", name: "Michael Chen", email: "michael.c@ncba.co.ke" },
+//     checkerComments: "Complete documentation. Ready for processing.",
+//     status: "approved",
+//     priority: "medium",
+//     completionDate: "2024-12-18T09:20:00Z",
+//     createdAt: "2024-12-05T11:15:00Z",
+//     updatedAt: "2024-12-18T09:20:00Z",
+//     documents: [
+//       {
+//         category: "Vehicle Documents",
+//         docList: [
+//           { 
+//             _id: "doc3_1", 
+//             name: "Proforma Invoice", 
+//             status: "approved"
+//           },
+//           { 
+//             _id: "doc3_2", 
+//             name: "Logbook Copies", 
+//             status: "approved"
+//           },
+//           { 
+//             _id: "doc3_3", 
+//             name: "Insurance Certificates", 
+//             status: "approved"
+//           }
+//         ]
+//       }
+//     ]
+//   },
+//   {
+//     _id: "r4",
+//     dclNo: "DCL-2024-004",
+//     customerNumber: "CUST004",
+//     customerName: "Tech Solutions Ltd",
+//     loanType: "Technology Loan",
+//     title: "Software Development",
+//     approvedBy: { _id: "checker2", name: "David Omondi", email: "david.o@ncba.co.ke" },
+//     checkerComments: "Excellent documentation. No issues found.",
+//     status: "approved",
+//     priority: "low",
+//     completionDate: "2024-12-19T11:45:00Z",
+//     createdAt: "2024-12-06T10:00:00Z",
+//     updatedAt: "2024-12-19T11:45:00Z",
+//     documents: [
+//       {
+//         category: "Technical Documents",
+//         docList: [
+//           { 
+//             _id: "doc4_1", 
+//             name: "Project Proposal", 
+//             status: "approved"
+//           },
+//           { 
+//             _id: "doc4_2", 
+//             name: "Budget Breakdown", 
+//             status: "approved"
+//           }
+//         ]
+//       }
+//     ]
+//   }
+// ];
+
+// const ReportsPage = ({ userId = "checker_current" }) => {
+//   const [loading, setLoading] = useState(false);
+//   const [mockData, setMockData] = useState([]);
+  
+//   // Filters
+//   const [searchText, setSearchText] = useState("");
+
+//   // Load data
+//   useEffect(() => {
+//     setLoading(true);
+    
+//     setTimeout(() => {
+//       setMockData(MOCK_CHECKER_REPORTS);
+//       setLoading(false);
+//     }, 300);
+//   }, []);
+
+//   // Filter data
+//   const filteredData = useMemo(() => {
+//     let filtered = mockData;
+    
+//     if (searchText) {
+//       filtered = filtered.filter(c => 
+//         c.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
+//         c.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+//         c.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+//         c.loanType.toLowerCase().includes(searchText.toLowerCase()) ||
+//         c.approvedBy?.name?.toLowerCase().includes(searchText.toLowerCase())
+//       );
+//     }
+    
+//     return filtered;
+//   }, [mockData, searchText]);
+
+//   const clearFilters = () => setSearchText("");
+
+//   const refetch = () => {
+//     setLoading(true);
+//     setTimeout(() => {
+//       setMockData([...MOCK_CHECKER_REPORTS]);
+//       setLoading(false);
+//     }, 200);
+//   };
+
+//   const exportToCSV = () => {
+//     const csvData = filteredData.map(item => ({
+//       "DCL No": item.dclNo,
+//       "Customer No": item.customerNumber,
+//       "Customer Name": item.customerName,
+//       "Loan Type": item.loanType,
+//       "Checker": item.approvedBy?.name || "N/A",
+//       "Documents": item.documents?.reduce((sum, cat) => sum + (cat.docList?.length || 0), 0) || 0,
+//       "Completed Date": dayjs(item.completionDate).format('DD/MM/YYYY'),
+//       "Status": item.status === "approved" ? "Approved" : 
+//                 item.status === "approved_with_revisions" ? "Approved with Revisions" : item.status
+//     }));
+
+//     const headers = Object.keys(csvData[0]).join(",");
+//     const rows = csvData.map(row => Object.values(row).join(","));
+//     const csvContent = [headers, ...rows].join("\n");
+    
+//     const blob = new Blob([csvContent], { type: 'text/csv' });
+//     const url = window.URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = `checker_reports_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//   };
+
+//   const columns = [
+//     { 
+//       title: "DCL No", 
+//       dataIndex: "dclNo", 
+//       width: 140,
+//       fixed: "left",
+//       render: (text) => (
+//         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+//           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
+//           {text}
+//         </div>
+//       )
+//     },
+//     { 
+//       title: "Customer No", 
+//       dataIndex: "customerNumber", 
+//       width: 110,
+//       render: (text) => (
+//         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
+//           {text}
+//         </div>
+//       )
+//     },
+//     { 
+//       title: "Customer Name", 
+//       dataIndex: "customerName", 
+//       width: 160,
+//       render: (text) => (
+//         <div style={{ 
+//           fontWeight: 600, 
+//           color: PRIMARY_BLUE,
+//           display: "flex",
+//           alignItems: "center",
+//           gap: 6
+//         }}>
+//           <CustomerServiceOutlined style={{ fontSize: 12 }} />
+//           {text}
+//         </div>
+//       )
+//     },
+//     { 
+//       title: "Loan Type", 
+//       dataIndex: "loanType", 
+//       width: 120,
+//       render: (text) => (
+//         <div style={{ fontSize: 12, color: "#666", fontWeight: 500 }}>
+//           {text}
+//         </div>
+//       )
+//     },
+//     { 
+//       title: "Checker - Approver", 
+//       dataIndex: "approvedBy", 
+//       width: 140,
+//       render: (approver) => (
+//         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+//           <UserOutlined style={{ color: PRIMARY_BLUE, fontSize: 12 }} />
+//           <span style={{ color: PRIMARY_BLUE, fontWeight: 500, fontSize: 13 }}>{approver?.name || "N/A"}</span>
+//         </div>
+//       )
+//     },
+//     { 
+//       title: "Docs", 
+//       dataIndex: "documents", 
+//       width: 70, 
+//       align: "center", 
+//       render: (docs) => {
+//         const totalDocs = docs?.reduce((total, category) => total + (category.docList?.length || 0), 0) || 0;
+//         return (
+//           <div style={{ textAlign: "center" }}>
+//             <Tag 
+//               color={LIGHT_YELLOW} 
+//               style={{ 
+//                 fontSize: 11, 
+//                 borderRadius: 999, 
+//                 fontWeight: "bold", 
+//                 color: PRIMARY_BLUE, 
+//                 border: `1px solid ${HIGHLIGHT_GOLD}`,
+//                 minWidth: 28,
+//                 textAlign: "center"
+//               }}
+//             >
+//               {totalDocs}
+//             </Tag>
+//           </div>
+//         );
+//       } 
+//     },
+//     { 
+//       title: "Completed Date", 
+//       dataIndex: "completionDate", 
+//       width: 120,
+//       render: (date) => (
+//         <div style={{ fontSize: 12, fontWeight: 500 }}>
+//           {dayjs(date).format('DD/MM/YYYY')}
+//         </div>
+//       )
+//     },
+//     { 
+//       title: "Status", 
+//       dataIndex: "status", 
+//       width: 130,
+//       fixed: "right",
+//       render: (status) => {
+//         const statusConfig = {
+//           approved: { color: "success", text: "Approved", icon: <CheckCircleOutlined /> },
+//           approved_with_revisions: { color: "processing", text: "Revised", icon: <CheckCircleOutlined /> }
+//         };
+//         const config = statusConfig[status] || { color: "default", text: status };
+//         return (
+//           <Tag 
+//             color={config.color}
+//             style={{ fontWeight: "bold", fontSize: 11 }}
+//             icon={config.icon}
+//           >
+//             {config.text}
+//           </Tag>
+//         );
+//       }
+//     }
+//   ];
+
+//   const customTableStyles = `
+//     .checker-reports-table .ant-table-wrapper { 
+//       border-radius: 12px; 
+//       overflow: hidden; 
+//       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08); 
+//       border: 1px solid #e0e0e0; 
+//     }
+//     .checker-reports-table .ant-table-thead > tr > th { 
+//       background-color: #f7f7f7 !important; 
+//       color: ${PRIMARY_BLUE} !important; 
+//       font-weight: 700; 
+//       font-size: 13px; 
+//       padding: 14px 12px !important; 
+//       border-bottom: 3px solid ${SUCCESS_GREEN} !important; 
+//       border-right: none !important; 
+//     }
+//     .checker-reports-table .ant-table-tbody > tr > td { 
+//       border-bottom: 1px solid #f0f0f0 !important; 
+//       border-right: none !important; 
+//       padding: 12px 12px !important; 
+//       font-size: 13px; 
+//       color: #333; 
+//     }
+//     .checker-reports-table .ant-table-tbody > tr.ant-table-row:hover > td { 
+//       background-color: rgba(82, 196, 26, 0.1) !important; 
+//       cursor: pointer;
+//     }
+//     .checker-reports-table .ant-pagination .ant-pagination-item-active { 
+//       background-color: ${SUCCESS_GREEN} !important; 
+//       border-color: ${SUCCESS_GREEN} !important; 
+//     }
+//     .checker-reports-table .ant-pagination .ant-pagination-item-active a { 
+//       color: ${PRIMARY_BLUE} !important; 
+//       font-weight: 600; 
+//     }
+//   `;
+
+//   return (
+//     <div style={{ padding: 24 }}>
+//       <style>{customTableStyles}</style>
+
+//       {/* Header - Exact same format as creator side */}
+//       <Card
+//         style={{ 
+//           marginBottom: 24,
+//           borderRadius: 8,
+//           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+//           borderLeft: `4px solid ${SUCCESS_GREEN}`
+//         }}
+//         bodyStyle={{ padding: 16 }}
+//       >
+//         <Row justify="space-between" align="middle">
+//           <Col>
+//             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+//               Checker Reports
+//               <Badge 
+//                 count={filteredData.length} 
+//                 style={{ 
+//                   backgroundColor: SUCCESS_GREEN,
+//                   fontSize: 12
+//                 }}
+//               />
+//             </h2>
+//             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
+//               Reports on all checked DCLs
+//             </p>
+//           </Col>
+          
+//           <Col>
+//             <Button 
+//               icon={<DownloadOutlined />} 
+//               onClick={exportToCSV}
+//               style={{ 
+//                 background: SUCCESS_GREEN,
+//                 borderColor: SUCCESS_GREEN,
+//                 color: "white",
+//                 fontWeight: "bold"
+//               }}
+//               disabled={filteredData.length === 0}
+//             >
+//               Export Report
+//             </Button>
+//           </Col>
+//         </Row>
+//       </Card>
+
+//       {/* Filters - Exact same format as creator side */}
+//       <Card 
+//         style={{ 
+//           marginBottom: 16,
+//           background: "#fafafa",
+//           border: `1px solid ${PRIMARY_BLUE}20`,
+//           borderRadius: 8
+//         }}
+//         size="small"
+//       >
+//         <Row gutter={[16, 16]} align="middle">
+//           <Col xs={24} sm={12} md={8}>
+//             <Input
+//               placeholder="Search by DCL No, Customer, Loan Type, or Checker"
+//               prefix={<SearchOutlined />}
+//               value={searchText}
+//               onChange={(e) => setSearchText(e.target.value)}
+//               allowClear
+//               size="middle"
+//             />
+//           </Col>
+          
+//           <Col xs={24} sm={12} md={4}>
+//             <Button 
+//               onClick={clearFilters}
+//               style={{ width: '100%' }}
+//               size="middle"
+//             >
+//               Clear
+//             </Button>
+//           </Col>
+//         </Row>
+//       </Card>
+
+//       {/* Table Title */}
+//       <Divider style={{ margin: "12px 0" }}>
+//         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
+//           Checked DCL Reports ({filteredData.length} items)
+//         </span>
+//       </Divider>
+
+//       {/* Table */}
+//       {loading ? (
+//         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
+//           <Spin tip="Loading reports..." />
+//         </div>
+//       ) : filteredData.length === 0 ? (
+//         <Empty 
+//           description={
+//             <div>
+//               <p style={{ fontSize: 16, marginBottom: 8 }}>No reports found</p>
+//               <p style={{ color: "#999" }}>
+//                 {searchText 
+//                   ? 'Try changing your search term' 
+//                   : 'No reports available yet'}
+//               </p>
+//             </div>
+//           } 
+//           style={{ padding: 40 }} 
+//         />
+//       ) : (
+//         <div className="checker-reports-table">
+//           <Table 
+//             columns={columns} 
+//             dataSource={filteredData} 
+//             rowKey="_id"
+//             size="middle"
+//             pagination={{ 
+//               pageSize: 10, 
+//               showSizeChanger: true, 
+//               pageSizeOptions: ["10", "20", "50"], 
+//               position: ["bottomCenter"],
+//               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} reports`
+//             }}
+//             scroll={{ x: 1000 }}
+//           />
+//         </div>
+//       )}
+
+//       {/* Footer Info - Exact same format as creator side */}
+//       <div style={{ 
+//         marginTop: 24, 
+//         padding: 16, 
+//         background: "#f8f9fa", 
+//         borderRadius: 8,
+//         fontSize: 12,
+//         color: "#666",
+//         border: `1px solid ${PRIMARY_BLUE}10`
+//       }}>
+//         <Row justify="space-between" align="middle">
+//           <Col>
+//             Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
+//           </Col>
+//           <Col>
+//             <Text type="secondary">
+//               Showing {filteredData.length} items • Data as of latest system update
+//             </Text>
+//           </Col>
+//         </Row>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ReportsPage;
+
+
+// src/pages/Reports.jsx
 import React, { useState, useMemo } from "react";
 import { 
   Tabs,
@@ -38,9 +598,9 @@ const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// Theme Colors (Checker theme - teal/blue)
-const CHECKER_TEAL = "#36cfc9";
-const CHECKER_BLUE = "#164679";
+// Theme Colors (matching Deferrals component)
+const PRIMARY_BLUE = "#164679";
+const ACCENT_LIME = "#b5d334";
 const HIGHLIGHT_GOLD = "#fcb116";
 const LIGHT_YELLOW = "#fcd716";
 const SECONDARY_PURPLE = "#7e6496";
@@ -49,7 +609,7 @@ const ERROR_RED = "#ff4d4f";
 const WARNING_ORANGE = "#faad14";
 const INFO_BLUE = "#1890ff";
 
-// Mock Data for Checker Reports
+// Mock Data
 const MOCK_DCLS = [
   {
     id: "DCL-10001",
@@ -62,13 +622,10 @@ const MOCK_DCLS = [
     status: "Completed",
     completedDate: "2025-11-20",
     loanAmount: "KES 500,000",
-    assignedCreator: { name: "Sarah Johnson" },
-    assignedRM: { name: "John Kamau" },
+    assignedRM: { name: "Sarah Johnson" },
     deferralStatus: "None",
     expiryDate: "2025-12-31",
-    daysRemaining: 25,
-    checkerComments: "All documents verified and approved",
-    qualityScore: 95
+    daysRemaining: 25
   },
   {
     id: "DCL-10002",
@@ -81,13 +638,10 @@ const MOCK_DCLS = [
     status: "Active",
     completedDate: null,
     loanAmount: "KES 8,000,000",
-    assignedCreator: { name: "Michael Brown" },
-    assignedRM: { name: "Jane Akinyi" },
+    assignedRM: { name: "Michael Brown" },
     deferralStatus: "None",
     expiryDate: "2025-12-15",
-    daysRemaining: 10,
-    checkerComments: "Under review",
-    qualityScore: null
+    daysRemaining: 10
   },
   {
     id: "DCL-10003",
@@ -100,13 +654,10 @@ const MOCK_DCLS = [
     status: "Deferred",
     completedDate: "2025-11-25",
     loanAmount: "KES 1,000,000",
-    assignedCreator: { name: "Alice Williams" },
-    assignedRM: { name: "David Omondi" },
+    assignedRM: { name: "Alice Williams" },
     deferralStatus: "Approved",
     expiryDate: "2025-12-10",
-    daysRemaining: 5,
-    checkerComments: "Document deferred pending KRA update",
-    qualityScore: 88
+    daysRemaining: 5
   },
   {
     id: "DCL-10004",
@@ -119,13 +670,10 @@ const MOCK_DCLS = [
     status: "Completed",
     completedDate: "2025-11-22",
     loanAmount: "KES 3,500,000",
-    assignedCreator: { name: "David Miller" },
-    assignedRM: { name: "Sarah Wangui" },
+    assignedRM: { name: "David Miller" },
     deferralStatus: "None",
     expiryDate: "2025-12-25",
-    daysRemaining: 30,
-    checkerComments: "Excellent documentation, approved without issues",
-    qualityScore: 98
+    daysRemaining: 30
   },
   {
     id: "DCL-10005",
@@ -138,13 +686,10 @@ const MOCK_DCLS = [
     status: "Active",
     completedDate: null,
     loanAmount: "KES 12,000,000",
-    assignedCreator: { name: "John Doe" },
-    assignedRM: { name: "Michael Chengo" },
+    assignedRM: { name: "John Doe" },
     deferralStatus: "Rejected",
     expiryDate: "2025-12-05",
-    daysRemaining: -2,
-    checkerComments: "Insufficient documentation, returned to Creator",
-    qualityScore: 65
+    daysRemaining: -2
   },
   {
     id: "DCL-10006",
@@ -157,18 +702,15 @@ const MOCK_DCLS = [
     status: "Completed",
     completedDate: "2025-11-18",
     loanAmount: "KES 6,000,000",
-    assignedCreator: { name: "Jane Smith" },
-    assignedRM: { name: "Elizabeth Njeri" },
+    assignedRM: { name: "Jane Smith" },
     deferralStatus: "Approved",
     expiryDate: "2025-12-15",
-    daysRemaining: 12,
-    checkerComments: "Minor issues corrected, approved",
-    qualityScore: 92
+    daysRemaining: 12
   },
 ];
 
 const MOCK_DEFERRALS = [
-  // Post-approval deferrals (Approved by checker)
+  // Post-approval deferrals (Approved by creator)
   {
     id: "DEF-001",
     dclNo: "DCL-2024-10003",
@@ -177,15 +719,14 @@ const MOCK_DEFERRALS = [
     document: "Credit Report",
     reason: "Client traveling abroad, will provide document upon return",
     expiryDate: "2025-12-10",
-    checkerComments: "Approved with condition to submit within 5 days of return",
+    creatorComments: "Approved with condition to submit within 5 days of return",
     status: "Approved",
     decisionDate: "2025-11-25",
-    decisionBy: "Checker John",
+    decisionBy: "John Creator",
     loanAmount: "KES 1,000,000",
     product: "Credit Card",
     dateRequested: "2025-11-24",
-    assignedCreator: { name: "Alice Williams" },
-    assignedRM: { name: "David Omondi" },
+    assignedRM: { name: "Alice Williams" },
     priority: "medium",
     daysRemaining: 5
   },
@@ -197,20 +738,19 @@ const MOCK_DEFERRALS = [
     document: "Audited Financial Statements",
     reason: "Auditor unavailable due to medical leave, will provide next week",
     expiryDate: "2025-12-15",
-    checkerComments: "Approved - auditor medical situation verified",
+    creatorComments: "Approved - auditor medical situation verified",
     status: "Approved",
     decisionDate: "2025-11-19",
-    decisionBy: "Checker Jane",
+    decisionBy: "Jane Approver",
     loanAmount: "KES 6,000,000",
     product: "Investment Loan",
     dateRequested: "2025-11-18",
-    assignedCreator: { name: "Jane Smith" },
-    assignedRM: { name: "Elizabeth Njeri" },
+    assignedRM: { name: "Jane Smith" },
     priority: "low",
     daysRemaining: 12
   },
 
-  // Rejected deferrals (Rejected by checker)
+  // Rejected deferrals (Rejected by creator)
   {
     id: "DEF-004",
     dclNo: "DCL-2024-10005",
@@ -219,15 +759,14 @@ const MOCK_DEFERRALS = [
     document: "Bank Statements",
     reason: "Could not access online banking due to password issues",
     expiryDate: "2025-12-05",
-    checkerComments: "Client should visit bank branch to reset credentials",
+    creatorComments: "Client should visit bank branch to reset credentials",
     status: "Rejected",
     decisionDate: "2025-11-26",
-    decisionBy: "Checker Mary",
+    decisionBy: "Mary Reviewer",
     loanAmount: "KES 12,000,000",
     product: "Business Loan",
     dateRequested: "2025-11-25",
-    assignedCreator: { name: "John Doe" },
-    assignedRM: { name: "Michael Chengo" },
+    assignedRM: { name: "John Doe" },
     priority: "high",
     daysRemaining: -2
   },
@@ -239,21 +778,20 @@ const MOCK_DEFERRALS = [
     document: "Tax Compliance Certificate",
     reason: "KRA portal maintenance, cannot download certificate",
     expiryDate: "2025-12-12",
-    checkerComments: "RM should have advised client to visit KRA office",
+    creatorComments: "RM should have advised client to visit KRA office",
     status: "Rejected",
     decisionDate: "2025-11-29",
-    decisionBy: "Checker John",
+    decisionBy: "John Creator",
     loanAmount: "KES 2,500,000",
     product: "Overdraft Facility",
     dateRequested: "2025-11-28",
-    assignedCreator: { name: "Sarah Williams" },
-    assignedRM: { name: "Peter Maina" },
+    assignedRM: { name: "Sarah Williams" },
     priority: "medium",
     daysRemaining: 9
   },
 ];
 
-export default function ReportsPage() {
+export default function Reports() {
   // Shared filters
   const [searchText, setSearchText] = useState("");
   const [dateRange, setDateRange] = useState(null);
@@ -342,13 +880,13 @@ export default function ReportsPage() {
     
     if (activeTab === "postApproval") {
       data = filteredPostApprovalDeferrals;
-      filename = `checker_post_approval_deferrals_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
+      filename = `post_approval_deferrals_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
     } else if (activeTab === "rejected") {
       data = filteredRejectedDeferrals;
-      filename = `checker_rejected_deferrals_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
+      filename = `rejected_deferrals_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
     } else {
       data = filteredAllDCLs;
-      filename = `checker_all_dcls_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
+      filename = `all_dcls_${dayjs().format('YYYYMMDD_HHmmss')}.csv`;
     }
     
     const csvContent = "data:text/csv;charset=utf-8," + 
@@ -363,13 +901,13 @@ export default function ReportsPage() {
     document.body.removeChild(link);
   };
 
-  // Filter component
+  // Filter component (matching Deferrals component style)
   const renderFilters = () => (
     <Card 
       style={{ 
         marginBottom: 16,
         background: "#fafafa",
-        border: `1px solid ${CHECKER_BLUE}20`
+        border: `1px solid ${PRIMARY_BLUE}20`
       }}
       size="small"
     >
@@ -432,7 +970,7 @@ export default function ReportsPage() {
       dataIndex: "dclNo", 
       width: 150,
       render: (text) => (
-        <div style={{ fontWeight: "bold", color: CHECKER_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
           {text}
         </div>
@@ -453,7 +991,7 @@ export default function ReportsPage() {
       dataIndex: "customerName", 
       width: 180,
       render: (text) => (
-        <div style={{ fontWeight: 600, color: CHECKER_BLUE }}>
+        <div style={{ fontWeight: 600, color: PRIMARY_BLUE }}>
           {text}
         </div>
       )
@@ -463,19 +1001,19 @@ export default function ReportsPage() {
       dataIndex: "document", 
       width: 160,
       render: (text) => (
-        <div style={{ fontWeight: 500, color: CHECKER_BLUE }}>
+        <div style={{ fontWeight: 500, color: PRIMARY_BLUE }}>
           {text}
         </div>
       )
     },
     { 
-      title: "Creator", 
-      dataIndex: "assignedCreator", 
+      title: "RM", 
+      dataIndex: "assignedRM", 
       width: 130,
-      render: (creator) => (
+      render: (rm) => (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <UserOutlined style={{ color: CHECKER_BLUE, fontSize: 12 }} />
-          <span style={{ color: CHECKER_BLUE, fontWeight: 500, fontSize: 13 }}>{creator?.name || "N/A"}</span>
+          <UserOutlined style={{ color: PRIMARY_BLUE, fontSize: 12 }} />
+          <span style={{ color: PRIMARY_BLUE, fontWeight: 500, fontSize: 13 }}>{rm?.name || "N/A"}</span>
         </div>
       )
     },
@@ -530,8 +1068,8 @@ export default function ReportsPage() {
       }
     },
     { 
-      title: "Checker Comment", 
-      dataIndex: "checkerComments", 
+      title: "Creator Comment", 
+      dataIndex: "creatorComments", 
       width: 200,
       render: (text) => (
         <div style={{ 
@@ -551,7 +1089,7 @@ export default function ReportsPage() {
       dataIndex: "decisionDate", 
       width: 120,
       render: (date) => (
-        <div style={{ fontWeight: 500, color: CHECKER_BLUE }}>
+        <div style={{ fontWeight: 500, color: PRIMARY_BLUE }}>
           {date ? dayjs(date).format("DD/MM/YYYY") : "-"}
         </div>
       )
@@ -592,7 +1130,7 @@ export default function ReportsPage() {
       dataIndex: "dclNo", 
       width: 180, 
       render: (text) => (
-        <div style={{ fontWeight: "bold", color: CHECKER_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
           {text}
         </div>
@@ -616,7 +1154,7 @@ export default function ReportsPage() {
         <div>
           <div style={{ 
             fontWeight: 600, 
-            color: CHECKER_BLUE,
+            color: PRIMARY_BLUE,
             display: "flex",
             alignItems: "center",
             gap: 6,
@@ -637,20 +1175,9 @@ export default function ReportsPage() {
       width: 200, 
       render: (text) => (
         <div>
-          <div style={{ fontWeight: 600, color: CHECKER_BLUE }}>
+          <div style={{ fontWeight: 600, color: PRIMARY_BLUE }}>
             {text}
           </div>
-        </div>
-      )
-    },
-    { 
-      title: "Creator", 
-      dataIndex: "assignedCreator", 
-      width: 120, 
-      render: (creator) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <UserOutlined style={{ color: CHECKER_BLUE, fontSize: 12 }} />
-          <span style={{ color: CHECKER_BLUE, fontWeight: 500, fontSize: 13 }}>{creator?.name || "N/A"}</span>
         </div>
       )
     },
@@ -660,8 +1187,8 @@ export default function ReportsPage() {
       width: 120, 
       render: (rm) => (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <UserOutlined style={{ color: CHECKER_TEAL, fontSize: 12 }} />
-          <span style={{ color: CHECKER_TEAL, fontWeight: 500, fontSize: 13 }}>{rm?.name || "N/A"}</span>
+          <UserOutlined style={{ color: PRIMARY_BLUE, fontSize: 12 }} />
+          <span style={{ color: PRIMARY_BLUE, fontWeight: 500, fontSize: 13 }}>{rm?.name || "N/A"}</span>
         </div>
       )
     },
@@ -701,32 +1228,26 @@ export default function ReportsPage() {
       }
     },
     { 
-      title: "Quality", 
-      dataIndex: "qualityScore", 
-      width: 100, 
+      title: "# Docs", 
+      dataIndex: "documents", 
+      width: 80, 
       align: "center", 
-      render: (score) => {
-        if (score === null) return <Tag color="default">N/A</Tag>;
-        
-        let color = ERROR_RED;
-        if (score >= 90) color = SUCCESS_GREEN;
-        else if (score >= 70) color = WARNING_ORANGE;
-        
-        return (
-          <Tag 
-            color={color}
-            style={{ 
-              fontSize: 11, 
-              borderRadius: 999, 
-              fontWeight: "bold", 
-              padding: "4px 8px",
-              minWidth: 40
-            }}
-          >
-            {score}
-          </Tag>
-        );
-      } 
+      render: (docs) => (
+        <Tag 
+          color={LIGHT_YELLOW} 
+          style={{ 
+            fontSize: 12, 
+            borderRadius: 999, 
+            fontWeight: "bold", 
+            color: PRIMARY_BLUE, 
+            border: `1px solid ${HIGHLIGHT_GOLD}`,
+            minWidth: 32,
+            textAlign: "center"
+          }}
+        >
+          {Array.isArray(docs) ? docs.length : 0}
+        </Tag>
+      ) 
     },
     { 
       title: "Status", 
@@ -773,54 +1294,54 @@ export default function ReportsPage() {
     }
   ];
 
-  // Custom table styles
+  // Custom table styles (matching Deferrals component)
   const customTableStyles = `
-    .checker-reports-table .ant-table-wrapper { 
+    .reports-table .ant-table-wrapper { 
       border-radius: 12px; 
       overflow: hidden; 
       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08); 
       border: 1px solid #e0e0e0; 
     }
-    .checker-reports-table .ant-table-thead > tr > th { 
+    .reports-table .ant-table-thead > tr > th { 
       background-color: #f7f7f7 !important; 
-      color: ${CHECKER_BLUE} !important; 
+      color: ${PRIMARY_BLUE} !important; 
       font-weight: 700; 
       font-size: 15px; 
       padding: 16px 16px !important; 
-      border-bottom: 3px solid ${CHECKER_TEAL} !important; 
+      border-bottom: 3px solid ${ACCENT_LIME} !important; 
       border-right: none !important; 
     }
-    .checker-reports-table .ant-table-tbody > tr > td { 
+    .reports-table .ant-table-tbody > tr > td { 
       border-bottom: 1px solid #f0f0f0 !important; 
       border-right: none !important; 
       padding: 14px 16px !important; 
       font-size: 14px; 
       color: #333; 
     }
-    .checker-reports-table .ant-table-tbody > tr.ant-table-row:hover > td { 
-      background-color: rgba(54, 207, 201, 0.1) !important; 
+    .reports-table .ant-table-tbody > tr.ant-table-row:hover > td { 
+      background-color: rgba(181, 211, 52, 0.1) !important; 
     }
-    .checker-reports-table .ant-table-bordered .ant-table-container, 
-    .checker-reports-table .ant-table-bordered .ant-table-tbody > tr > td, 
-    .checker-reports-table .ant-table-bordered .ant-table-thead > tr > th { 
+    .reports-table .ant-table-bordered .ant-table-container, 
+    .reports-table .ant-table-bordered .ant-table-tbody > tr > td, 
+    .reports-table .ant-table-bordered .ant-table-thead > tr > th { 
       border: none !important; 
     }
-    .checker-reports-table .ant-pagination .ant-pagination-item-active { 
-      background-color: ${CHECKER_TEAL} !important; 
-      border-color: ${CHECKER_TEAL} !important; 
+    .reports-table .ant-pagination .ant-pagination-item-active { 
+      background-color: ${ACCENT_LIME} !important; 
+      border-color: ${ACCENT_LIME} !important; 
     }
-    .checker-reports-table .ant-pagination .ant-pagination-item-active a { 
-      color: white !important; 
+    .reports-table .ant-pagination .ant-pagination-item-active a { 
+      color: ${PRIMARY_BLUE} !important; 
       font-weight: 600; 
     }
-    .checker-reports-table .ant-pagination .ant-pagination-item:hover { 
-      border-color: ${CHECKER_TEAL} !important; 
+    .reports-table .ant-pagination .ant-pagination-item:hover { 
+      border-color: ${ACCENT_LIME} !important; 
     }
-    .checker-reports-table .ant-pagination .ant-pagination-prev:hover .ant-pagination-item-link, 
-    .checker-reports-table .ant-pagination .ant-pagination-next:hover .ant-pagination-item-link { 
-      color: ${CHECKER_TEAL} !important; 
+    .reports-table .ant-pagination .ant-pagination-prev:hover .ant-pagination-item-link, 
+    .reports-table .ant-pagination .ant-pagination-next:hover .ant-pagination-item-link { 
+      color: ${ACCENT_LIME} !important; 
     }
-    .checker-reports-table .ant-pagination .ant-pagination-options .ant-select-selector { 
+    .reports-table .ant-pagination .ant-pagination-options .ant-select-selector { 
       border-radius: 8px !important; 
     }
   `;
@@ -870,24 +1391,24 @@ export default function ReportsPage() {
     <div style={{ padding: 24 }}>
       <style>{customTableStyles}</style>
 
-      {/* Header */}
+      {/* Header - Matching Deferrals component style */}
       <Card
         style={{ 
           marginBottom: 24,
           borderRadius: 8,
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          borderLeft: `4px solid ${CHECKER_TEAL}`
+          borderLeft: `4px solid ${ACCENT_LIME}`
         }}
         bodyStyle={{ padding: 16 }}
       >
         <Row justify="space-between" align="middle">
           <Col>
-            <h2 style={{ margin: 0, color: CHECKER_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+            <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
               DCL Reports & Analytics
               <Badge 
                 count={getCurrentDataCount()} 
                 style={{ 
-                  backgroundColor: CHECKER_TEAL,
+                  backgroundColor: ACCENT_LIME,
                   fontSize: 12
                 }}
               />
@@ -913,10 +1434,10 @@ export default function ReportsPage() {
         </Row>
       </Card>
 
-      {/* Filters */}
+      {/* Filters - Matching Deferrals component style */}
       {renderFilters()}
 
-      {/* Tabs */}
+      {/* Tabs - Matching Deferrals component style */}
       <Tabs 
         activeKey={activeTab} 
         onChange={(key) => {
@@ -956,14 +1477,14 @@ export default function ReportsPage() {
         />
       </Tabs>
 
-      {/* Table Title */}
+      {/* Table Title - Matching Deferrals component style */}
       <Divider style={{ margin: "12px 0" }}>
-        <span style={{ color: CHECKER_BLUE, fontSize: 16, fontWeight: 600 }}>
+        <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
           {getTabTitle()} ({getCurrentDataCount()} items)
         </span>
       </Divider>
 
-      {/* Table */}
+      {/* Table - Matching Deferrals component style */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
           <Spin tip="Loading reports..." />
@@ -983,7 +1504,7 @@ export default function ReportsPage() {
           style={{ padding: 40 }} 
         />
       ) : (
-        <div className="checker-reports-table">
+        <div className="reports-table">
           <Table 
             columns={getCurrentColumns()} 
             dataSource={getCurrentData()} 

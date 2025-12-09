@@ -598,6 +598,9 @@ import { ClipboardList, Settings, CheckSquare } from "lucide-react";
 // Import your RM components
 import MyQueue from "../../pages/rm/MyQueue";
 import Completed from "../../pages/rm/Completed";
+import Reports from "../../pages/rm/Reports";
+
+
 
 const Sidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse }) => {
   const handleClick = (e) => {
@@ -653,7 +656,7 @@ const Sidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse }) => 
           },
           { 
             key: "completed", 
-            label: "Completed DCLs", 
+            label: "Completed", 
             icon: <CheckSquare size={20} />
           },
           {

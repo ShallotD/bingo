@@ -40,7 +40,7 @@ const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-// Theme Colors (matching the provided code)
+// Theme Colors (using colors from provided code)
 const PRIMARY_BLUE = "#164679";
 const ACCENT_LIME = "#b5d334";
 const HIGHLIGHT_GOLD = "#fcb116";
@@ -71,8 +71,7 @@ const MOCK_DCLS = [
     daysRemaining: 25,
     rmComments: "All documents submitted on time",
     customerRisk: "Low",
-    portfolio: "Retail Banking",
-    documents: [1, 2, 3]
+    portfolio: "Retail Banking"
   },
   {
     id: "DCL-10002",
@@ -92,8 +91,7 @@ const MOCK_DCLS = [
     daysRemaining: 10,
     rmComments: "Awaiting additional statements",
     customerRisk: "Medium",
-    portfolio: "Corporate Banking",
-    documents: [1]
+    portfolio: "Corporate Banking"
   },
   {
     id: "DCL-10003",
@@ -113,8 +111,7 @@ const MOCK_DCLS = [
     daysRemaining: 5,
     rmComments: "Client traveling, will provide upon return",
     customerRisk: "Low",
-    portfolio: "Retail Banking",
-    documents: [1, 2]
+    portfolio: "Retail Banking"
   },
   {
     id: "DCL-10004",
@@ -134,8 +131,7 @@ const MOCK_DCLS = [
     daysRemaining: 30,
     rmComments: "Excellent cooperation from client",
     customerRisk: "Low",
-    portfolio: "Agricultural Banking",
-    documents: [1, 2, 3, 4]
+    portfolio: "Agricultural Banking"
   },
   {
     id: "DCL-10005",
@@ -155,8 +151,7 @@ const MOCK_DCLS = [
     daysRemaining: -2,
     rmComments: "Client facing banking access issues",
     customerRisk: "High",
-    portfolio: "Corporate Banking",
-    documents: [1]
+    portfolio: "Corporate Banking"
   },
   {
     id: "DCL-10006",
@@ -176,8 +171,7 @@ const MOCK_DCLS = [
     daysRemaining: 12,
     rmComments: "Auditor on medical leave",
     customerRisk: "Medium",
-    portfolio: "Wealth Management",
-    documents: [1, 2]
+    portfolio: "Wealth Management"
   },
 ];
 
@@ -381,7 +375,7 @@ export default function ReportsPage() {
     document.body.removeChild(link);
   };
 
-  // Filter component (matching the provided code style)
+  // Filter component
   const renderFilters = () => (
     <Card 
       style={{ 
@@ -697,8 +691,8 @@ export default function ReportsPage() {
       width: 120, 
       render: (checker) => (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <TeamOutlined style={{ color: HIGHLIGHT_GOLD, fontSize: 12 }} />
-          <span style={{ color: HIGHLIGHT_GOLD, fontWeight: 500, fontSize: 13 }}>{checker?.name || "N/A"}</span>
+          <TeamOutlined style={{ color: ACCENT_LIME, fontSize: 12 }} />
+          <span style={{ color: ACCENT_LIME, fontWeight: 500, fontSize: 13 }}>{checker?.name || "N/A"}</span>
         </div>
       )
     },
@@ -709,9 +703,9 @@ export default function ReportsPage() {
       render: (text) => (
         <Tag 
           style={{ 
-            backgroundColor: `${ACCENT_LIME}10`,
-            color: PRIMARY_BLUE,
-            border: `1px solid ${ACCENT_LIME}30`,
+            backgroundColor: `${HIGHLIGHT_GOLD}10`,
+            color: HIGHLIGHT_GOLD,
+            border: `1px solid ${HIGHLIGHT_GOLD}30`,
             fontWeight: 500,
             fontSize: 11,
             padding: "2px 8px"
@@ -755,28 +749,6 @@ export default function ReportsPage() {
           </div>
         );
       }
-    },
-    { 
-      title: "# Docs", 
-      dataIndex: "documents", 
-      width: 80, 
-      align: "center", 
-      render: (docs) => (
-        <Tag 
-          color={LIGHT_YELLOW} 
-          style={{ 
-            fontSize: 12, 
-            borderRadius: 999, 
-            fontWeight: "bold", 
-            color: PRIMARY_BLUE, 
-            border: `1px solid ${HIGHLIGHT_GOLD}`,
-            minWidth: 32,
-            textAlign: "center"
-          }}
-        >
-          {Array.isArray(docs) ? docs.length : 0}
-        </Tag>
-      ) 
     },
     { 
       title: "Risk", 
@@ -849,7 +821,7 @@ export default function ReportsPage() {
     }
   ];
 
-  // Custom table styles (matching the provided code)
+  // Custom table styles
   const customTableStyles = `
     .rm-reports-table .ant-table-wrapper { 
       border-radius: 12px; 
@@ -886,7 +858,7 @@ export default function ReportsPage() {
       border-color: ${ACCENT_LIME} !important; 
     }
     .rm-reports-table .ant-pagination .ant-pagination-item-active a { 
-      color: ${PRIMARY_BLUE} !important; 
+      color: white !important; 
       font-weight: 600; 
     }
     .rm-reports-table .ant-pagination .ant-pagination-item:hover { 
@@ -946,7 +918,7 @@ export default function ReportsPage() {
     <div style={{ padding: 24 }}>
       <style>{customTableStyles}</style>
 
-      {/* Header - Matching the provided code style */}
+      {/* Header */}
       <Card
         style={{ 
           marginBottom: 24,
@@ -960,13 +932,12 @@ export default function ReportsPage() {
           <Col>
             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
               <BankOutlined style={{ color: ACCENT_LIME }} />
-              DCL Reports & Analytics - RM View
+              DCL Reports & Analytics
               <Badge 
                 count={getCurrentDataCount()} 
                 style={{ 
                   backgroundColor: ACCENT_LIME,
-                  fontSize: 12,
-                  color: PRIMARY_BLUE
+                  fontSize: 12
                 }}
               />
             </h2>
@@ -985,8 +956,7 @@ export default function ReportsPage() {
                   style={{ 
                     backgroundColor: ACCENT_LIME,
                     borderColor: ACCENT_LIME,
-                    color: PRIMARY_BLUE,
-                    fontWeight: 500
+                    color: "white"
                   }}
                 >
                   Export Report
@@ -997,10 +967,10 @@ export default function ReportsPage() {
         </Row>
       </Card>
 
-      {/* Filters - Matching the provided code style */}
+      {/* Filters */}
       {renderFilters()}
 
-      {/* Tabs - Matching the provided code style */}
+      {/* Tabs */}
       <Tabs 
         activeKey={activeTab} 
         onChange={(key) => {
@@ -1040,14 +1010,14 @@ export default function ReportsPage() {
         />
       </Tabs>
 
-      {/* Table Title - Matching the provided code style */}
+      {/* Table Title */}
       <Divider style={{ margin: "12px 0" }}>
         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
           {getTabTitle()} ({getCurrentDataCount()} items)
         </span>
       </Divider>
 
-      {/* Table - Matching the provided code style */}
+      {/* Table */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
           <Spin tip="Loading reports..." />
@@ -1098,12 +1068,10 @@ export default function ReportsPage() {
       }}>
         <Row justify="space-between" align="middle">
           <Col>
-            <span style={{ color: PRIMARY_BLUE, fontWeight: 500 }}>
-              Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
-            </span>
+            Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
           </Col>
           <Col>
-            <Text style={{ color: SECONDARY_PURPLE }}>
+            <Text type="secondary">
               Showing data for your portfolio only
             </Text>
           </Col>
