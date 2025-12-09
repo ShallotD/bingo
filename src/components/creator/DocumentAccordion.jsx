@@ -1,160 +1,94 @@
-// import React from "react";
-// import { Table, Select, Input, Button, Collapse } from "antd";
-
-// const { Panel } = Collapse;
-// const { Option } = Select;
-
-// const actionToStatus = {
-//   submitted: "submitted",
-//   rejected: "rejected",
-//   tbo: "tbo",
-//   sighted: "sighted",
-//   waived: "waived",
-//   deferred: "deferred",
-// };
-
-// const DocumentAccordion = ({ documents, setDocuments }) => {
-
-//   const handleDocumentChange = (catIdx, docIdx, field, value) => {
-//     const updated = [...documents];
-//     const doc = updated[catIdx].docList[docIdx];
-//     doc[field] = value;
-    
-//     // Auto-update status when action changes
-//     if (field === 'action') {
-//         doc.status = actionToStatus[value] || "pending";
-//     }
-
-//     setDocuments(updated);
-//   };
-
-//   const handleRemoveDocument = (catIdx, docIdx) => {
-//     const updated = [...documents];
-//     updated[catIdx].docList.splice(docIdx, 1);
-//     setDocuments(updated);
-//   };
-
-//   const getColumns = (catIdx) => [
-//     { title: "Document", dataIndex: "name" },
-//     {
-//       title: "Action",
-//       dataIndex: "action",
-//       render: (_, record) => (
-//         <Select
-//           value={record.action}
-//           onChange={(action) => handleDocumentChange(catIdx, record.docIdx, 'action', action)}
-//           style={{ width: 130 }}
-//         >
-//           <Option value="submitted">Submitted</Option>
-//           <Option value="rejected">Rejected</Option>
-//           <Option value="tbo">TBO</Option>
-//           <Option value="sighted">Sighted</Option>
-//           <Option value="waived">Waived</Option>
-//           <Option value="deferred">Deferred</Option>
-//         </Select>
-//       ),
-//     },
-//     {
-//       title: "Status",
-//       dataIndex: "status",
-//       render: (s) => <strong>{s}</strong>,
-//     },
-//     {
-//       title: "Comment",
-//       dataIndex: "comment",
-//       render: (_, record) => (
-//         <Input
-//           value={record.comment}
-//           onChange={(e) => handleDocumentChange(catIdx, record.docIdx, 'comment', e.target.value)}
-//         />
-//       ),
-//     },
-//     {
-//       title: "Remove",
-//       render: (_, record) => (
-//         <Button
-//           danger
-//           onClick={() => handleRemoveDocument(catIdx, record.docIdx)}
-//         >
-//           Remove
-//         </Button>
-//       ),
-//     },
-//   ];
-
-//   return (
-//     <Collapse accordion>
-//       {documents.map((cat, catIdx) => (
-//         <Panel header={cat.category} key={catIdx}>
-//           <Table
-//             pagination={false}
-//             dataSource={cat.docList.map((doc, docIdx) => ({
-//               key: `${catIdx}-${docIdx}`,
-//               ...doc,
-//               docIdx,
-//             }))}
-//             columns={getColumns(catIdx)}
-//           />
-//         </Panel>
-//       ))}
-//     </Collapse>
-//   );
-// };
-
-// export default DocumentAccordion;
-
-
 import React from "react";
 import { Table, Select, Input, Button, Collapse } from "antd";
 
 const { Panel } = Collapse;
 const { Option } = Select;
 
+// Status mapping
 const actionToStatus = {
   submitted: "submitted",
-  PendingfromRm: "pending from Rm",
-   PendingfromCo: "pending from Co",
+  pendingrm: "Pending from Rm",
+  pendingco: "Pending from Co",
   tbo: "tbo",
   sighted: "sighted",
   waived: "waived",
   deferred: "deferred",
 };
 
+// Template for a new document
+const createEmptyDoc = () => ({
+  name: "",
+  action: "",
+  status: "",
+  comment: "",
+});
+
 const DocumentAccordion = ({ documents, setDocuments }) => {
-
-  const handleDocumentChange = (catIdx, docIdx, field, value) => {
+  // Add new document inside a category
+  const handleAddDocument = (catIdx) => {
     const updated = [...documents];
-    const doc = updated[catIdx].docList[docIdx];
-    doc[field] = value;
-    
-    // Auto-update status when action changes
-    if (field === 'action') {
-        doc.status = actionToStatus[value] || "pending";
-    }
-
+    updated[catIdx].docList.push(createEmptyDoc());
     setDocuments(updated);
   };
 
+  // Remove document
   const handleRemoveDocument = (catIdx, docIdx) => {
     const updated = [...documents];
     updated[catIdx].docList.splice(docIdx, 1);
     setDocuments(updated);
   };
 
+  // Handle edit/change inside a document
+  const handleDocumentChange = (catIdx, docIdx, field, value) => {
+    const updated = [...documents];
+
+    // Ensure document exists
+    if (!updated[catIdx].docList[docIdx]) {
+      updated[catIdx].docList[docIdx] = createEmptyDoc();
+    }
+
+    const doc = updated[catIdx].docList[docIdx];
+    doc[field] = value;
+
+    // Auto update status when action changes
+    if (field === "action") {
+      doc.status = actionToStatus[value] || "";
+    }
+
+    setDocuments(updated);
+  };
+
+  // Table columns
   const getColumns = (catIdx) => [
-    { title: "Document", dataIndex: "name" },
+    {
+      title: "Document",
+      dataIndex: "name",
+      render: (_, record) => (
+        <Input
+          value={record.name}
+          placeholder="Document Name"
+          onChange={(e) =>
+            handleDocumentChange(catIdx, record.docIdx, "name", e.target.value)
+          }
+        />
+      ),
+    },
+
     {
       title: "Action",
       dataIndex: "action",
       render: (_, record) => (
         <Select
           value={record.action}
-          onChange={(action) => handleDocumentChange(catIdx, record.docIdx, 'action', action)}
-          style={{ width: 130 }}
+          style={{ width: 150 }}
+          placeholder="Select Action"
+          onChange={(val) =>
+            handleDocumentChange(catIdx, record.docIdx, "action", val)
+          }
         >
           <Option value="submitted">Submitted</Option>
-          <Option value="Pending from Rm">Pending from Rm</Option>
-          <Option value="Pending from Co">Pending from Co</Option>
+          <Option value="pendingrm">Pending from Rm</Option>
+          <Option value="pendingco">Pending from Co</Option>
           <Option value="tbo">TBO</Option>
           <Option value="sighted">Sighted</Option>
           <Option value="waived">Waived</Option>
@@ -162,21 +96,32 @@ const DocumentAccordion = ({ documents, setDocuments }) => {
         </Select>
       ),
     },
+
     {
       title: "Status From Co",
       dataIndex: "status",
       render: (s) => <strong>{s}</strong>,
     },
+
     {
       title: "Comment from Co",
       dataIndex: "comment",
       render: (_, record) => (
         <Input
           value={record.comment}
-          onChange={(e) => handleDocumentChange(catIdx, record.docIdx, 'comment', e.target.value)}
+          placeholder="Enter comment"
+          onChange={(e) =>
+            handleDocumentChange(
+              catIdx,
+              record.docIdx,
+              "comment",
+              e.target.value
+            )
+          }
         />
       ),
     },
+
     {
       title: "Remove",
       render: (_, record) => (
@@ -194,14 +139,22 @@ const DocumentAccordion = ({ documents, setDocuments }) => {
     <Collapse accordion>
       {documents.map((cat, catIdx) => (
         <Panel header={cat.category} key={catIdx}>
+          <Button
+            type="primary"
+            style={{ marginBottom: 15 }}
+            onClick={() => handleAddDocument(catIdx)}
+          >
+            + Add Document
+          </Button>
+
           <Table
             pagination={false}
+            columns={getColumns(catIdx)}
             dataSource={cat.docList.map((doc, docIdx) => ({
-              key: `${catIdx}-${docIdx}`,
               ...doc,
+              key: `${catIdx}-${docIdx}`,
               docIdx,
             }))}
-            columns={getColumns(catIdx)}
           />
         </Panel>
       ))}

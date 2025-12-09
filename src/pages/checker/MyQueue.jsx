@@ -1,25 +1,25 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { 
-  Button, 
-  Divider, 
-  Table, 
-  Tag, 
-  Spin, 
-  Empty, 
-  Card, 
-  Row, 
+import {
+  Button,
+  Divider,
+  Table,
+  Tag,
+  Spin,
+  Empty,
+  Card,
+  Row,
   Col,
   Input,
   Badge,
   Typography
 } from "antd";
-import { 
+import {
   SearchOutlined,
   FileTextOutlined,
   UserOutlined,
   CustomerServiceOutlined
 } from "@ant-design/icons";
-import CheckerActionModal from "../../components/modals/CheckerActionModal";
+import CheckerReviewChecklistModal from "../../components/modals/CheckerReviewChecklistModal";
 import dayjs from "dayjs";
 
 // Theme Colors (same as other queues)
@@ -55,10 +55,10 @@ const MOCK_CHECKER_CHECKLISTS = [
       {
         category: "Business Registration",
         docList: [
-          { 
-            _id: "doc1_1", 
-            name: "Certificate of Incorporation", 
-            status: "approved", 
+          {
+            _id: "doc1_1",
+            name: "Certificate of Incorporation",
+            status: "approved",
             fileUrl: "https://example.com/doc1.pdf",
             creatorComment: "Verified - valid",
             uploadedAt: "2024-12-15T14:15:00Z"
@@ -86,18 +86,18 @@ const MOCK_CHECKER_CHECKLISTS = [
       {
         category: "Technical Documents",
         docList: [
-          { 
-            _id: "doc2_1", 
-            name: "Equipment Quotations", 
-            status: "approved", 
+          {
+            _id: "doc2_1",
+            name: "Equipment Quotations",
+            status: "approved",
             fileUrl: "https://example.com/doc2.pdf",
             creatorComment: "From 3 approved suppliers",
             uploadedAt: "2024-12-15T11:30:00Z"
           },
-          { 
-            _id: "doc2_2", 
-            name: "Technical Specifications", 
-            status: "approved", 
+          {
+            _id: "doc2_2",
+            name: "Technical Specifications",
+            status: "approved",
             fileUrl: "https://example.com/doc2_2.pdf",
             creatorComment: "Complete technical specs",
             uploadedAt: "2024-12-15T11:35:00Z"
@@ -125,26 +125,26 @@ const MOCK_CHECKER_CHECKLISTS = [
       {
         category: "Vehicle Documents",
         docList: [
-          { 
-            _id: "doc3_1", 
-            name: "Proforma Invoice", 
-            status: "approved", 
+          {
+            _id: "doc3_1",
+            name: "Proforma Invoice",
+            status: "approved",
             fileUrl: "https://example.com/doc3_1.pdf",
             creatorComment: "From authorized dealer with breakdown",
             uploadedAt: "2024-12-15T15:20:00Z"
           },
-          { 
-            _id: "doc3_2", 
-            name: "Logbook Copies", 
-            status: "approved", 
+          {
+            _id: "doc3_2",
+            name: "Logbook Copies",
+            status: "approved",
             fileUrl: "https://example.com/doc3_2.pdf",
             creatorComment: "Existing fleet verified",
             uploadedAt: "2024-12-15T15:25:00Z"
           },
-          { 
-            _id: "doc3_3", 
-            name: "Insurance Certificates", 
-            status: "approved", 
+          {
+            _id: "doc3_3",
+            name: "Insurance Certificates",
+            status: "approved",
             fileUrl: "https://example.com/doc3_3.pdf",
             creatorComment: "Valid insurance for all vehicles",
             uploadedAt: "2024-12-15T15:30:00Z"
@@ -161,14 +161,14 @@ const MyQueue = ({ userId = "checker_current" }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mockData, setMockData] = useState([]);
-  
+ 
   // Filters
   const [searchText, setSearchText] = useState("");
 
   // Load data
   useEffect(() => {
     setLoading(true);
-    
+   
     setTimeout(() => {
       setMockData(MOCK_CHECKER_CHECKLISTS);
       setLoading(false);
@@ -178,10 +178,10 @@ const MyQueue = ({ userId = "checker_current" }) => {
   // Filter data
   const filteredData = useMemo(() => {
     let filtered = mockData.filter((c) => c.status === "pending_checker");
-    
+   
     // Apply search filter
     if (searchText) {
-      filtered = filtered.filter(c => 
+      filtered = filtered.filter(c =>
         c.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
         c.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
         c.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -189,7 +189,7 @@ const MyQueue = ({ userId = "checker_current" }) => {
         c.createdBy?.name?.toLowerCase().includes(searchText.toLowerCase())
       );
     }
-    
+   
     return filtered;
   }, [mockData, searchText]);
 
@@ -209,9 +209,9 @@ const MyQueue = ({ userId = "checker_current" }) => {
 
   // Columns - Format: DCL No, Customer No, Customer Name, Loan Type, Creator, Docs, Submitted, SLA
   const columns = [
-    { 
-      title: "DCL No", 
-      dataIndex: "dclNo", 
+    {
+      title: "DCL No",
+      dataIndex: "dclNo",
       width: 140,
       render: (text) => (
         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
@@ -220,9 +220,9 @@ const MyQueue = ({ userId = "checker_current" }) => {
         </div>
       )
     },
-    { 
-      title: "Customer No", 
-      dataIndex: "customerNumber", 
+    {
+      title: "Customer No",
+      dataIndex: "customerNumber",
       width: 110,
       render: (text) => (
         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
@@ -230,13 +230,13 @@ const MyQueue = ({ userId = "checker_current" }) => {
         </div>
       )
     },
-    { 
-      title: "Customer Name", 
-      dataIndex: "customerName", 
+    {
+      title: "Customer Name",
+      dataIndex: "customerName",
       width: 160,
       render: (text) => (
-        <div style={{ 
-          fontWeight: 600, 
+        <div style={{
+          fontWeight: 600,
           color: PRIMARY_BLUE,
           display: "flex",
           alignItems: "center",
@@ -247,9 +247,9 @@ const MyQueue = ({ userId = "checker_current" }) => {
         </div>
       )
     },
-    { 
-      title: "Loan Type", 
-      dataIndex: "loanType", 
+    {
+      title: "Loan Type",
+      dataIndex: "loanType",
       width: 120,
       render: (text) => (
         <div style={{ fontSize: 12, color: "#666", fontWeight: 500 }}>
@@ -257,9 +257,9 @@ const MyQueue = ({ userId = "checker_current" }) => {
         </div>
       )
     },
-    { 
-      title: "Creator", 
-      dataIndex: "createdBy", 
+    {
+      title: "Creator",
+      dataIndex: "createdBy",
       width: 120,
       render: (creator) => (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -268,21 +268,21 @@ const MyQueue = ({ userId = "checker_current" }) => {
         </div>
       )
     },
-    { 
-      title: "Docs", 
-      dataIndex: "documents", 
-      width: 70, 
-      align: "center", 
+    {
+      title: "Docs",
+      dataIndex: "documents",
+      width: 70,
+      align: "center",
       render: (docs) => {
         const totalDocs = docs?.reduce((total, category) => total + (category.docList?.length || 0), 0) || 0;
         return (
-          <Tag 
-            color={LIGHT_YELLOW} 
-            style={{ 
-              fontSize: 11, 
-              borderRadius: 999, 
-              fontWeight: "bold", 
-              color: PRIMARY_BLUE, 
+          <Tag
+            color={LIGHT_YELLOW}
+            style={{
+              fontSize: 11,
+              borderRadius: 999,
+              fontWeight: "bold",
+              color: PRIMARY_BLUE,
               border: `1px solid ${HIGHLIGHT_GOLD}`,
               minWidth: 28,
               textAlign: "center"
@@ -291,11 +291,11 @@ const MyQueue = ({ userId = "checker_current" }) => {
             {totalDocs}
           </Tag>
         );
-      } 
+      }
     },
-    { 
-      title: "Submitted", 
-      dataIndex: "submittedToCheckerAt", 
+    {
+      title: "Submitted",
+      dataIndex: "submittedToCheckerAt",
       width: 110,
       render: (date) => (
         <div style={{ fontSize: 12 }}>
@@ -303,15 +303,15 @@ const MyQueue = ({ userId = "checker_current" }) => {
         </div>
       )
     },
-    { 
-      title: "SLA", 
-      dataIndex: "slaExpiry", 
+    {
+      title: "SLA",
+      dataIndex: "slaExpiry",
       width: 90,
       fixed: "right",
       render: (date) => {
         const daysLeft = dayjs(date).diff(dayjs(), 'days');
         return (
-          <Tag 
+          <Tag
             color={daysLeft <= 2 ? ERROR_RED : daysLeft <= 5 ? WARNING_ORANGE : SUCCESS_GREEN}
             style={{ fontWeight: "bold", fontSize: 11 }}
           >
@@ -324,39 +324,39 @@ const MyQueue = ({ userId = "checker_current" }) => {
 
   // Custom table styles
   const customTableStyles = `
-    .checker-myqueue-table .ant-table-wrapper { 
-      border-radius: 12px; 
-      overflow: hidden; 
-      box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08); 
-      border: 1px solid #e0e0e0; 
+    .checker-myqueue-table .ant-table-wrapper {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+      border: 1px solid #e0e0e0;
     }
-    .checker-myqueue-table .ant-table-thead > tr > th { 
-      background-color: #f7f7f7 !important; 
-      color: ${PRIMARY_BLUE} !important; 
-      font-weight: 700; 
-      fontSize: 13px; 
-      padding: 14px 12px !important; 
-      border-bottom: 3px solid ${ACCENT_LIME} !important; 
-      border-right: none !important; 
+    .checker-myqueue-table .ant-table-thead > tr > th {
+      background-color: #f7f7f7 !important;
+      color: ${PRIMARY_BLUE} !important;
+      font-weight: 700;
+      fontSize: 13px;
+      padding: 14px 12px !important;
+      border-bottom: 3px solid ${ACCENT_LIME} !important;
+      border-right: none !important;
     }
-    .checker-myqueue-table .ant-table-tbody > tr > td { 
-      border-bottom: 1px solid #f0f0f0 !important; 
-      border-right: none !important; 
-      padding: 12px 12px !important; 
-      fontSize: 13px; 
-      color: #333; 
+    .checker-myqueue-table .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #f0f0f0 !important;
+      border-right: none !important;
+      padding: 12px 12px !important;
+      fontSize: 13px;
+      color: #333;
     }
-    .checker-myqueue-table .ant-table-tbody > tr.ant-table-row:hover > td { 
-      background-color: rgba(181, 211, 52, 0.1) !important; 
+    .checker-myqueue-table .ant-table-tbody > tr.ant-table-row:hover > td {
+      background-color: rgba(181, 211, 52, 0.1) !important;
       cursor: pointer;
     }
-    .checker-myqueue-table .ant-pagination .ant-pagination-item-active { 
-      background-color: ${ACCENT_LIME} !important; 
-      border-color: ${ACCENT_LIME} !important; 
+    .checker-myqueue-table .ant-pagination .ant-pagination-item-active {
+      background-color: ${ACCENT_LIME} !important;
+      border-color: ${ACCENT_LIME} !important;
     }
-    .checker-myqueue-table .ant-pagination .ant-pagination-item-active a { 
-      color: ${PRIMARY_BLUE} !important; 
-      font-weight: 600; 
+    .checker-myqueue-table .ant-pagination .ant-pagination-item-active a {
+      color: ${PRIMARY_BLUE} !important;
+      font-weight: 600;
     }
   `;
 
@@ -366,7 +366,7 @@ const MyQueue = ({ userId = "checker_current" }) => {
 
       {/* Header */}
       <Card
-        style={{ 
+        style={{
           marginBottom: 24,
           borderRadius: 8,
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -378,9 +378,9 @@ const MyQueue = ({ userId = "checker_current" }) => {
           <Col>
             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
               My Queue
-              <Badge 
-                count={filteredData.length} 
-                style={{ 
+              <Badge
+                count={filteredData.length}
+                style={{
                   backgroundColor: ACCENT_LIME,
                   fontSize: 12
                 }}
@@ -394,8 +394,8 @@ const MyQueue = ({ userId = "checker_current" }) => {
       </Card>
 
       {/* Filters */}
-      <Card 
-        style={{ 
+      <Card
+        style={{
           marginBottom: 16,
           background: "#fafafa",
           border: `1px solid ${PRIMARY_BLUE}20`,
@@ -414,9 +414,9 @@ const MyQueue = ({ userId = "checker_current" }) => {
               size="middle"
             />
           </Col>
-          
+         
           <Col xs={24} sm={12} md={4}>
-            <Button 
+            <Button
               onClick={clearFilters}
               style={{ width: '100%' }}
               size="middle"
@@ -440,30 +440,30 @@ const MyQueue = ({ userId = "checker_current" }) => {
           <Spin tip="Loading checklists..." />
         </div>
       ) : filteredData.length === 0 ? (
-        <Empty 
+        <Empty
           description={
             <div>
               <p style={{ fontSize: 16, marginBottom: 8 }}>No DCLs pending review</p>
               <p style={{ color: "#999" }}>
-                {searchText 
-                  ? 'Try changing your search term' 
+                {searchText
+                  ? 'Try changing your search term'
                   : 'No DCLs available for review'}
               </p>
             </div>
-          } 
-          style={{ padding: 40 }} 
+          }
+          style={{ padding: 40 }}
         />
       ) : (
         <div className="checker-myqueue-table">
-          <Table 
-            columns={columns} 
-            dataSource={filteredData} 
+          <Table
+            columns={columns}
+            dataSource={filteredData}
             rowKey="_id"
             size="middle"
-            pagination={{ 
-              pageSize: 10, 
-              showSizeChanger: true, 
-              pageSizeOptions: ["10", "20", "50"], 
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50"],
               position: ["bottomCenter"],
               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} DCLs`
             }}
@@ -479,10 +479,10 @@ const MyQueue = ({ userId = "checker_current" }) => {
       )}
 
       {/* Footer Info */}
-      <div style={{ 
-        marginTop: 24, 
-        padding: 16, 
-        background: "#f8f9fa", 
+      <div style={{
+        marginTop: 24,
+        padding: 16,
+        background: "#f8f9fa",
         borderRadius: 8,
         fontSize: 12,
         color: "#666",
@@ -501,22 +501,20 @@ const MyQueue = ({ userId = "checker_current" }) => {
       </div>
 
       {/* Action Modal */}
-      {selectedChecklist && (
-        <CheckerActionModal
-          checklist={selectedChecklist}
-          open={modalOpen}
-          onClose={() => { 
-            setModalOpen(false);
-            setSelectedChecklist(null);
-            refetch();
-          }}
-        />
-      )}
+  {selectedChecklist && (
+  <CheckerReviewChecklistModal
+    checklist={selectedChecklist}
+    open={modalOpen}
+    onClose={() => {
+      setModalOpen(false);
+      setSelectedChecklist(null);
+      refetch();
+    }}
+  />
+)}
+
     </div>
   );
 };
 
 export default MyQueue;
-
-
-

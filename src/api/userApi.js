@@ -37,6 +37,12 @@ export const userApi = createApi({
       invalidatesTags: ["User"],
     }),
 
+    getCustomers: builder.query({
+      query: () => "/api/users",
+      transformResponse: (res) => res.filter((u) => u.role === "customer"),
+      providesTags: ["User"],
+    }),
+
     changeRole: builder.mutation({
       query: ({ id, role }) => ({
         url: `/${id}/role`,
@@ -53,4 +59,5 @@ export const {
   useCreateUserMutation,
   useToggleActiveMutation,
   useChangeRoleMutation,
+  useGetCustomersQuery
 } = userApi;
