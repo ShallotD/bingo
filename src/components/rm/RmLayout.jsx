@@ -598,7 +598,7 @@ import { ClipboardList, Settings, CheckSquare } from "lucide-react";
 // Import your RM components
 import MyQueue from "../../pages/rm/MyQueue";
 import Completed from "../../pages/rm/Completed";
-import Reports from "../../pages/rm/Reports";
+import ReportsPage from "../../pages/rm/Reports";
 
 
 
@@ -741,19 +741,9 @@ const RmLayout = ({ userId }) => {
           return <Completed userId={userId || "rm_current"} />;
         
         case "reports":
-          return (
-            <div style={{ padding: 25 }}>
-              <h2 style={{ color: "#2B1C67", marginBottom: 20 }}>Reports</h2>
-              <div style={{
-                backgroundColor: "white",
-                padding: 30,
-                borderRadius: 12,
-                boxShadow: "0 4px 12px rgba(43, 28, 103, 0.1)",
-              }}>
-                <p>Reports and analytics page is coming soon...</p>
-              </div>
-            </div>
-          );
+          return <ReportsPage userId={userId || "rm_current"} />;
+            
+        
         
         default:
           return <MyQueue userId={userId || "rm_current"} />;
