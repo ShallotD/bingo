@@ -1,4 +1,4 @@
-
+<!-- 
 
 📄 NCBA Digital Document Checklist (DCL) System
 
@@ -225,4 +225,36 @@ B. Pending approval deferrals
 
 Same list from Deferrals page but non-actionable.
 
-C. All DCLs — regardless of status
+C. All DCLs — regardless of status -->
+
+
+
+🏢 SYSTEM ARCHITECTURE OVERVIEW
+🔐 User Roles & Permissions
+
+1. ADMIN (System Administrator)
+   - Full system access
+   - User management
+   - Role assignment
+   - System configuration
+   - Audit logs access
+
+2. CREDIT OPERATIONS - CREATOR
+   - Create Document Checklists
+   - Review RM submissions
+   - Manage deferrals
+   - Monitor active workflows
+   - Generate reports
+
+3. RELATIONSHIP MANAGER (RM)
+   - View assigned checklists
+   - Upload documents
+   - Request deferrals
+   - Submit for review
+   - Track submission status
+
+4. CREDIT OPERATIONS - CHECKER
+   - Final validation
+   - Approve/reject submissions
+   - Return for corrections
+   - Complete workflows
