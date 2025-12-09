@@ -54,6 +54,7 @@ const MOCK_CHECKLISTS = [
     status: "pending_creator_review",
     priority: "high",
     slaExpiry: "2024-12-20T23:59:59Z",
+    submittedToCreatorAt: "2024-12-16T14:20:00Z",
     rmGeneralComment: "All documents uploaded as requested. Customer awaiting approval.",
     checkerComments: "",
     createdAt: "2024-12-01T09:30:00Z",
@@ -96,6 +97,7 @@ const MOCK_CHECKLISTS = [
     status: "pending_creator_review",
     priority: "medium",
     slaExpiry: "2024-12-22T23:59:59Z",
+    submittedToCreatorAt: "2024-12-16T10:45:00Z",
     rmGeneralComment: "Vehicle quotations attached. Customer ready to proceed.",
     checkerComments: "",
     createdAt: "2024-12-05T11:15:00Z",
@@ -131,6 +133,7 @@ const MOCK_CHECKLISTS = [
     status: "returned_by_checker",
     priority: "high",
     slaExpiry: "2024-12-25T23:59:59Z",
+    submittedToCreatorAt: "2024-12-16T16:30:00Z",
     rmGeneralComment: "All property documents provided",
     checkerComments: "Missing valuation report for the property.",
     returnedBy: { _id: "checker1", name: "Michael Chengo" },
@@ -254,12 +257,12 @@ const Myqueue = ({ userId = "current_user" }) => {
     }, 200);
   };
 
-  // Common columns matching the specified order
+  // Common columns matching your specified order: DCL No, Customer No, Customer Name, Loan Type, RM, Docs, Submitted, SLA, Status
   const getColumns = (isCurrentTab) => [
     { 
       title: "DCL No", 
       dataIndex: "dclNo", 
-      width: 150,
+      width: 140,
       render: (text) => (
         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
@@ -270,7 +273,7 @@ const Myqueue = ({ userId = "current_user" }) => {
     { 
       title: "Customer No", 
       dataIndex: "customerNumber", 
-      width: 120,
+      width: 110,
       render: (text) => (
         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
           {text}
@@ -280,23 +283,17 @@ const Myqueue = ({ userId = "current_user" }) => {
     { 
       title: "Customer Name", 
       dataIndex: "customerName", 
-      width: 180,
-      render: (text, record) => (
-        <div>
-          <div style={{ 
-            fontWeight: 600, 
-            color: PRIMARY_BLUE,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            marginBottom: 2
-          }}>
-            <CustomerServiceOutlined style={{ fontSize: 12 }} />
-            {text}
-          </div>
-          <div style={{ fontSize: 11, color: "#666" }}>
-            {record.loanType}
-          </div>
+      width: 160,
+      render: (text) => (
+        <div style={{ 
+          fontWeight: 600, 
+          color: PRIMARY_BLUE,
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }}>
+          <CustomerServiceOutlined style={{ fontSize: 12 }} />
+          {text}
         </div>
       )
     },
@@ -305,7 +302,7 @@ const Myqueue = ({ userId = "current_user" }) => {
       dataIndex: "loanType", 
       width: 120,
       render: (text) => (
-        <div style={{ fontWeight: 500, color: PRIMARY_BLUE }}>
+        <div style={{ fontSize: 12, color: "#666", fontWeight: 500 }}>
           {text}
         </div>
       )
@@ -313,7 +310,7 @@ const Myqueue = ({ userId = "current_user" }) => {
     { 
       title: "RM", 
       dataIndex: "assignedToRM", 
-      width: 130,
+      width: 120,
       render: (rm) => (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <UserOutlined style={{ color: PRIMARY_BLUE, fontSize: 12 }} />
@@ -324,7 +321,7 @@ const Myqueue = ({ userId = "current_user" }) => {
     { 
       title: "Docs", 
       dataIndex: "documents", 
-      width: 80, 
+      width: 70, 
       align: "center", 
       render: (docs) => {
         const totalDocs = docs?.reduce((total, category) => total + (category.docList?.length || 0), 0) || 0;
@@ -332,12 +329,12 @@ const Myqueue = ({ userId = "current_user" }) => {
           <Tag 
             color={LIGHT_YELLOW} 
             style={{ 
-              fontSize: 12, 
+              fontSize: 11, 
               borderRadius: 999, 
               fontWeight: "bold", 
               color: PRIMARY_BLUE, 
               border: `1px solid ${HIGHLIGHT_GOLD}`,
-              minWidth: 32,
+              minWidth: 28,
               textAlign: "center"
             }}
           >
@@ -347,8 +344,35 @@ const Myqueue = ({ userId = "current_user" }) => {
       } 
     },
     { 
+      title: "Submitted", 
+      dataIndex: "submittedToCreatorAt", 
+      width: 110,
+      render: (date) => (
+        <div style={{ fontSize: 12 }}>
+          {date ? dayjs(date).format('DD/MM/YYYY') : "N/A"}
+        </div>
+      )
+    },
+    { 
+      title: "SLA", 
+      dataIndex: "slaExpiry", 
+      width: 90,
+      render: (date) => {
+        const daysLeft = dayjs(date).diff(dayjs(), 'days');
+        return (
+          <Tag 
+            color={daysLeft <= 2 ? ERROR_RED : daysLeft <= 5 ? WARNING_ORANGE : SUCCESS_GREEN}
+            style={{ fontWeight: "bold", fontSize: 11 }}
+          >
+            {daysLeft > 0 ? `${daysLeft}d` : 'Expired'}
+          </Tag>
+        );
+      }
+    },
+    { 
       title: "Status", 
       width: 120,
+      fixed: "right",
       render: () => (
         <Tag 
           color={isCurrentTab ? "orange" : "red"}
@@ -362,32 +386,6 @@ const Myqueue = ({ userId = "current_user" }) => {
           {isCurrentTab ? "From RM" : "From Checker"}
         </Tag>
       )
-    },
-    { 
-      title: "Action", 
-      width: 100, 
-      fixed: "right",
-      render: (_, record) => (
-        <Button 
-          size="small" 
-          type="primary"
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedChecklist(record);
-          }} 
-          style={{ 
-            background: ACCENT_LIME,
-            borderColor: ACCENT_LIME,
-            fontWeight: "bold", 
-            fontSize: 12, 
-            borderRadius: 4,
-            padding: "2px 12px",
-            height: 28
-          }}
-        >
-          Review
-        </Button>
-      ) 
     }
   ];
 
