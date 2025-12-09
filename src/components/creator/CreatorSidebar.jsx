@@ -53,11 +53,7 @@ const CreatorSidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse
             icon: <Inbox size={16} className="text-gray-200" />,
             label: "My Queue",
           },
-          {
-            key: "active",
-            icon: <Users size={16} className="text-gray-200" />,
-            label: "Active",
-          },
+
           {
             key: "deferrals",
             icon: <Clock size={16} className="text-gray-200" />,
