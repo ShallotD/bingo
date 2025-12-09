@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 // Pages
 import CoChecklistPage from "../../pages/creator/CoChecklistPage";
 import Reportss from "../../pages/creator/Reports";
-import Active from "../../pages/creator/Active";
 import MyQueue from "../../pages/creator/MyQueue";
 import CreatorReview from "../../pages/creator/CreatorReview";
 import Completed from "../../pages/creator/Completed";
@@ -32,8 +31,6 @@ const MainLayout = () => {
         return <CoChecklistPage userId={userId} />;
       case "myqueue":
         return <MyQueue />;
-      case "active":
-        return <Active />;
       case "completed":
         return <Completed />;
       case "deferrals":
