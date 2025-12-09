@@ -200,7 +200,7 @@ import { useSelector } from "react-redux";
 // Import Checker's pages - CORRECT PATH from src/components/checker/
 import MyQueue from "../../pages/checker/MyQueue"; 
 import Completed from "../../pages/checker/Completed"; // This is the correct path
-// import ReportsPage from "../../pages/checker/Reports"; // Optional - if you have it
+import ReportsPage from "../../pages/checker/Reports"; // Optional - if you have it
 
 // If you don't have Reports yet:
 const ReportsPlaceholder = () => (
