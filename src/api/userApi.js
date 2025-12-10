@@ -38,7 +38,7 @@ export const userApi = createApi({
     }),
 
     getCustomers: builder.query({
-      query: () => "/api/users",
+      query: () => "",
       transformResponse: (res) => res.filter((u) => u.role === "customer"),
       providesTags: ["User"],
     }),
