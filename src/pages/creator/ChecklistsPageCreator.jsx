@@ -1,31 +1,178 @@
-// // // export default ChecklistsPage;
-// // import React, { useState } from "react";
-// // import { Modal, Button, Space } from "antd";
-// // import DocumentAccordion from "../../components/creator/DocumentAccordion";
-// // import { useGetUsersQuery } from "../../api/userApi";
-// // import { loanTypes, loanTypeDocuments } from "../docTypes";
-// // import { useCreateChecklistMutation } from "../../api/checklistApi";
-// // import ChecklistFormCreator from "../../components/creator/CheklistFormCreator";
+// // // // export default ChecklistsPage;
+// // // import React, { useState } from "react";
+// // // import { Modal, Button, Space } from "antd";
+// // // import DocumentAccordion from "../../components/creator/DocumentAccordion";
+// // // import { useGetUsersQuery } from "../../api/userApi";
+// // // import { loanTypes, loanTypeDocuments } from "../docTypes";
+// // // import { useCreateChecklistMutation } from "../../api/checklistApi";
+// // // import ChecklistFormCreator from "../../components/creator/CheklistFormCreator";
 
-// // const ChecklistsPageCreator = ({ open, onClose }) => {
+// // // const ChecklistsPageCreator = ({ open, onClose }) => {
+// // //   const [loanType, setLoanType] = useState("");
+// // //   const [assignedToRM, setAssignedToRM] = useState("");
+// // //   const [customerId, setCustomerId] = useState("");
+// // //   const [documents, setDocuments] = useState([]);
+// // //   const [selectedCategory] = useState(null); // No longer needed but kept to avoid breaking other components
+// // //   const [newDocName] = useState(""); // Removed add-doc logic
+// // //   const [customerName, setCustomerName] = useState("");
+// // //   const [customerNumber, setCustomerNumber] = useState("");
+// // //   const [customerEmail, setCustomerEmail] = useState("");
+
+// // //   const { data: users = [] } = useGetUsersQuery();
+// // //   const rms = users.filter((u) => u.role?.toLowerCase() === "rm");
+
+// // //   const [createChecklist] = useCreateChecklistMutation();
+
+// // //   const handleLoanTypeChange = (value) => {
+// // //     setLoanType(value);
+// // //     const categories = loanTypeDocuments[value] || [];
+// // //     setDocuments(
+// // //       categories.map((cat) => ({
+// // //         category: cat.title,
+// // //         docList: cat.documents.map((d) => ({
+// // //           name: d,
+// // //           status: "pending",
+// // //           action: "",
+// // //           comment: "",
+// // //         })),
+// // //       }))
+// // //     );
+// // //   };
+
+// // //   const handleSubmit = async () => {
+// // //     if (!assignedToRM || !loanType)
+// // //       return alert("Please fill all required fields.");
+
+// // //     const payload = {
+// // //       loanType,
+// // //       assignedToRM,
+// // //       customerId,
+// // //       customerName,
+// // //       customerNumber,
+// // //       customerEmail,
+// // //       documents: documents.flatMap((cat) =>
+// // //         cat.docList.map((doc) => ({ ...doc, category: cat.category }))
+// // //       ),
+// // //     };
+
+// // //     try {
+// // //       await createChecklist(payload).unwrap();
+// // //       alert("Checklist created successfully!");
+// // //       onClose();
+// // //     } catch (err) {
+// // //       console.error(err);
+// // //       alert("Error creating checklist.");
+// // //     }
+// // //   };
+
+// // //   return (
+// // //     <Modal
+// // //       title="Create DCL Checklist"
+// // //       open={open}
+// // //       onCancel={onClose}
+// // //       width={1100}
+// // //       footer={null}
+// // //     >
+// // //       <Space direction="vertical" style={{ width: "100%" }} size="large">
+// // //         <ChecklistFormCreator
+// // //           rms={rms}
+// // //           assignedToRM={assignedToRM}
+// // //           setAssignedToRM={setAssignedToRM}
+// // //           customerId={customerId}
+// // //           setCustomerId={setCustomerId}
+// // //           customerName={customerName}
+// // //           setCustomerName={setCustomerName}
+// // //           customerNumber={customerNumber}
+// // //           setCustomerNumber={setCustomerNumber}
+// // //           customerEmail={customerEmail}
+// // //           setCustomerEmail={setCustomerEmail}
+// // //           loanType={loanType}
+// // //           loanTypes={loanTypes}
+// // //           handleLoanTypeChange={handleLoanTypeChange}
+// // //         />
+
+// // //         {loanType && (
+// // //           <>
+// // //             {/* ❌ Removed DocumentInputSection completely */}
+// // //             <DocumentAccordion
+// // //               documents={documents}
+// // //               setDocuments={setDocuments}
+// // //             />
+// // //           </>
+// // //         )}
+
+// // //         <Button type="primary" block onClick={handleSubmit}>
+// // //           Submit Checklist
+// // //         </Button>
+// // //       </Space>
+// // //     </Modal>
+// // //   );
+// // // };
+
+// // // export default ChecklistsPageCreator;
+
+
+
+
+// // import React, { useState, useMemo } from "react";
+// // import { Modal, Button, Space } from "antd";
+// // // Import the new components
+// // import ChecklistFormFields from '../../components/creator/ChecklistFormFields';
+// // import DocumentInputSection from '../../components/creator/DocumentInputSection';
+// // import DocumentAccordion from '../../components/creator/DocumentAccordion';
+
+// // import { useGetUsersQuery } from '../../api/userApi';
+// // import { loanTypes, loanTypeDocuments } from '../docTypes';
+// // import { useCreateChecklistMutation } from '../../api/checklistApi';
+
+
+// // const ChecklistsPage = ({ open, onClose }) => {
+// //   // State remains centralized here
 // //   const [loanType, setLoanType] = useState("");
+// //   const [title, setTitle] = useState("");
 // //   const [assignedToRM, setAssignedToRM] = useState("");
 // //   const [customerId, setCustomerId] = useState("");
+ 
+// //   // customerName and customerNumber states are REMOVED
+
 // //   const [documents, setDocuments] = useState([]);
-// //   const [selectedCategory] = useState(null); // No longer needed but kept to avoid breaking other components
-// //   const [newDocName] = useState(""); // Removed add-doc logic
-// //   const [customerName, setCustomerName] = useState("");
-// //   const [customerNumber, setCustomerNumber] = useState("");
-// //   const [customerEmail, setCustomerEmail] = useState("");
+// //   const [selectedCategory, setSelectedCategory] = useState(null);
+// //   const [newDocName, setNewDocName] = useState("");
 
+// //   // API Hooks and Data Filtering
 // //   const { data: users = [] } = useGetUsersQuery();
-// //   const rms = users.filter((u) => u.role?.toLowerCase() === "rm");
+// // //   const {
+// // //   data: users = [],
+// // //   isLoading,
+// // //   isFetching,
+// // //   isError,
+// // //   error
+// // // } = useGetUsersQuery();
 
+// // // console.log(users, "users");
+// // // console.log({ isLoading, isFetching, isError, error });
+// //   const rms = users.filter((u) => u.role?.toLowerCase() === "rm");
+// //   const customers = users.filter((u) => u.role?.toLowerCase() === "customer");
 // //   const [createChecklist] = useCreateChecklistMutation();
 
+// //   // FIX: Use useMemo to DERIVE customer info instead of using useEffect and setState
+// //   const customerInfo = useMemo(() => {
+// //     const selected = customers.find((c) => c._id === customerId);
+// //     return {
+// //       name: selected?.name || "",
+// //       number: selected?.customerNumber || "",
+// //     };
+// //   }, [customerId, customers]); // Recalculates only when customerId or customers change
+ 
+// //   const customerName = customerInfo.name;
+// //   const customerNumber = customerInfo.number;
+
+
+// //   // Logic: Handle loan type selection and load default documents
 // //   const handleLoanTypeChange = (value) => {
 // //     setLoanType(value);
 // //     const categories = loanTypeDocuments[value] || [];
+
 // //     setDocuments(
 // //       categories.map((cat) => ({
 // //         category: cat.title,
@@ -39,19 +186,46 @@
 // //     );
 // //   };
 
-// //   const handleSubmit = async () => {
-// //     if (!assignedToRM || !loanType)
-// //       return alert("Please fill all required fields.");
+// //   // Logic: Add custom document into selected category
+// //   const handleAddNewDocument = () => {
+// //     if (!newDocName.trim() || selectedCategory === null || selectedCategory >= documents.length) return;
 
+// //     const updated = [...documents];
+// //     updated[selectedCategory].docList.push({
+// //       name: newDocName.trim(),
+// //       status: "pending",
+// //       action: "",
+// //       comment: "",
+// //     });
+
+// //     setDocuments(updated);
+// //     setNewDocName("");
+// //   };
+
+// //   // Logic: Submit checklist
+// //   const handleSubmit = async () => {
+// //     if (!assignedToRM || !loanType || !title) {
+// //       alert("Please fill all required fields.");
+// //       return;
+// //     }
+   
+// //     // Payload construction logic remains here
 // //     const payload = {
+// //       title,
 // //       loanType,
 // //       assignedToRM,
 // //       customerId,
-// //       customerName,
-// //       customerNumber,
-// //       customerEmail,
+// //       // Use the DERIVED values directly in the payload
+// //       customerName: customerName,
+// //       customerNumber: customerNumber,
 // //       documents: documents.flatMap((cat) =>
-// //         cat.docList.map((doc) => ({ ...doc, category: cat.category }))
+// //         cat.docList.map((doc) => ({
+// //           name: doc.name,
+// //           category: cat.category,
+// //           action: doc.action,
+// //           status: doc.status,
+// //           comment: doc.comment,
+// //         }))
 // //       ),
 // //     };
 
@@ -65,35 +239,43 @@
 // //     }
 // //   };
 
+
 // //   return (
-// //     <Modal
-// //       title="Create DCL Checklist"
-// //       open={open}
-// //       onCancel={onClose}
-// //       width={1100}
-// //       footer={null}
-// //     >
+// //     <Modal title="Create DCL Checklist" open={open} onCancel={onClose} width={1100} footer={null}>
 // //       <Space direction="vertical" style={{ width: "100%" }} size="large">
-// //         <ChecklistFormCreator
+       
+// //         {/* Render Form Fields Component */}
+// //         <ChecklistFormFields
 // //           rms={rms}
+// //           customers={customers}
 // //           assignedToRM={assignedToRM}
 // //           setAssignedToRM={setAssignedToRM}
 // //           customerId={customerId}
 // //           setCustomerId={setCustomerId}
+// //           // Pass derived values as props
 // //           customerName={customerName}
-// //           setCustomerName={setCustomerName}
 // //           customerNumber={customerNumber}
-// //           setCustomerNumber={setCustomerNumber}
-// //           customerEmail={customerEmail}
-// //           setCustomerEmail={setCustomerEmail}
+// //           title={title}
+// //           setTitle={setTitle}
 // //           loanType={loanType}
 // //           loanTypes={loanTypes}
 // //           handleLoanTypeChange={handleLoanTypeChange}
 // //         />
 
+// //         {/* Document Section */}
 // //         {loanType && (
 // //           <>
-// //             {/* ❌ Removed DocumentInputSection completely */}
+// //             {/* Render Document Input Section Component */}
+// //             <DocumentInputSection
+// //               documents={documents}
+// //               selectedCategory={selectedCategory}
+// //               setSelectedCategory={setSelectedCategory}
+// //               newDocName={newDocName}
+// //               setNewDocName={setNewDocName}
+// //               handleAddNewDocument={handleAddNewDocument}
+// //             />
+           
+// //             {/* Render Document Accordion Component */}
 // //             <DocumentAccordion
 // //               documents={documents}
 // //               setDocuments={setDocuments}
@@ -101,6 +283,7 @@
 // //           </>
 // //         )}
 
+// //         {/* Submit */}
 // //         <Button type="primary" block onClick={handleSubmit}>
 // //           Submit Checklist
 // //         </Button>
@@ -109,7 +292,7 @@
 // //   );
 // // };
 
-// // export default ChecklistsPageCreator;
+// // export default ChecklistsPage;
 
 
 
@@ -133,24 +316,12 @@
 //   const [assignedToRM, setAssignedToRM] = useState("");
 //   const [customerId, setCustomerId] = useState("");
  
-//   // customerName and customerNumber states are REMOVED
-
 //   const [documents, setDocuments] = useState([]);
-//   const [selectedCategory, setSelectedCategory] = useState(null);
+//   const [selectedCategoryName, setSelectedCategoryName] = useState(""); // Changed from selectedCategory
 //   const [newDocName, setNewDocName] = useState("");
 
 //   // API Hooks and Data Filtering
 //   const { data: users = [] } = useGetUsersQuery();
-// //   const {
-// //   data: users = [],
-// //   isLoading,
-// //   isFetching,
-// //   isError,
-// //   error
-// // } = useGetUsersQuery();
-
-// // console.log(users, "users");
-// // console.log({ isLoading, isFetching, isError, error });
 //   const rms = users.filter((u) => u.role?.toLowerCase() === "rm");
 //   const customers = users.filter((u) => u.role?.toLowerCase() === "customer");
 //   const [createChecklist] = useCreateChecklistMutation();
@@ -188,10 +359,18 @@
 
 //   // Logic: Add custom document into selected category
 //   const handleAddNewDocument = () => {
-//     if (!newDocName.trim() || selectedCategory === null || selectedCategory >= documents.length) return;
+//     if (!newDocName.trim() || !selectedCategoryName) return;
+    
+//     // Find the category index by name
+//     const categoryIndex = documents.findIndex(doc => doc.category === selectedCategoryName);
+    
+//     if (categoryIndex === -1) {
+//       alert("Category not found");
+//       return;
+//     }
 
 //     const updated = [...documents];
-//     updated[selectedCategory].docList.push({
+//     updated[categoryIndex].docList.push({
 //       name: newDocName.trim(),
 //       status: "pending",
 //       action: "",
@@ -265,11 +444,11 @@
 //         {/* Document Section */}
 //         {loanType && (
 //           <>
-//             {/* Render Document Input Section Component */}
+//             {/* Render Document Input Section Component - FIXED PROPS */}
 //             <DocumentInputSection
-//               documents={documents}
-//               selectedCategory={selectedCategory}
-//               setSelectedCategory={setSelectedCategory}
+//               // Your DocumentInputSection expects these prop names:
+//               selectedCategoryName={selectedCategoryName}
+//               setSelectedCategoryName={setSelectedCategoryName}
 //               newDocName={newDocName}
 //               setNewDocName={setNewDocName}
 //               handleAddNewDocument={handleAddNewDocument}
@@ -296,54 +475,34 @@
 
 
 
-
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Modal, Button, Space } from "antd";
-// Import the new components
-import ChecklistFormFields from '../../components/creator/ChecklistFormFields';
-import DocumentInputSection from '../../components/creator/DocumentInputSection';
-import DocumentAccordion from '../../components/creator/DocumentAccordion';
-
-import { useGetUsersQuery } from '../../api/userApi';
-import { loanTypes, loanTypeDocuments } from '../docTypes';
-import { useCreateChecklistMutation } from '../../api/checklistApi';
+import DocumentAccordion from "../../components/creator/DocumentAccordion";
+import { useGetUsersQuery } from "../../api/userApi";
+import { loanTypes, loanTypeDocuments } from "../docTypes";
+import { useCreateCoCreatorChecklistMutation } from "../../api/checklistApi";
+import ChecklistFormFields from "../../components/creator/ChecklistFormFields";
 
 
 const ChecklistsPage = ({ open, onClose }) => {
-  // State remains centralized here
   const [loanType, setLoanType] = useState("");
-  const [title, setTitle] = useState("");
   const [assignedToRM, setAssignedToRM] = useState("");
   const [customerId, setCustomerId] = useState("");
- 
   const [documents, setDocuments] = useState([]);
-  const [selectedCategoryName, setSelectedCategoryName] = useState(""); // Changed from selectedCategory
-  const [newDocName, setNewDocName] = useState("");
+  const [selectedCategory] = useState(null); // No longer needed but kept to avoid breaking other components
+  const [newDocName] = useState(""); // Removed add-doc logic
+  const [customerName, setCustomerName] = useState("");
+  const [customerNumber, setCustomerNumber] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
 
-  // API Hooks and Data Filtering
   const { data: users = [] } = useGetUsersQuery();
   const rms = users.filter((u) => u.role?.toLowerCase() === "rm");
-  const customers = users.filter((u) => u.role?.toLowerCase() === "customer");
-  const [createChecklist] = useCreateChecklistMutation();
 
-  // FIX: Use useMemo to DERIVE customer info instead of using useEffect and setState
-  const customerInfo = useMemo(() => {
-    const selected = customers.find((c) => c._id === customerId);
-    return {
-      name: selected?.name || "",
-      number: selected?.customerNumber || "",
-    };
-  }, [customerId, customers]); // Recalculates only when customerId or customers change
- 
-  const customerName = customerInfo.name;
-  const customerNumber = customerInfo.number;
+  const [createChecklist] = useCreateCoCreatorChecklistMutation();
 
-
-  // Logic: Handle loan type selection and load default documents
   const handleLoanTypeChange = (value) => {
     setLoanType(value);
     const categories = loanTypeDocuments[value] || [];
-
     setDocuments(
       categories.map((cat) => ({
         category: cat.title,
@@ -357,54 +516,19 @@ const ChecklistsPage = ({ open, onClose }) => {
     );
   };
 
-  // Logic: Add custom document into selected category
-  const handleAddNewDocument = () => {
-    if (!newDocName.trim() || !selectedCategoryName) return;
-    
-    // Find the category index by name
-    const categoryIndex = documents.findIndex(doc => doc.category === selectedCategoryName);
-    
-    if (categoryIndex === -1) {
-      alert("Category not found");
-      return;
-    }
-
-    const updated = [...documents];
-    updated[categoryIndex].docList.push({
-      name: newDocName.trim(),
-      status: "pending",
-      action: "",
-      comment: "",
-    });
-
-    setDocuments(updated);
-    setNewDocName("");
-  };
-
-  // Logic: Submit checklist
   const handleSubmit = async () => {
-    if (!assignedToRM || !loanType || !title) {
-      alert("Please fill all required fields.");
-      return;
-    }
-   
-    // Payload construction logic remains here
+    if (!assignedToRM || !loanType)
+      return alert("Please fill all required fields.");
+
     const payload = {
-      title,
       loanType,
       assignedToRM,
       customerId,
-      // Use the DERIVED values directly in the payload
-      customerName: customerName,
-      customerNumber: customerNumber,
+      customerName,
+      customerNumber,
+      customerEmail,
       documents: documents.flatMap((cat) =>
-        cat.docList.map((doc) => ({
-          name: doc.name,
-          category: cat.category,
-          action: doc.action,
-          status: doc.status,
-          comment: doc.comment,
-        }))
+        cat.docList.map((doc) => ({ ...doc, category: cat.category }))
       ),
     };
 
@@ -418,43 +542,35 @@ const ChecklistsPage = ({ open, onClose }) => {
     }
   };
 
-
   return (
-    <Modal title="Create DCL Checklist" open={open} onCancel={onClose} width={1100} footer={null}>
+    <Modal
+      title="Create DCL Checklist"
+      open={open}
+      onCancel={onClose}
+      width={1100}
+      footer={null}
+    >
       <Space direction="vertical" style={{ width: "100%" }} size="large">
-       
-        {/* Render Form Fields Component */}
         <ChecklistFormFields
           rms={rms}
-          customers={customers}
           assignedToRM={assignedToRM}
           setAssignedToRM={setAssignedToRM}
           customerId={customerId}
           setCustomerId={setCustomerId}
-          // Pass derived values as props
           customerName={customerName}
+          setCustomerName={setCustomerName}
           customerNumber={customerNumber}
-          title={title}
-          setTitle={setTitle}
+          setCustomerNumber={setCustomerNumber}
+          customerEmail={customerEmail}
+          setCustomerEmail={setCustomerEmail}
           loanType={loanType}
           loanTypes={loanTypes}
           handleLoanTypeChange={handleLoanTypeChange}
         />
 
-        {/* Document Section */}
         {loanType && (
           <>
-            {/* Render Document Input Section Component - FIXED PROPS */}
-            <DocumentInputSection
-              // Your DocumentInputSection expects these prop names:
-              selectedCategoryName={selectedCategoryName}
-              setSelectedCategoryName={setSelectedCategoryName}
-              newDocName={newDocName}
-              setNewDocName={setNewDocName}
-              handleAddNewDocument={handleAddNewDocument}
-            />
-           
-            {/* Render Document Accordion Component */}
+            {/* ❌ Removed DocumentInputSection completely */}
             <DocumentAccordion
               documents={documents}
               setDocuments={setDocuments}
@@ -462,7 +578,6 @@ const ChecklistsPage = ({ open, onClose }) => {
           </>
         )}
 
-        {/* Submit */}
         <Button type="primary" block onClick={handleSubmit}>
           Submit Checklist
         </Button>

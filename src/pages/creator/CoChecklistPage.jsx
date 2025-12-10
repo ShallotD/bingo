@@ -1,16 +1,15 @@
 // import React, { useState } from "react";
 // import { Button, Divider, Table, Tag } from "antd";
-// // import ChecklistsPage from "./ChecklistsPage";
+// import ChecklistsPage from "./ChecklistsPageCreator";
 // import ReviewChecklistModal from "../../components/modals/ReviewChecklistModal";
 // import { useGetChecklistsQuery } from "../../api/checklistApi";
-// import ChecklistsPageCreator from "./ChecklistsPageCretor";
 
-// // Theme Colors
-// const PRIMARY_BLUE = "#164679";
-// const ACCENT_LIME = "#b5d334";
-// const HIGHLIGHT_GOLD = "#fcb116";
-// const LIGHT_YELLOW = "#fcd716";
-// const SECONDARY_PURPLE = "#7e6496";
+// // Theme Colors (Defined here for the main page table styling)
+// const PRIMARY_BLUE = "#164679"; // Dark Blue/Navy
+// const ACCENT_LIME = "#b5d334"; // Lime/Light Green
+// const HIGHLIGHT_GOLD = "#fcb116"; // Gold / Yellow-orange
+// const LIGHT_YELLOW = "#fcd716"; // Light yellow
+// const SECONDARY_PURPLE = "#7e6496"; // Purple / Accent shade
 
 // /* -------------------------------------------------------------------
 //    ⭐ MAIN PAGE: CoChecklistPage
@@ -21,41 +20,51 @@
 
 //   const { data: checklists = [], refetch } = useGetChecklistsQuery();
 
-//   // Filter checklists created by current user
+//   // Filter to show checklists created by the current user (Co-Creator)
 //   const myChecklists = checklists.filter((c) => c.createdBy?._id === userId);
 
+//   // Custom CSS is injected here since it styles this specific Table
 //   const customTableStyles = `
 //     .ant-table-wrapper {
 //         border-radius: 12px;
-//         overflow: hidden;
-//         box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
-//         border: 1px solid #e0e0e0;
+//         overflow: hidden; /* Ensures border-radius applies to all corners including header */
+//         box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08); /* Lighter, more subtle shadow */
+//         border: 1px solid #e0e0e0; /* Define a light, crisp outer border */
 //     }
+
+//     /* MODERN Header Styling: Light background, strong text, and thick accent line */
 //     .ant-table-thead > tr > th {
-//         background-color: #f7f7f7 !important;
+//         background-color: #f7f7f7 !important; /* Very light gray header */
 //         color: ${PRIMARY_BLUE} !important;
 //         font-weight: 700;
 //         font-size: 15px;
 //         padding: 16px 16px !important;
-//         border-bottom: 3px solid ${ACCENT_LIME} !important;
-//         border-right: none !important;
+//         border-bottom: 3px solid ${ACCENT_LIME} !important; /* Thicker accent line */
+//         border-right: none !important; /* Remove vertical header lines */
 //     }
+   
+//     /* Row Separators Only (Horizontal) */
 //     .ant-table-tbody > tr > td {
-//         border-bottom: 1px solid #f0f0f0 !important;
-//         border-right: none !important;
+//         border-bottom: 1px solid #f0f0f0 !important; /* Light horizontal separator */
+//         border-right: none !important; /* Remove vertical dividers for a cleaner look */
 //         padding: 14px 16px !important;
 //         font-size: 14px;
-//         color: #333;
+//         color: #333; /* Softer text color */
 //     }
+
 //     .ant-table-tbody > tr.ant-table-row:hover > td {
-//         background-color: rgba(181, 211, 52, 0.1) !important;
+//         background-color: rgba(181, 211, 52, 0.1) !important; /* Light lime hover effect */
 //         cursor: pointer;
 //     }
+
+//     /* Remove Antd's default 'bordered' styling which creates heavy internal lines */
 //     .ant-table-bordered .ant-table-container,
 //     .ant-table-bordered .ant-table-tbody > tr > td,
 //     .ant-table-bordered .ant-table-thead > tr > th {
 //         border: none !important;
 //     }
+
+//     /* Pagination Styling - Maintained from previous version */
 //     .ant-pagination .ant-pagination-item-active {
 //         background-color: ${ACCENT_LIME} !important;
 //         border-color: ${ACCENT_LIME} !important;
@@ -76,28 +85,21 @@
 //     }
 //   `;
 
+//   // Define columns array - LOGIC KEPT EXACTLY AS IS
 //   const columns = [
 //     {
 //       title: "DCL No",
 //       dataIndex: "dclNo",
-//       width: 180,
+//       width: 200,
 //       render: (text) => (
 //         <span style={{ fontWeight: "bold", color: PRIMARY_BLUE }}>{text}</span>
 //       ),
 //     },
 //     {
 //       title: "Customer Name",
-//       dataIndex: "customerName",
+//       dataIndex: "custNo",
 //       width: 180,
 //       render: (text) => <span style={{ color: SECONDARY_PURPLE }}>{text}</span>,
-//     },
-//     {
-//       title: "Customer Number",
-//       dataIndex: "customerNumber",
-//       width: 150,
-//       render: (text) => (
-//         <span style={{ color: PRIMARY_BLUE, fontWeight: 500 }}>{text}</span>
-//       ),
 //     },
 //     { title: "Loan Type", dataIndex: "loanType", width: 140 },
 //     {
@@ -108,19 +110,19 @@
 //         <span style={{ color: PRIMARY_BLUE, fontWeight: "500" }}>
 //           {rm?.name || "Not Assigned"}
 //         </span>
-//       ),
+//       ), // Use primary blue for RM name
 //     },
 //     {
 //       title: "Docs",
 //       dataIndex: "documents",
 //       width: 80,
-//       align: "center",
+//       align: "center", // Center align number of documents
 //       render: (docs) => (
 //         <Tag
-//           color={LIGHT_YELLOW}
+//           color={LIGHT_YELLOW} // Using a light background for count
 //           style={{
 //             fontSize: 12,
-//             borderRadius: 999,
+//             borderRadius: 999, // Pill shape for modern look
 //             fontWeight: "bold",
 //             color: PRIMARY_BLUE,
 //             border: `1px solid ${HIGHLIGHT_GOLD}`,
@@ -135,7 +137,9 @@
 //       dataIndex: "status",
 //       width: 120,
 //       render: (status) => {
-//         let tagColor, tagText, bgColor;
+//         let tagColor;
+//         let tagText;
+//         let bgColor;
 
 //         if (status === "approved") {
 //           tagText = "Approved";
@@ -153,14 +157,16 @@
 
 //         return (
 //           <Tag
+//             // Using the calculated background color for the Antd color prop
 //             color={tagColor}
 //             style={{
 //               fontSize: 12,
-//               borderRadius: 999,
+//               borderRadius: 999, // Pill shape for modern look
 //               fontWeight: "bold",
 //               padding: "4px 8px",
-//               color: PRIMARY_BLUE,
-//               backgroundColor: bgColor + "40",
+//               color: PRIMARY_BLUE, // Dark blue text for better contrast
+//               // Overriding the background for a softer look
+//               backgroundColor: bgColor + "40", // Light background tint
 //               borderColor: bgColor,
 //             }}
 //           >
@@ -178,11 +184,12 @@
 //           type="link"
 //           onClick={() => setSelectedChecklist(record)}
 //           style={{
-//             color: SECONDARY_PURPLE,
+//             color: SECONDARY_PURPLE, // Use purple for link button
 //             fontWeight: "bold",
 //             fontSize: 13,
 //             borderRadius: 6,
-//             "--antd-wave-shadow-color": ACCENT_LIME,
+//             // Add a hover effect for better UX
+//             "--antd-wave-shadow-color": ACCENT_LIME, // Custom Antd wave color
 //           }}
 //         >
 //           View
@@ -198,7 +205,7 @@
 //       </Button>
 
 //       {drawerOpen && (
-//         <ChecklistsPageCreator
+//         <ChecklistsPage
 //           open={drawerOpen}
 //           onClose={() => {
 //             setDrawerOpen(false);
@@ -208,30 +215,31 @@
 //         />
 //       )}
 
-//       <Divider style={{ margin: "12px 0" }}>
-//         Created Checklists For Review
-//       </Divider>
+//       <Divider style={{ margin: "12px 0" }}>Created Checklists For Review</Divider>
 
+//       {/* Inject custom styles */}
 //       <style>{customTableStyles}</style>
 
 //       <Table
-//         columns={columns}
+//         columns={columns} // Using the defined columns array
 //         dataSource={myChecklists}
 //         rowKey="_id"
-//         size="large"
+//         size="large" // Increased size for better readability
+//         // IMPORTANT UX CHANGE: Removed 'bordered' to allow for modern border styling via CSS
 //         pagination={{
 //           pageSize: 5,
-//           showSizeChanger: true,
-//           pageSizeOptions: ["5", "10", "20", "50"],
-//           position: ["bottomCenter"],
+//           showSizeChanger: true, // Allow user to change page size
+//           pageSizeOptions: ["5", "10", "20", "50"], // Options for page size
+//           position: ["bottomCenter"], // Center the pagination
 //         }}
+//         // Use rowClassName for subtle alternating row colors (good UX)
 //         rowClassName={(record, index) =>
 //           index % 2 === 0 ? "bg-white" : "bg-gray-50"
 //         }
 //       />
 
 //       {selectedChecklist && (
-//         <ReviewChecklistModal
+//         <ReviewChecklistModal // ⭐ The separate component is used here
 //           checklist={selectedChecklist}
 //           open={!!selectedChecklist}
 //           onClose={() => setSelectedChecklist(null)}
@@ -245,18 +253,20 @@
 
 
 
+
+
 import React, { useState } from "react";
 import { Button, Divider, Table, Tag } from "antd";
 import ChecklistsPage from "./ChecklistsPageCreator";
 import ReviewChecklistModal from "../../components/modals/ReviewChecklistModal";
-import { useGetChecklistsQuery } from "../../api/checklistApi";
+import { useGetAllCoCreatorChecklistsQuery } from "../../api/checklistApi";
 
-// Theme Colors (Defined here for the main page table styling)
-const PRIMARY_BLUE = "#164679"; // Dark Blue/Navy
-const ACCENT_LIME = "#b5d334"; // Lime/Light Green
-const HIGHLIGHT_GOLD = "#fcb116"; // Gold / Yellow-orange
-const LIGHT_YELLOW = "#fcd716"; // Light yellow
-const SECONDARY_PURPLE = "#7e6496"; // Purple / Accent shade
+// Theme Colors
+const PRIMARY_BLUE = "#164679";
+const ACCENT_LIME = "#b5d334";
+const HIGHLIGHT_GOLD = "#fcb116";
+const LIGHT_YELLOW = "#fcd716";
+const SECONDARY_PURPLE = "#7e6496";
 
 /* -------------------------------------------------------------------
    ⭐ MAIN PAGE: CoChecklistPage
@@ -265,53 +275,44 @@ const CoChecklistPage = ({ userId }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedChecklist, setSelectedChecklist] = useState(null);
 
-  const { data: checklists = [], refetch } = useGetChecklistsQuery();
+  const { data: checklists = [], refetch } =
+    useGetAllCoCreatorChecklistsQuery();
 
-  // Filter to show checklists created by the current user (Co-Creator)
+  // Filter checklists created by current user
   const myChecklists = checklists.filter((c) => c.createdBy?._id === userId);
 
-  // Custom CSS is injected here since it styles this specific Table
   const customTableStyles = `
     .ant-table-wrapper {
         border-radius: 12px;
-        overflow: hidden; /* Ensures border-radius applies to all corners including header */
-        box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08); /* Lighter, more subtle shadow */
-        border: 1px solid #e0e0e0; /* Define a light, crisp outer border */
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+        border: 1px solid #e0e0e0;
     }
-
-    /* MODERN Header Styling: Light background, strong text, and thick accent line */
     .ant-table-thead > tr > th {
-        background-color: #f7f7f7 !important; /* Very light gray header */
+        background-color: #f7f7f7 !important;
         color: ${PRIMARY_BLUE} !important;
         font-weight: 700;
         font-size: 15px;
         padding: 16px 16px !important;
-        border-bottom: 3px solid ${ACCENT_LIME} !important; /* Thicker accent line */
-        border-right: none !important; /* Remove vertical header lines */
+        border-bottom: 3px solid ${ACCENT_LIME} !important;
+        border-right: none !important;
     }
-   
-    /* Row Separators Only (Horizontal) */
     .ant-table-tbody > tr > td {
-        border-bottom: 1px solid #f0f0f0 !important; /* Light horizontal separator */
-        border-right: none !important; /* Remove vertical dividers for a cleaner look */
+        border-bottom: 1px solid #f0f0f0 !important;
+        border-right: none !important;
         padding: 14px 16px !important;
         font-size: 14px;
-        color: #333; /* Softer text color */
+        color: #333;
     }
-
     .ant-table-tbody > tr.ant-table-row:hover > td {
-        background-color: rgba(181, 211, 52, 0.1) !important; /* Light lime hover effect */
+        background-color: rgba(181, 211, 52, 0.1) !important;
         cursor: pointer;
     }
-
-    /* Remove Antd's default 'bordered' styling which creates heavy internal lines */
     .ant-table-bordered .ant-table-container,
     .ant-table-bordered .ant-table-tbody > tr > td,
     .ant-table-bordered .ant-table-thead > tr > th {
         border: none !important;
     }
-
-    /* Pagination Styling - Maintained from previous version */
     .ant-pagination .ant-pagination-item-active {
         background-color: ${ACCENT_LIME} !important;
         border-color: ${ACCENT_LIME} !important;
@@ -332,21 +333,28 @@ const CoChecklistPage = ({ userId }) => {
     }
   `;
 
-  // Define columns array - LOGIC KEPT EXACTLY AS IS
   const columns = [
     {
       title: "DCL No",
       dataIndex: "dclNo",
-      width: 200,
+      width: 180,
       render: (text) => (
         <span style={{ fontWeight: "bold", color: PRIMARY_BLUE }}>{text}</span>
       ),
     },
     {
       title: "Customer Name",
-      dataIndex: "custNo",
+      dataIndex: "customerName",
       width: 180,
       render: (text) => <span style={{ color: SECONDARY_PURPLE }}>{text}</span>,
+    },
+    {
+      title: "Customer Number",
+      dataIndex: "customerNumber",
+      width: 150,
+      render: (text) => (
+        <span style={{ color: PRIMARY_BLUE, fontWeight: 500 }}>{text}</span>
+      ),
     },
     { title: "Loan Type", dataIndex: "loanType", width: 140 },
     {
@@ -357,19 +365,19 @@ const CoChecklistPage = ({ userId }) => {
         <span style={{ color: PRIMARY_BLUE, fontWeight: "500" }}>
           {rm?.name || "Not Assigned"}
         </span>
-      ), // Use primary blue for RM name
+      ),
     },
     {
       title: "Docs",
       dataIndex: "documents",
       width: 80,
-      align: "center", // Center align number of documents
+      align: "center",
       render: (docs) => (
         <Tag
-          color={LIGHT_YELLOW} // Using a light background for count
+          color={LIGHT_YELLOW}
           style={{
             fontSize: 12,
-            borderRadius: 999, // Pill shape for modern look
+            borderRadius: 999,
             fontWeight: "bold",
             color: PRIMARY_BLUE,
             border: `1px solid ${HIGHLIGHT_GOLD}`,
@@ -384,9 +392,7 @@ const CoChecklistPage = ({ userId }) => {
       dataIndex: "status",
       width: 120,
       render: (status) => {
-        let tagColor;
-        let tagText;
-        let bgColor;
+        let tagColor, tagText, bgColor;
 
         if (status === "approved") {
           tagText = "Approved";
@@ -404,16 +410,14 @@ const CoChecklistPage = ({ userId }) => {
 
         return (
           <Tag
-            // Using the calculated background color for the Antd color prop
             color={tagColor}
             style={{
               fontSize: 12,
-              borderRadius: 999, // Pill shape for modern look
+              borderRadius: 999,
               fontWeight: "bold",
               padding: "4px 8px",
-              color: PRIMARY_BLUE, // Dark blue text for better contrast
-              // Overriding the background for a softer look
-              backgroundColor: bgColor + "40", // Light background tint
+              color: PRIMARY_BLUE,
+              backgroundColor: bgColor + "40",
               borderColor: bgColor,
             }}
           >
@@ -431,12 +435,11 @@ const CoChecklistPage = ({ userId }) => {
           type="link"
           onClick={() => setSelectedChecklist(record)}
           style={{
-            color: SECONDARY_PURPLE, // Use purple for link button
+            color: SECONDARY_PURPLE,
             fontWeight: "bold",
             fontSize: 13,
             borderRadius: 6,
-            // Add a hover effect for better UX
-            "--antd-wave-shadow-color": ACCENT_LIME, // Custom Antd wave color
+            "--antd-wave-shadow-color": ACCENT_LIME,
           }}
         >
           View
@@ -462,31 +465,30 @@ const CoChecklistPage = ({ userId }) => {
         />
       )}
 
-      <Divider style={{ margin: "12px 0" }}>Created Checklists For Review</Divider>
+      <Divider style={{ margin: "12px 0" }}>
+        Created Checklists For Review
+      </Divider>
 
-      {/* Inject custom styles */}
       <style>{customTableStyles}</style>
 
       <Table
-        columns={columns} // Using the defined columns array
+        columns={columns}
         dataSource={myChecklists}
         rowKey="_id"
-        size="large" // Increased size for better readability
-        // IMPORTANT UX CHANGE: Removed 'bordered' to allow for modern border styling via CSS
+        size="large"
         pagination={{
           pageSize: 5,
-          showSizeChanger: true, // Allow user to change page size
-          pageSizeOptions: ["5", "10", "20", "50"], // Options for page size
-          position: ["bottomCenter"], // Center the pagination
+          showSizeChanger: true,
+          pageSizeOptions: ["5", "10", "20", "50"],
+          position: ["bottomCenter"],
         }}
-        // Use rowClassName for subtle alternating row colors (good UX)
         rowClassName={(record, index) =>
           index % 2 === 0 ? "bg-white" : "bg-gray-50"
         }
       />
 
       {selectedChecklist && (
-        <ReviewChecklistModal // ⭐ The separate component is used here
+        <ReviewChecklistModal
           checklist={selectedChecklist}
           open={!!selectedChecklist}
           onClose={() => setSelectedChecklist(null)}
@@ -497,3 +499,4 @@ const CoChecklistPage = ({ userId }) => {
 };
 
 export default CoChecklistPage;
+
