@@ -9,6 +9,7 @@ import { Inbox, CheckCircle, BarChart2, Clock } from "lucide-react";
 import MyQueue from "../../pages/rm/MyQueue";
 import Completed from "../../pages/rm/Completed";
 import ReportsPage from "../../pages/rm/Reports";
+import RmChecklistPage from "../../pages/rm/RmChecklistPage";
 
 const Sidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse }) => {
   const handleClick = (e) => {
@@ -57,6 +58,12 @@ const Sidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse }) => 
         style={{ background: "transparent", borderRight: "none", fontSize: 15 }}
         inlineCollapsed={collapsed}
         items={[
+
+           { 
+            key: "allchecklits", 
+            label: "All Checklists", 
+            icon: <Inbox size={16} style={{ color: "#e5e7eb" }} /> // Same as Creator
+          },
           { 
             key: "myqueue", 
             label: "My Queue", 
@@ -130,7 +137,7 @@ const Navbar = ({ toggleSidebar }) => {
   );
 };
 
-const RmLayout = ({ userId }) => {
+const RmLayout = ({ userId,rmId }) => {
   const [selectedKey, setSelectedKey] = useState("myqueue");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -147,6 +154,9 @@ const RmLayout = ({ userId }) => {
         
         case "completed":
           return <Completed userId={userId || "rm_current"} />;
+
+          case "allchecklits":
+          return <RmChecklistPage userId={userId || "rm_current"}/>;
         
         case "reports":
           return <ReportsPage userId={userId || "rm_current"} />;

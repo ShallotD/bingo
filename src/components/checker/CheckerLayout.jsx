@@ -185,23 +185,24 @@
 import React, { useState, useEffect } from "react";
 import { Menu } from "antd";
 // Import from @ant-design/icons for Navbar
-import { 
+import {
   MenuOutlined,
   BellOutlined,
-  UserOutlined 
+  UserOutlined
 } from "@ant-design/icons";
 // Import from lucide-react for Sidebar
-import { 
+import {
   Inbox,
   CheckCircle,
-  BarChart2 
+  BarChart2
 } from "lucide-react";
 import { useSelector } from "react-redux";
 
 // Import Checker's pages
-import MyQueue from "../../pages/checker/MyQueue"; 
+import MyQueue from "../../pages/checker/MyQueue";
 import Completed from "../../pages/checker/Completed";
 import ReportsPage from "../../pages/checker/Reports";
+import AllChecklists from "../../pages/checker/allChecklists";
 
 // Sidebar Component with lucide-react icons
 const Sidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse }) => {
@@ -241,20 +242,25 @@ const Sidebar = ({ selectedKey, setSelectedKey, collapsed, toggleCollapse }) => 
         style={{ background: "#3A2A82", flex: 1 }}
         inlineCollapsed={collapsed}
         items={[
-          { 
-            key: "myQueue", 
+          {
+            key: "myQueue",
             icon: <Inbox size={16} style={{ color: "#e5e7eb" }} />,
-            label: "My Queue" 
+            label: "My Queue"
           },
-          { 
-            key: "completed", 
+          {
+            key: "completed",
             icon: <CheckCircle size={16} style={{ color: "#e5e7eb" }} />,
-            label: "Completed" 
+            label: "Completed"
           },
-          { 
-            key: "reports", 
+           {
+            key: "allchecklists",
+            icon: <CheckCircle size={16} style={{ color: "#e5e7eb" }} />,
+            label: "allChecklists"
+          },
+          {
+            key: "reports",
             icon: <BarChart2 size={16} style={{ color: "#e5e7eb" }} />,
-            label: "Reports" 
+            label: "Reports"
           },
         ]}
       />
@@ -333,6 +339,10 @@ const CheckerLayout = () => {
         return <Completed userId={userId} />;
       case "reports":
         return <ReportsPage userId={userId} />;
+      case "allchecklists":
+        return <AllChecklists />;
+
+
       default:
         return <MyQueue userId={userId} />;
     }
