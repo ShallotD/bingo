@@ -11,14 +11,17 @@ import {
   Col,
   Input,
   Badge,
-  Typography
+  Typography,
+  Space
 } from "antd";
 import { 
   SearchOutlined,
   FileTextOutlined,
   UserOutlined,
   CustomerServiceOutlined,
-  CheckCircleOutlined
+  ClockCircleOutlined,
+  EyeOutlined,
+  EditOutlined
 } from "@ant-design/icons";
 import CreatorCompletedChecklistModal from "../../components/modals/CreatorCompletedChecklistModal";
 import dayjs from "dayjs";
@@ -35,147 +38,125 @@ const WARNING_ORANGE = "#faad14";
 
 const { Text } = Typography;
 
-// MOCK DATA for Creator's Completed Checklists (4 ITEMS)
-const MOCK_CREATOR_COMPLETED = [
+// MOCK DATA for Creator's In-Progress Checklists
+const MOCK_CREATOR_QUEUE = [
   {
-    _id: "c1",
-    dclNo: "DCL-2024-001",
-    customerNumber: "CUST001",
-    customerName: "Alpha Enterprises Ltd",
-    loanType: "Business Loan",
-    title: "Business Expansion Loan",
-    assignedToRM: { _id: "rm1", name: "John Kamau", email: "john.k@ncba.co.ke" },
-    approvedBy: { _id: "checker1", name: "Michael Chen", email: "michael.c@ncba.co.ke" },
-    checkerComments: "All documents properly verified and complete. Excellent work!",
-    status: "approved",
-    priority: "high",
-    completionDate: "2024-12-18T10:30:00Z",
-    submittedToCheckerAt: "2024-12-16T14:20:00Z",
-    createdAt: "2024-12-01T09:30:00Z",
-    updatedAt: "2024-12-18T10:30:00Z",
-    documents: [
-      {
-        category: "Business Registration",
-        docList: [
-          { 
-            _id: "doc1_1", 
-            name: "Certificate of Incorporation", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc1.pdf"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    _id: "c2",
-    dclNo: "DCL-2024-002",
-    customerNumber: "CUST002",
-    customerName: "Beta Manufacturing Inc",
-    loanType: "Equipment Finance",
-    title: "Machinery Upgrade - $350,000",
-    assignedToRM: { _id: "rm2", name: "Sarah Wangui", email: "sarah.w@ncba.co.ke" },
-    approvedBy: { _id: "checker2", name: "David Omondi", email: "david.o@ncba.co.ke" },
-    checkerComments: "Minor revisions required on invoice. Overall good work.",
-    status: "approved_with_revisions",
-    priority: "medium",
-    completionDate: "2024-12-17T14:15:00Z",
-    submittedToCheckerAt: "2024-12-16T09:45:00Z",
-    createdAt: "2024-12-03T14:15:00Z",
-    updatedAt: "2024-12-17T14:15:00Z",
-    documents: [
-      {
-        category: "Technical Documents",
-        docList: [
-          { 
-            _id: "doc2_1", 
-            name: "Equipment Quotations", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc2.pdf"
-          },
-          { 
-            _id: "doc2_2", 
-            name: "Technical Specifications", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc2_2.pdf"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    _id: "c3",
-    dclNo: "DCL-2024-003",
-    customerNumber: "CUST003",
-    customerName: "Premium Motors Ltd",
-    loanType: "Asset Finance",
-    title: "Fleet Vehicle Purchase - 5 Units",
-    assignedToRM: { _id: "rm1", name: "John Kamau", email: "john.k@ncba.co.ke" },
-    approvedBy: { _id: "checker1", name: "Michael Chen", email: "michael.c@ncba.co.ke" },
-    checkerComments: "Complete documentation. Ready for processing.",
-    status: "approved",
-    priority: "medium",
-    completionDate: "2024-12-18T09:20:00Z",
-    submittedToCheckerAt: "2024-12-16T10:45:00Z",
-    createdAt: "2024-12-05T11:15:00Z",
-    updatedAt: "2024-12-18T09:20:00Z",
-    documents: [
-      {
-        category: "Vehicle Documents",
-        docList: [
-          { 
-            _id: "doc3_1", 
-            name: "Proforma Invoice", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc3_1.pdf"
-          },
-          { 
-            _id: "doc3_2", 
-            name: "Logbook Copies", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc3_2.pdf"
-          },
-          { 
-            _id: "doc3_3", 
-            name: "Insurance Certificates", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc3_3.pdf"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    _id: "c4",
-    dclNo: "DCL-2024-004",
-    customerNumber: "CUST004",
-    customerName: "Tech Solutions Ltd",
+    _id: "q1",
+    dclNo: "DCL-2024-011",
+    customerNumber: "CUST011",
+    customerName: "Global Tech Ltd",
     loanType: "Technology Loan",
-    title: "Software Development - $200,000",
-    assignedToRM: { _id: "rm3", name: "Peter Kariuki", email: "peter.k@ncba.co.ke" },
-    approvedBy: { _id: "checker2", name: "David Omondi", email: "david.o@ncba.co.ke" },
-    checkerComments: "Excellent documentation. No issues found.",
-    status: "approved",
-    priority: "low",
-    completionDate: "2024-12-19T11:45:00Z",
-    submittedToCheckerAt: "2024-12-17T15:30:00Z",
-    createdAt: "2024-12-06T10:00:00Z",
-    updatedAt: "2024-12-19T11:45:00Z",
+    title: "IT Infrastructure Upgrade",
+    assignedToRM: { _id: "rm1", name: "John Kamau", email: "john.k@ncba.co.ke" },
+    status: "draft",
+    priority: "high",
+    createdAt: "2024-12-20T09:30:00Z",
+    updatedAt: "2024-12-20T09:30:00Z",
     documents: [
       {
         category: "Technical Documents",
         docList: [
           { 
-            _id: "doc4_1", 
+            _id: "docq1_1", 
             name: "Project Proposal", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc4_1.pdf"
+            status: "pending", 
+            comment: "Need detailed budget" 
           },
           { 
-            _id: "doc4_2", 
-            name: "Budget Breakdown", 
-            status: "approved", 
-            fileUrl: "https://example.com/doc4_2.pdf"
+            _id: "docq1_2", 
+            name: "Vendor Quotations", 
+            status: "pending", 
+            comment: "Waiting for 3 quotes" 
+          }
+        ]
+      }
+    ]
+  },
+  {
+    _id: "q2",
+    dclNo: "DCL-2024-012",
+    customerNumber: "CUST012",
+    customerName: "Prime Construction Ltd",
+    loanType: "Construction Loan",
+    title: "Commercial Building - $2.5M",
+    assignedToRM: { _id: "rm2", name: "Sarah Wangui", email: "sarah.w@ncba.co.ke" },
+    status: "pending_rm_review",
+    priority: "high",
+    createdAt: "2024-12-19T14:15:00Z",
+    updatedAt: "2024-12-19T14:15:00Z",
+    documents: [
+      {
+        category: "Construction Documents",
+        docList: [
+          { 
+            _id: "docq2_1", 
+            name: "Architectural Plans", 
+            status: "submitted", 
+            comment: "Approved by RM" 
+          },
+          { 
+            _id: "docq2_2", 
+            name: "Building Permits", 
+            status: "pending", 
+            comment: "Application in progress" 
+          }
+        ]
+      }
+    ]
+  },
+  {
+    _id: "q3",
+    dclNo: "DCL-2024-013",
+    customerNumber: "CUST013",
+    customerName: "Fresh Farm Produce Ltd",
+    loanType: "Agricultural Loan",
+    title: "Greenhouse Expansion",
+    assignedToRM: { _id: "rm3", name: "Peter Kariuki", email: "peter.k@ncba.co.ke" },
+    status: "in_review",
+    priority: "medium",
+    createdAt: "2024-12-18T11:45:00Z",
+    updatedAt: "2024-12-18T11:45:00Z",
+    documents: [
+      {
+        category: "Agricultural Documents",
+        docList: [
+          { 
+            _id: "docq3_1", 
+            name: "Land Title Deed", 
+            status: "sighted", 
+            comment: "Verified" 
+          },
+          { 
+            _id: "docq3_2", 
+            name: "Market Analysis", 
+            status: "pending", 
+            comment: "In progress" 
+          }
+        ]
+      }
+    ]
+  },
+  {
+    _id: "q4",
+    dclNo: "DCL-2024-014",
+    customerNumber: "CUST014",
+    customerName: "MediCare Equipment Ltd",
+    loanType: "Medical Equipment Loan",
+    title: "MRI Machine Purchase",
+    assignedToRM: { _id: "rm1", name: "John Kamau", email: "john.k@ncba.co.ke" },
+    status: "draft",
+    priority: "low",
+    createdAt: "2024-12-21T10:00:00Z",
+    updatedAt: "2024-12-21T10:00:00Z",
+    documents: [
+      {
+        category: "Medical Documents",
+        docList: [
+          { 
+            _id: "docq4_1", 
+            name: "Equipment Specifications", 
+            status: "pending", 
+            comment: "Pending vendor details" 
           }
         ]
       }
@@ -183,7 +164,7 @@ const MOCK_CREATOR_COMPLETED = [
   }
 ];
 
-const Completed = ({ userId = "creator_current" }) => {
+const MyQueue = ({ userId = "creator_current" }) => {
   const [selectedChecklist, setSelectedChecklist] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -194,7 +175,7 @@ const Completed = ({ userId = "creator_current" }) => {
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
-      setMockData(MOCK_CREATOR_COMPLETED);
+      setMockData(MOCK_CREATOR_QUEUE);
       setLoading(false);
     }, 300);
   }, []);
@@ -208,7 +189,7 @@ const Completed = ({ userId = "creator_current" }) => {
         c.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
         c.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
         c.loanType.toLowerCase().includes(searchText.toLowerCase()) ||
-        c.approvedBy?.name?.toLowerCase().includes(searchText.toLowerCase())
+        c.assignedToRM?.name?.toLowerCase().includes(searchText.toLowerCase())
       );
     }
     
@@ -220,9 +201,20 @@ const Completed = ({ userId = "creator_current" }) => {
   const refetch = () => {
     setLoading(true);
     setTimeout(() => {
-      setMockData([...MOCK_CREATOR_COMPLETED]);
+      setMockData([...MOCK_CREATOR_QUEUE]);
       setLoading(false);
     }, 200);
+  };
+
+  const getStatusConfig = (status) => {
+    const configs = {
+      draft: { color: "default", text: "Draft", icon: <EditOutlined /> },
+      pending_rm_review: { color: "processing", text: "Pending RM Review", icon: <ClockCircleOutlined /> },
+      in_review: { color: "warning", text: "In Review", icon: <EyeOutlined /> },
+      submitted: { color: "success", text: "Submitted", icon: <EyeOutlined /> },
+      completed: { color: "success", text: "Completed", icon: <EyeOutlined /> }
+    };
+    return configs[status] || { color: "default", text: status, icon: null };
   };
 
   const columns = [
@@ -234,16 +226,6 @@ const Completed = ({ userId = "creator_current" }) => {
       render: (text) => (
         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
-          {text}
-        </div>
-      )
-    },
-    { 
-      title: "Customer No", 
-      dataIndex: "customerNumber", 
-      width: 110,
-      render: (text) => (
-        <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
           {text}
         </div>
       )
@@ -276,13 +258,13 @@ const Completed = ({ userId = "creator_current" }) => {
       )
     },
     { 
-      title: "Checker - Approver", 
-      dataIndex: "approvedBy", 
+      title: "Assigned RM", 
+      dataIndex: "assignedToRM", 
       width: 140,
-      render: (approver) => (
+      render: (rm) => (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <UserOutlined style={{ color: PRIMARY_BLUE, fontSize: 12 }} />
-          <span style={{ color: PRIMARY_BLUE, fontWeight: 500, fontSize: 13 }}>{approver?.name || "N/A"}</span>
+          <span style={{ color: PRIMARY_BLUE, fontWeight: 500, fontSize: 13 }}>{rm?.name || "N/A"}</span>
         </div>
       )
     },
@@ -312,8 +294,8 @@ const Completed = ({ userId = "creator_current" }) => {
       } 
     },
     { 
-      title: "Completed Date", 
-      dataIndex: "completionDate", 
+      title: "Created Date", 
+      dataIndex: "createdAt", 
       width: 120,
       render: (date) => (
         <div style={{ fontSize: 12, fontWeight: 500 }}>
@@ -324,14 +306,10 @@ const Completed = ({ userId = "creator_current" }) => {
     { 
       title: "Status", 
       dataIndex: "status", 
-      width: 100,
+      width: 140,
       fixed: "right",
       render: (status) => {
-        const statusConfig = {
-          approved: { color: "success", text: "Approved", icon: <CheckCircleOutlined /> },
-          approved_with_revisions: { color: "processing", text: "Revised", icon: <CheckCircleOutlined /> }
-        };
-        const config = statusConfig[status] || { color: "default", text: status };
+        const config = getStatusConfig(status);
         return (
           <Tag 
             color={config.color}
@@ -346,37 +324,37 @@ const Completed = ({ userId = "creator_current" }) => {
   ];
 
   const customTableStyles = `
-    .creator-completed-table .ant-table-wrapper { 
+    .creator-queue-table .ant-table-wrapper { 
       border-radius: 12px; 
       overflow: hidden; 
       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08); 
       border: 1px solid #e0e0e0; 
     }
-    .creator-completed-table .ant-table-thead > tr > th { 
+    .creator-queue-table .ant-table-thead > tr > th { 
       background-color: #f7f7f7 !important; 
       color: ${PRIMARY_BLUE} !important; 
       font-weight: 700; 
       fontSize: 13px; 
       padding: 14px 12px !important; 
-      border-bottom: 3px solid ${SUCCESS_GREEN} !important; 
+      border-bottom: 3px solid ${ACCENT_LIME} !important; 
       border-right: none !important; 
     }
-    .creator-completed-table .ant-table-tbody > tr > td { 
+    .creator-queue-table .ant-table-tbody > tr > td { 
       border-bottom: 1px solid #f0f0f0 !important; 
       border-right: none !important; 
       padding: 12px 12px !important; 
       fontSize: 13px; 
       color: #333; 
     }
-    .creator-completed-table .ant-table-tbody > tr.ant-table-row:hover > td { 
-      background-color: rgba(82, 196, 26, 0.1) !important; 
+    .creator-queue-table .ant-table-tbody > tr.ant-table-row:hover > td { 
+      background-color: rgba(181, 211, 52, 0.1) !important; 
       cursor: pointer;
     }
-    .creator-completed-table .ant-pagination .ant-pagination-item-active { 
-      background-color: ${SUCCESS_GREEN} !important; 
-      border-color: ${SUCCESS_GREEN} !important; 
+    .creator-queue-table .ant-pagination .ant-pagination-item-active { 
+      background-color: ${ACCENT_LIME} !important; 
+      border-color: ${ACCENT_LIME} !important; 
     }
-    .creator-completed-table .ant-pagination .ant-pagination-item-active a { 
+    .creator-queue-table .ant-pagination .ant-pagination-item-active a { 
       color: ${PRIMARY_BLUE} !important; 
       font-weight: 600; 
     }
@@ -392,25 +370,36 @@ const Completed = ({ userId = "creator_current" }) => {
           marginBottom: 24,
           borderRadius: 8,
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          borderLeft: `4px solid ${SUCCESS_GREEN}`
+          borderLeft: `4px solid ${ACCENT_LIME}`
         }}
         bodyStyle={{ padding: 16 }}
       >
         <Row justify="space-between" align="middle">
           <Col>
             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
-              Completed Checklists
+              My Checklists Queue
               <Badge 
                 count={filteredData.length} 
                 style={{ 
-                  backgroundColor: SUCCESS_GREEN,
+                  backgroundColor: ACCENT_LIME,
                   fontSize: 12
                 }}
               />
             </h2>
             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
-              Checklists approved by checkers
+              In-progress checklists created by you
             </p>
+          </Col>
+          <Col>
+            <Space>
+              <Button 
+                type="primary" 
+                style={{ backgroundColor: PRIMARY_BLUE }}
+                onClick={() => window.location.href = '/creator/create'}
+              >
+                + Create New Checklist
+              </Button>
+            </Space>
           </Col>
         </Row>
       </Card>
@@ -428,7 +417,7 @@ const Completed = ({ userId = "creator_current" }) => {
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} sm={12} md={8}>
             <Input
-              placeholder="Search by DCL No, Customer, Loan Type, or Checker"
+              placeholder="Search by DCL No, Customer, Loan Type, or RM"
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -443,7 +432,7 @@ const Completed = ({ userId = "creator_current" }) => {
               style={{ width: '100%' }}
               size="middle"
             >
-              Clear
+              Clear Filters
             </Button>
           </Col>
         </Row>
@@ -452,31 +441,38 @@ const Completed = ({ userId = "creator_current" }) => {
       {/* Table Title */}
       <Divider style={{ margin: "12px 0" }}>
         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
-          Approved Checklists ({filteredData.length} items)
+          Active Checklists ({filteredData.length} items)
         </span>
       </Divider>
 
       {/* Table */}
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
-          <Spin tip="Loading completed checklists..." />
+          <Spin tip="Loading your checklists..." />
         </div>
       ) : filteredData.length === 0 ? (
         <Empty 
           description={
             <div>
-              <p style={{ fontSize: 16, marginBottom: 8 }}>No completed checklists found</p>
+              <p style={{ fontSize: 16, marginBottom: 8 }}>No checklists found</p>
               <p style={{ color: "#999" }}>
                 {searchText 
                   ? 'Try changing your search term' 
-                  : 'No checklists have been completed yet'}
+                  : 'Create your first checklist to get started'}
               </p>
+              <Button 
+                type="primary" 
+                style={{ marginTop: 16, backgroundColor: PRIMARY_BLUE }}
+                onClick={() => window.location.href = '/creator/create'}
+              >
+                Create New Checklist
+              </Button>
             </div>
           } 
           style={{ padding: 40 }} 
         />
       ) : (
-        <div className="creator-completed-table">
+        <div className="creator-queue-table">
           <Table 
             columns={columns} 
             dataSource={filteredData} 
@@ -538,4 +534,4 @@ const Completed = ({ userId = "creator_current" }) => {
   );
 };
 
-export default Completed;
+export default MyQueue;
