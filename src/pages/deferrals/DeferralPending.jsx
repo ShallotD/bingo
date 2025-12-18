@@ -1,3 +1,4033 @@
+// // // // import React, { useMemo, useState, useEffect } from "react";
+// // // // import {
+// // // //   Button,
+// // // //   Divider,
+// // // //   Table,
+// // // //   Tag,
+// // // //   Spin,
+// // // //   Empty,
+// // // //   Card,
+// // // //   Row,
+// // // //   Col,
+// // // //   Input,
+// // // //   Badge,
+// // // //   Typography,
+// // // //   Modal,
+// // // //   message,
+// // // //   Popconfirm
+// // // // } from "antd";
+// // // // import {
+// // // //   SearchOutlined,
+// // // //   FileTextOutlined,
+// // // //   UserOutlined,
+// // // //   CustomerServiceOutlined,
+// // // //   ClockCircleOutlined,
+// // // //   EyeOutlined,
+// // // //   EditOutlined,
+// // // //   DeleteOutlined,
+// // // //   CheckCircleOutlined,
+// // // //   CloseCircleOutlined
+// // // // } from "@ant-design/icons";
+// // // // import dayjs from "dayjs";
+
+// // // // // Theme Colors (same as other queues)
+// // // // const PRIMARY_BLUE = "#164679";
+// // // // const ACCENT_LIME = "#b5d334";
+// // // // const HIGHLIGHT_GOLD = "#fcb116";
+// // // // const LIGHT_YELLOW = "#fcd716";
+// // // // const SECONDARY_PURPLE = "#7e6496";
+// // // // const SUCCESS_GREEN = "#52c41a";
+// // // // const ERROR_RED = "#ff4d4f";
+// // // // const WARNING_ORANGE = "#faad14";
+
+// // // // const { Text, Title } = Typography;
+
+// // // // // MOCK DATA for RM's Pending Deferrals
+// // // // const MOCK_RM_PENDING_DEFERRALS = [
+// // // //   {
+// // // //     _id: "1",
+// // // //     deferralNumber: "DEF-2024-001",
+// // // //     dclNo: "DCL-2024-015",
+// // // //     customerNumber: "CUST001",
+// // // //     customerName: "Javan Dave",
+// // // //     businessName: "JAVAN DAVE AND SONS",
+// // // //     deferralTitle: "Bank Statements",
+// // // //     documentType: "Financial Statements",
+// // // //     deferralType: "New",
+// // // //     status: "deferral_requested", // RM requested, waiting for creator approval
+// // // //     daysSought: 30,
+// // // //     requestedExpiry: "2025-02-05T23:59:59Z",
+// // // //     originalDueDate: "2025-01-05T23:59:59Z",
+// // // //     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
+// // // //     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
+// // // //     createdAt: "2025-01-05T09:30:00Z",
+// // // //     updatedAt: "2025-01-05T09:30:00Z",
+// // // //     slaExpiry: "2025-01-12T23:59:59Z",
+// // // //     canEdit: true, // RM can edit if still pending
+// // // //     canWithdraw: true // RM can withdraw if still pending
+// // // //   },
+// // // //   {
+// // // //     _id: "2",
+// // // //     deferralNumber: "DEF-2024-002",
+// // // //     dclNo: "DCL-2024-028",
+// // // //     customerNumber: "CUST002",
+// // // //     customerName: "Diana Mwangi",
+// // // //     businessName: "DIANA MWANGI AND DAUGHTERS",
+// // // //     deferralTitle: "CR12 Certificate",
+// // // //     documentType: "Registration Documents",
+// // // //     deferralType: "Extension",
+// // // //     status: "deferral_requested",
+// // // //     daysSought: 15,
+// // // //     requestedExpiry: "2025-02-05T23:59:59Z",
+// // // //     originalDueDate: "2025-01-20T23:59:59Z",
+// // // //     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
+// // // //     rmReason: "CRB office experiencing delays in processing due to system upgrades",
+// // // //     createdAt: "2025-01-11T14:20:00Z",
+// // // //     updatedAt: "2025-01-11T14:20:00Z",
+// // // //     slaExpiry: "2025-01-18T23:59:59Z",
+// // // //     canEdit: true,
+// // // //     canWithdraw: true
+// // // //   },
+// // // //   {
+// // // //     _id: "3",
+// // // //     deferralNumber: "DEF-2024-003",
+// // // //     dclNo: "DCL-2024-042",
+// // // //     customerNumber: "CUST003",
+// // // //     customerName: "Lucy Nyambura",
+// // // //     businessName: "LUCY NYAMBURA AND SONS",
+// // // //     deferralTitle: "Lease Agreement",
+// // // //     documentType: "Legal Documents",
+// // // //     deferralType: "New",
+// // // //     status: "deferral_approved", // Already approved by creator
+// // // //     daysSought: 45,
+// // // //     requestedExpiry: "2025-03-05T23:59:59Z",
+// // // //     originalDueDate: "2025-01-20T23:59:59Z",
+// // // //     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
+// // // //     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+// // // //     creatorComments: "Approved. Please ensure document is submitted before expiry date.",
+// // // //     createdAt: "2025-01-20T11:15:00Z",
+// // // //     updatedAt: "2025-01-21T10:30:00Z",
+// // // //     approvedDate: "2025-01-21T10:30:00Z",
+// // // //     canEdit: false, // Cannot edit after approval
+// // // //     canWithdraw: false, // Cannot withdraw after approval
+// // // //     canUpload: true // Can upload document now
+// // // //   }
+// // // // ];
+
+// // // // // Deferral Details Modal for RM
+// // // // const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+// // // //   const getStatusConfig = (status) => {
+// // // //     switch (status) {
+// // // //       case 'deferral_requested':
+// // // //         return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+// // // //       case 'deferral_approved':
+// // // //         return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+// // // //       case 'deferral_rejected':
+// // // //         return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+// // // //       default:
+// // // //         return { color: 'default', label: status, description: '' };
+// // // //     }
+// // // //   };
+
+// // // //   const statusConfig = getStatusConfig(deferral?.status);
+
+// // // //   return (
+// // // //     <Modal
+// // // //       title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
+// // // //       open={open}
+// // // //       onCancel={onClose}
+// // // //       width={700}
+// // // //       footer={[
+// // // //         <Button key="close" onClick={onClose}>
+// // // //           Close
+// // // //         </Button>
+// // // //       ]}
+// // // //     >
+// // // //       {deferral && (
+// // // //         <div>
+// // // //           {/* Header Section */}
+// // // //           <Card
+// // // //             size="small"
+// // // //             style={{ marginBottom: 16, borderLeft: `4px solid ${ACCENT_LIME}` }}
+// // // //           >
+// // // //             <Row gutter={[16, 16]}>
+// // // //               <Col span={12}>
+// // // //                 <Text strong>Deferral Number:</Text>
+// // // //                 <div style={{ color: PRIMARY_BLUE, fontWeight: 'bold' }}>
+// // // //                   {deferral.deferralNumber}
+// // // //                 </div>
+// // // //               </Col>
+// // // //               <Col span={12}>
+// // // //                 <Text strong>DCL Number:</Text>
+// // // //                 <div>{deferral.dclNo}</div>
+// // // //               </Col>
+// // // //               <Col span={12}>
+// // // //                 <Text strong>Customer:</Text>
+// // // //                 <div>{deferral.customerName}</div>
+// // // //                 <Text type="secondary" style={{ fontSize: 12 }}>
+// // // //                   {deferral.businessName}
+// // // //                 </Text>
+// // // //               </Col>
+// // // //               <Col span={12}>
+// // // //                 <Text strong>Document:</Text>
+// // // //                 <div>{deferral.deferralTitle}</div>
+// // // //                 <Tag color="blue" style={{ marginTop: 4 }}>{deferral.documentType}</Tag>
+// // // //               </Col>
+// // // //             </Row>
+// // // //           </Card>
+
+// // // //           {/* Status Section */}
+// // // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // // //               Status
+// // // //             </Title>
+// // // //             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+// // // //               <Tag 
+// // // //                 color={statusConfig.color} 
+// // // //                 icon={statusConfig.icon}
+// // // //                 style={{ fontSize: 14, padding: '8px 12px' }}
+// // // //               >
+// // // //                 {statusConfig.label}
+// // // //               </Tag>
+// // // //               <div>
+// // // //                 <div>{statusConfig.description}</div>
+// // // //                 {deferral.currentApprover && (
+// // // //                   <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+// // // //                     Current Approver: <strong>{deferral.currentApprover.name}</strong>
+// // // //                   </div>
+// // // //                 )}
+// // // //               </div>
+// // // //             </div>
+// // // //           </Card>
+
+// // // //           {/* Timeline Section */}
+// // // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
+// // // //               <ClockCircleOutlined /> Timeline
+// // // //             </Title>
+// // // //             <Row gutter={[16, 16]}>
+// // // //               <Col span={8}>
+// // // //                 <div>
+// // // //                   <Text type="secondary" style={{ fontSize: 12 }}>Original Due Date</Text>
+// // // //                   <div style={{ fontWeight: 'bold' }}>
+// // // //                     {dayjs(deferral.originalDueDate).format('DD/MM/YYYY')}
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </Col>
+// // // //               <Col span={8}>
+// // // //                 <div>
+// // // //                   <Text type="secondary" style={{ fontSize: 12 }}>Requested Extension</Text>
+// // // //                   <div style={{ fontWeight: 'bold', color: WARNING_ORANGE }}>
+// // // //                     {dayjs(deferral.requestedExpiry).format('DD/MM/YYYY')}
+// // // //                   </div>
+// // // //                   <Text type="secondary" style={{ fontSize: 11 }}>
+// // // //                     ({deferral.daysSought} days)
+// // // //                   </Text>
+// // // //                 </div>
+// // // //               </Col>
+// // // //               <Col span={8}>
+// // // //                 <div>
+// // // //                   <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+// // // //                   <div style={{ fontWeight: 'bold' }}>
+// // // //                     {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </Col>
+// // // //             </Row>
+// // // //             {deferral.approvedDate && (
+// // // //               <div style={{ marginTop: 16 }}>
+// // // //                 <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+// // // //                 <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+// // // //                   {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+// // // //                 </div>
+// // // //               </div>
+// // // //             )}
+// // // //           </Card>
+
+// // // //           {/* Reason Section */}
+// // // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // // //               <UserOutlined /> Your Request Reason
+// // // //             </Title>
+// // // //             <div style={{
+// // // //               padding: 12,
+// // // //               background: '#f8f9fa',
+// // // //               borderRadius: 4,
+// // // //               borderLeft: `3px solid ${SECONDARY_PURPLE}`
+// // // //             }}>
+// // // //               {deferral.rmReason}
+// // // //             </div>
+// // // //           </Card>
+
+// // // //           {/* Creator Comments (if any) */}
+// // // //           {deferral.creatorComments && (
+// // // //             <Card size="small" style={{ marginBottom: 16 }}>
+// // // //               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // // //                 Creator Comments
+// // // //               </Title>
+// // // //               <div style={{
+// // // //                 padding: 12,
+// // // //                 background: '#e6f7ff',
+// // // //                 borderRadius: 4,
+// // // //                 borderLeft: `3px solid ${PRIMARY_BLUE}`
+// // // //               }}>
+// // // //                 {deferral.creatorComments}
+// // // //               </div>
+// // // //             </Card>
+// // // //           )}
+
+// // // //           {/* Actions for RM */}
+// // // //           <Card size="small">
+// // // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // // //               Available Actions
+// // // //             </Title>
+// // // //             <div style={{ display: 'flex', gap: 8 }}>
+// // // //               {deferral.canEdit && (
+// // // //                 <Button type="primary" icon={<EditOutlined />}>
+// // // //                   Edit Request
+// // // //                 </Button>
+// // // //               )}
+// // // //               {deferral.canWithdraw && (
+// // // //                 <Button danger icon={<DeleteOutlined />}>
+// // // //                   Withdraw Request
+// // // //                 </Button>
+// // // //               )}
+// // // //               {deferral.canUpload && (
+// // // //                 <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+// // // //                   Upload Document
+// // // //                 </Button>
+// // // //               )}
+// // // //             </div>
+// // // //           </Card>
+// // // //         </div>
+// // // //       )}
+// // // //     </Modal>
+// // // //   );
+// // // // };
+
+// // // // // Main DeferralPending Component for RM
+// // // // const DeferralPending = ({ userId = "rm_current" }) => {
+// // // //   const [selectedDeferral, setSelectedDeferral] = useState(null);
+// // // //   const [modalOpen, setModalOpen] = useState(false);
+// // // //   const [loading, setLoading] = useState(false);
+// // // //   const [mockData, setMockData] = useState([]);
+  
+// // // //   // Filters
+// // // //   const [searchText, setSearchText] = useState("");
+
+// // // //   // Load data
+// // // //   useEffect(() => {
+// // // //     setLoading(true);
+    
+// // // //     setTimeout(() => {
+// // // //       setMockData(MOCK_RM_PENDING_DEFERRALS);
+// // // //       setLoading(false);
+// // // //     }, 300);
+// // // //   }, []);
+
+// // // //   // Filter data - RM sees their own deferrals (both requested and approved)
+// // // //   const filteredData = useMemo(() => {
+// // // //     let filtered = mockData.filter((d) => 
+// // // //       d.status === "deferral_requested" || d.status === "deferral_approved"
+// // // //     );
+    
+// // // //     // Apply search filter
+// // // //     if (searchText) {
+// // // //       filtered = filtered.filter(d =>
+// // // //         d.deferralNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// // // //         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
+// // // //         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// // // //         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+// // // //         d.businessName.toLowerCase().includes(searchText.toLowerCase()) ||
+// // // //         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
+// // // //       );
+// // // //     }
+    
+// // // //     return filtered;
+// // // //   }, [mockData, searchText]);
+
+// // // //   // Handle withdraw deferral
+// // // //   const handleWithdraw = (deferralId) => {
+// // // //     Modal.confirm({
+// // // //       title: 'Withdraw Deferral Request',
+// // // //       content: 'Are you sure you want to withdraw this deferral request?',
+// // // //       onOk: () => {
+// // // //         setMockData(prev => prev.filter(d => d._id !== deferralId));
+// // // //         message.success('Deferral request withdrawn successfully');
+// // // //       }
+// // // //     });
+// // // //   };
+
+// // // //   // Handle edit deferral
+// // // //   const handleEdit = (deferral) => {
+// // // //     message.info(`Edit deferral ${deferral.deferralNumber}`);
+// // // //     // Navigate to edit page or open edit modal
+// // // //   };
+
+// // // //   // Handle upload document
+// // // //   const handleUpload = (deferral) => {
+// // // //     message.info(`Upload document for ${deferral.deferralNumber}`);
+// // // //     // Open upload modal or navigate to upload page
+// // // //   };
+
+// // // //   // Clear filters
+// // // //   const clearFilters = () => {
+// // // //     setSearchText("");
+// // // //   };
+
+// // // //   // Columns for RM's view
+// // // //   const columns = [
+// // // //     {
+// // // //       title: "Deferral No",
+// // // //       dataIndex: "deferralNumber",
+// // // //       key: "deferralNumber",
+// // // //       width: 140,
+// // // //       render: (text) => (
+// // // //         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+// // // //           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
+// // // //           {text}
+// // // //         </div>
+// // // //       ),
+// // // //       sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
+// // // //     },
+// // // //     {
+// // // //       title: "DCL No",
+// // // //       dataIndex: "dclNo",
+// // // //       key: "dclNo",
+// // // //       width: 120,
+// // // //       render: (text) => (
+// // // //         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
+// // // //           {text}
+// // // //         </div>
+// // // //       ),
+// // // //       sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
+// // // //     },
+// // // //     {
+// // // //       title: "Customer Name",
+// // // //       dataIndex: "customerName",
+// // // //       key: "customerName",
+// // // //       width: 180,
+// // // //       render: (text, record) => (
+// // // //         <div style={{
+// // // //           fontWeight: 600,
+// // // //           color: PRIMARY_BLUE,
+// // // //           display: "flex",
+// // // //           alignItems: "center",
+// // // //           gap: 6
+// // // //         }}>
+// // // //           <CustomerServiceOutlined style={{ fontSize: 12 }} />
+// // // //           <div>
+// // // //             <div>{text}</div>
+// // // //             <div style={{ fontSize: 11, color: "#666", fontWeight: "normal" }}>
+// // // //               {record.businessName}
+// // // //             </div>
+// // // //             <div style={{ fontSize: 10, color: "#999" }}>
+// // // //               {record.customerNumber}
+// // // //             </div>
+// // // //           </div>
+// // // //         </div>
+// // // //       ),
+// // // //       sorter: (a, b) => a.customerName.localeCompare(b.customerName)
+// // // //     },
+// // // //     {
+// // // //       title: "Document",
+// // // //       dataIndex: "deferralTitle",
+// // // //       key: "deferralTitle",
+// // // //       width: 180,
+// // // //       render: (text, record) => (
+// // // //         <div>
+// // // //           <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+// // // //             {text}
+// // // //           </div>
+// // // //           <div style={{ fontSize: 11, color: "#999" }}>
+// // // //             {record.documentType}
+// // // //           </div>
+// // // //         </div>
+// // // //       ),
+// // // //       sorter: (a, b) => a.deferralTitle.localeCompare(b.deferralTitle)
+// // // //     },
+// // // //     {
+// // // //       title: "Status",
+// // // //       dataIndex: "status",
+// // // //       key: "status",
+// // // //       width: 120,
+// // // //       render: (status) => {
+// // // //         const statusConfig = {
+// // // //           'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+// // // //           'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+// // // //           'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+// // // //         };
+        
+// // // //         const config = statusConfig[status] || { color: 'default', text: status };
+// // // //         return (
+// // // //           <Tag 
+// // // //             color={config.color} 
+// // // //             icon={config.icon}
+// // // //             style={{ 
+// // // //               fontSize: 11,
+// // // //               fontWeight: "bold",
+// // // //               borderRadius: 4,
+// // // //               minWidth: 80,
+// // // //               textAlign: "center"
+// // // //             }}
+// // // //           >
+// // // //             {config.text}
+// // // //           </Tag>
+// // // //         );
+// // // //       },
+// // // //       filters: [
+// // // //         { text: 'Pending', value: 'deferral_requested' },
+// // // //         { text: 'Approved', value: 'deferral_approved' }
+// // // //       ],
+// // // //       onFilter: (value, record) => record.status === value,
+// // // //       sorter: (a, b) => a.status.localeCompare(b.status)
+// // // //     },
+// // // //     {
+// // // //       title: "Days Sought",
+// // // //       dataIndex: "daysSought",
+// // // //       key: "daysSought",
+// // // //       width: 100,
+// // // //       align: "center",
+// // // //       render: (days) => (
+// // // //         <div style={{
+// // // //           fontWeight: "bold",
+// // // //           color: days > 45 ? ERROR_RED : days > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+// // // //           fontSize: 14,
+// // // //           backgroundColor: days > 45 ? "#fff2f0" : days > 30 ? "#fff7e6" : "#f0f7ff",
+// // // //           padding: "4px 8px",
+// // // //           borderRadius: 4,
+// // // //           display: "inline-block"
+// // // //         }}>
+// // // //           {days} days
+// // // //         </div>
+// // // //       ),
+// // // //       sorter: (a, b) => a.daysSought - b.daysSought
+// // // //     },
+// // // //     {
+// // // //       title: "Requested On",
+// // // //       dataIndex: "createdAt",
+// // // //       key: "createdAt",
+// // // //       width: 100,
+// // // //       render: (date) => (
+// // // //         <div style={{ fontSize: 12 }}>
+// // // //           {dayjs(date).format('DD/MM/YYYY')}
+// // // //         </div>
+// // // //       ),
+// // // //       sorter: (a, b) => dayjs(a.createdAt).diff(dayjs(b.createdAt))
+// // // //     },
+// // // //     {
+// // // //       title: "Actions",
+// // // //       key: "actions",
+// // // //       width: 150,
+// // // //       fixed: "right",
+// // // //       render: (_, record) => (
+// // // //         <div style={{ display: "flex", gap: 4 }}>
+// // // //           <Button
+// // // //             type="link"
+// // // //             size="small"
+// // // //             onClick={() => {
+// // // //               setSelectedDeferral(record);
+// // // //               setModalOpen(true);
+// // // //             }}
+// // // //             style={{
+// // // //               color: PRIMARY_BLUE,
+// // // //               fontWeight: 500
+// // // //             }}
+// // // //           >
+// // // //             <EyeOutlined /> View
+// // // //           </Button>
+          
+// // // //           {record.canEdit && (
+// // // //             <Button
+// // // //               type="link"
+// // // //               size="small"
+// // // //               onClick={() => handleEdit(record)}
+// // // //               style={{ color: WARNING_ORANGE }}
+// // // //             >
+// // // //               <EditOutlined /> Edit
+// // // //             </Button>
+// // // //           )}
+          
+// // // //           {record.canWithdraw && (
+// // // //             <Popconfirm
+// // // //               title="Withdraw Deferral Request"
+// // // //               description="Are you sure you want to withdraw this request?"
+// // // //               onConfirm={() => handleWithdraw(record._id)}
+// // // //               okText="Yes"
+// // // //               cancelText="No"
+// // // //             >
+// // // //               <Button
+// // // //                 type="link"
+// // // //                 size="small"
+// // // //                 danger
+// // // //               >
+// // // //                 <DeleteOutlined /> Withdraw
+// // // //               </Button>
+// // // //             </Popconfirm>
+// // // //           )}
+          
+// // // //           {record.canUpload && (
+// // // //             <Button
+// // // //               type="link"
+// // // //               size="small"
+// // // //               onClick={() => handleUpload(record)}
+// // // //               style={{ color: SUCCESS_GREEN }}
+// // // //             >
+// // // //               Upload
+// // // //             </Button>
+// // // //           )}
+// // // //         </div>
+// // // //       )
+// // // //     }
+// // // //   ];
+
+// // // //   // Custom table styles
+// // // //   const customTableStyles = `
+// // // //     .deferral-pending-table .ant-table-wrapper {
+// // // //       border-radius: 12px;
+// // // //       overflow: hidden;
+// // // //       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+// // // //       border: 1px solid #e0e0e0;
+// // // //     }
+// // // //     .deferral-pending-table .ant-table-thead > tr > th {
+// // // //       background-color: #f7f7f7 !important;
+// // // //       color: ${PRIMARY_BLUE} !important;
+// // // //       font-weight: 700;
+// // // //       fontSize: 13px;
+// // // //       padding: 14px 12px !important;
+// // // //       border-bottom: 3px solid ${ACCENT_LIME} !important;
+// // // //       border-right: none !important;
+// // // //     }
+// // // //     .deferral-pending-table .ant-table-tbody > tr > td {
+// // // //       border-bottom: 1px solid #f0f0f0 !important;
+// // // //       border-right: none !important;
+// // // //       padding: 12px 12px !important;
+// // // //       fontSize: 13px;
+// // // //       color: #333;
+// // // //     }
+// // // //     .deferral-pending-table .ant-table-tbody > tr.ant-table-row:hover > td {
+// // // //       background-color: rgba(181, 211, 52, 0.1) !important;
+// // // //       cursor: pointer;
+// // // //     }
+// // // //     .deferral-pending-table .ant-table-row:hover .ant-table-cell:last-child {
+// // // //       background-color: rgba(181, 211, 52, 0.1) !important;
+// // // //     }
+// // // //     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
+// // // //       background-color: ${ACCENT_LIME} !important;
+// // // //       border-color: ${ACCENT_LIME} !important;
+// // // //     }
+// // // //     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
+// // // //       color: ${PRIMARY_BLUE} !important;
+// // // //       font-weight: 600;
+// // // //     }
+// // // //   `;
+
+// // // //   return (
+// // // //     <div style={{ padding: 24 }}>
+// // // //       <style>{customTableStyles}</style>
+
+// // // //       {/* Header */}
+// // // //       <Card
+// // // //         style={{
+// // // //           marginBottom: 24,
+// // // //           borderRadius: 8,
+// // // //           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+// // // //           borderLeft: `4px solid ${ACCENT_LIME}`
+// // // //         }}
+// // // //         bodyStyle={{ padding: 16 }}
+// // // //       >
+// // // //         <Row justify="space-between" align="middle">
+// // // //           <Col>
+// // // //             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+// // // //               My Deferral Requests
+// // // //               <Badge
+// // // //                 count={filteredData.length}
+// // // //                 style={{
+// // // //                   backgroundColor: ACCENT_LIME,
+// // // //                   fontSize: 12
+// // // //                 }}
+// // // //               />
+// // // //             </h2>
+// // // //             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
+// // // //               Track and manage your deferral requests
+// // // //             </p>
+// // // //           </Col>
+// // // //           <Col>
+// // // //             <Button
+// // // //               type="primary"
+// // // //               onClick={() => {
+// // // //                 // Navigate to request new deferral
+// // // //                 window.location.href = '/rm/deferrals/request';
+// // // //               }}
+// // // //               style={{
+// // // //                 backgroundColor: PRIMARY_BLUE,
+// // // //                 borderColor: PRIMARY_BLUE
+// // // //               }}
+// // // //             >
+// // // //               + New Deferral Request
+// // // //             </Button>
+// // // //           </Col>
+// // // //         </Row>
+// // // //       </Card>
+
+// // // //       {/* Filters */}
+// // // //       <Card
+// // // //         style={{
+// // // //           marginBottom: 16,
+// // // //           background: "#fafafa",
+// // // //           border: `1px solid ${PRIMARY_BLUE}20`,
+// // // //           borderRadius: 8
+// // // //         }}
+// // // //         size="small"
+// // // //       >
+// // // //         <Row gutter={[16, 16]} align="middle">
+// // // //           <Col xs={24} sm={12} md={8}>
+// // // //             <Input
+// // // //               placeholder="Search by Deferral No, DCL No, Customer, or Document"
+// // // //               prefix={<SearchOutlined />}
+// // // //               value={searchText}
+// // // //               onChange={(e) => setSearchText(e.target.value)}
+// // // //               allowClear
+// // // //               size="middle"
+// // // //             />
+// // // //           </Col>
+          
+// // // //           <Col xs={24} sm={12} md={4}>
+// // // //             <Button
+// // // //               onClick={clearFilters}
+// // // //               style={{ width: '100%' }}
+// // // //               size="middle"
+// // // //             >
+// // // //               Clear Filters
+// // // //             </Button>
+// // // //           </Col>
+// // // //         </Row>
+// // // //       </Card>
+
+// // // //       {/* Table Title */}
+// // // //       <Divider style={{ margin: "12px 0" }}>
+// // // //         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
+// // // //           My Deferral Requests ({filteredData.length} items)
+// // // //         </span>
+// // // //       </Divider>
+
+// // // //       {/* Table */}
+// // // //       {loading ? (
+// // // //         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
+// // // //           <Spin tip="Loading deferral requests..." />
+// // // //         </div>
+// // // //       ) : filteredData.length === 0 ? (
+// // // //         <Empty
+// // // //           description={
+// // // //             <div>
+// // // //               <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
+// // // //               <p style={{ color: "#999" }}>
+// // // //                 {searchText
+// // // //                   ? 'Try changing your search term'
+// // // //                   : 'You haven\'t requested any deferrals yet'}
+// // // //               </p>
+// // // //               <Button
+// // // //                 type="primary"
+// // // //                 onClick={() => window.location.href = '/rm/deferrals/request'}
+// // // //                 style={{ marginTop: 16 }}
+// // // //               >
+// // // //                 Request Your First Deferral
+// // // //               </Button>
+// // // //             </div>
+// // // //           }
+// // // //           style={{ padding: 40 }}
+// // // //         />
+// // // //       ) : (
+// // // //         <div className="deferral-pending-table">
+// // // //           <Table
+// // // //             columns={columns}
+// // // //             dataSource={filteredData}
+// // // //             rowKey="_id"
+// // // //             size="middle"
+// // // //             pagination={{
+// // // //               pageSize: 10,
+// // // //               showSizeChanger: true,
+// // // //               pageSizeOptions: ["10", "20", "50"],
+// // // //               position: ["bottomCenter"],
+// // // //               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
+// // // //             }}
+// // // //             scroll={{ x: 1300 }}
+// // // //             onRow={(record) => ({
+// // // //               onClick: () => {
+// // // //                 setSelectedDeferral(record);
+// // // //                 setModalOpen(true);
+// // // //               },
+// // // //             })}
+// // // //           />
+// // // //         </div>
+// // // //       )}
+
+// // // //       {/* Footer Info */}
+// // // //       <div style={{
+// // // //         marginTop: 24,
+// // // //         padding: 16,
+// // // //         background: "#f8f9fa",
+// // // //         borderRadius: 8,
+// // // //         fontSize: 12,
+// // // //         color: "#666",
+// // // //         border: `1px solid ${PRIMARY_BLUE}10`
+// // // //       }}>
+// // // //         <Row justify="space-between" align="middle">
+// // // //           <Col>
+// // // //             Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
+// // // //           </Col>
+// // // //           <Col>
+// // // //             <Text type="secondary">
+// // // //               Showing {filteredData.length} items • Data as of latest system update
+// // // //             </Text>
+// // // //           </Col>
+// // // //         </Row>
+// // // //       </div>
+
+// // // //       {/* Deferral Details Modal */}
+// // // //       {selectedDeferral && (
+// // // //         <DeferralDetailsModal
+// // // //           deferral={selectedDeferral}
+// // // //           open={modalOpen}
+// // // //           onClose={() => {
+// // // //             setModalOpen(false);
+// // // //             setSelectedDeferral(null);
+// // // //           }}
+// // // //         />
+// // // //       )}
+// // // //     </div>
+// // // //   );
+// // // // };
+
+// // // // export default DeferralPending;
+
+
+
+
+
+
+// // // import React, { useMemo, useState, useEffect } from "react";
+// // // import {
+// // //   Button,
+// // //   Divider,
+// // //   Table,
+// // //   Tag,
+// // //   Spin,
+// // //   Empty,
+// // //   Card,
+// // //   Row,
+// // //   Col,
+// // //   Input,
+// // //   Badge,
+// // //   Typography,
+// // //   Modal,
+// // //   message,
+// // //   Popconfirm
+// // // } from "antd";
+// // // import {
+// // //   SearchOutlined,
+// // //   FileTextOutlined,
+// // //   UserOutlined,
+// // //   CustomerServiceOutlined,
+// // //   ClockCircleOutlined,
+// // //   EyeOutlined,
+// // //   EditOutlined,
+// // //   DeleteOutlined,
+// // //   CheckCircleOutlined,
+// // //   CloseCircleOutlined
+// // // } from "@ant-design/icons";
+// // // import dayjs from "dayjs";
+
+// // // // Theme Colors (same as other queues)
+// // // const PRIMARY_BLUE = "#164679";
+// // // const ACCENT_LIME = "#b5d334";
+// // // const HIGHLIGHT_GOLD = "#fcb116";
+// // // const LIGHT_YELLOW = "#fcd716";
+// // // const SECONDARY_PURPLE = "#7e6496";
+// // // const SUCCESS_GREEN = "#52c41a";
+// // // const ERROR_RED = "#ff4d4f";
+// // // const WARNING_ORANGE = "#faad14";
+
+// // // const { Text, Title } = Typography;
+
+// // // // MOCK DATA for RM's Pending Deferrals
+// // // const MOCK_RM_PENDING_DEFERRALS = [
+// // //   {
+// // //     _id: "1",
+// // //     deferralNumber: "DEF-2024-001",
+// // //     dclNo: "DCL-2024-015",
+// // //     customerNumber: "CUST001",
+// // //     customerName: "Javan Dave",
+// // //     businessName: "JAVAN DAVE AND SONS",
+// // //     deferralTitle: "Bank Statements",
+// // //     documentType: "Financial Statements",
+// // //     deferralType: "New",
+// // //     status: "deferral_requested", // RM requested, waiting for creator approval
+// // //     daysSought: 30,
+// // //     requestedExpiry: "2025-02-05T23:59:59Z",
+// // //     originalDueDate: "2025-01-05T23:59:59Z",
+// // //     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
+// // //     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
+// // //     createdAt: "2025-01-05T09:30:00Z",
+// // //     updatedAt: "2025-01-05T09:30:00Z",
+// // //     slaExpiry: "2025-01-12T23:59:59Z",
+// // //     canEdit: true, // RM can edit if still pending
+// // //     canWithdraw: true // RM can withdraw if still pending
+// // //   },
+// // //   {
+// // //     _id: "2",
+// // //     deferralNumber: "DEF-2024-002",
+// // //     dclNo: "DCL-2024-028",
+// // //     customerNumber: "CUST002",
+// // //     customerName: "Diana Mwangi",
+// // //     businessName: "DIANA MWANGI AND DAUGHTERS",
+// // //     deferralTitle: "CR12 Certificate",
+// // //     documentType: "Registration Documents",
+// // //     deferralType: "Extension",
+// // //     status: "deferral_requested",
+// // //     daysSought: 15,
+// // //     requestedExpiry: "2025-02-05T23:59:59Z",
+// // //     originalDueDate: "2025-01-20T23:59:59Z",
+// // //     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
+// // //     rmReason: "CRB office experiencing delays in processing due to system upgrades",
+// // //     createdAt: "2025-01-11T14:20:00Z",
+// // //     updatedAt: "2025-01-11T14:20:00Z",
+// // //     slaExpiry: "2025-01-18T23:59:59Z",
+// // //     canEdit: true,
+// // //     canWithdraw: true
+// // //   },
+// // //   {
+// // //     _id: "3",
+// // //     deferralNumber: "DEF-2024-003",
+// // //     dclNo: "DCL-2024-042",
+// // //     customerNumber: "CUST003",
+// // //     customerName: "Lucy Nyambura",
+// // //     businessName: "LUCY NYAMBURA AND SONS",
+// // //     deferralTitle: "Lease Agreement",
+// // //     documentType: "Legal Documents",
+// // //     deferralType: "New",
+// // //     status: "deferral_approved", // Already approved by creator
+// // //     daysSought: 45,
+// // //     requestedExpiry: "2025-03-05T23:59:59Z",
+// // //     originalDueDate: "2025-01-20T23:59:59Z",
+// // //     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
+// // //     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+// // //     creatorComments: "Approved. Please ensure document is submitted before expiry date.",
+// // //     createdAt: "2025-01-20T11:15:00Z",
+// // //     updatedAt: "2025-01-21T10:30:00Z",
+// // //     approvedDate: "2025-01-21T10:30:00Z",
+// // //     canEdit: false, // Cannot edit after approval
+// // //     canWithdraw: false, // Cannot withdraw after approval
+// // //     canUpload: true // Can upload document now
+// // //   }
+// // // ];
+
+// // // // Deferral Details Modal for RM
+// // // const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+// // //   const getStatusConfig = (status) => {
+// // //     switch (status) {
+// // //       case 'deferral_requested':
+// // //         return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+// // //       case 'deferral_approved':
+// // //         return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+// // //       case 'deferral_rejected':
+// // //         return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+// // //       default:
+// // //         return { color: 'default', label: status, description: '' };
+// // //     }
+// // //   };
+
+// // //   const statusConfig = getStatusConfig(deferral?.status);
+
+// // //   return (
+// // //     <Modal
+// // //       title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
+// // //       open={open}
+// // //       onCancel={onClose}
+// // //       width={700}
+// // //       footer={[
+// // //         <Button key="close" onClick={onClose}>
+// // //           Close
+// // //         </Button>
+// // //       ]}
+// // //     >
+// // //       {deferral && (
+// // //         <div>
+// // //           {/* Header Section */}
+// // //           <Card
+// // //             size="small"
+// // //             style={{ marginBottom: 16, borderLeft: `4px solid ${ACCENT_LIME}` }}
+// // //           >
+// // //             <Row gutter={[16, 16]}>
+// // //               <Col span={12}>
+// // //                 <Text strong>Deferral Number:</Text>
+// // //                 <div style={{ color: PRIMARY_BLUE, fontWeight: 'bold' }}>
+// // //                   {deferral.deferralNumber}
+// // //                 </div>
+// // //               </Col>
+// // //               <Col span={12}>
+// // //                 <Text strong>DCL Number:</Text>
+// // //                 <div>{deferral.dclNo}</div>
+// // //               </Col>
+// // //               <Col span={12}>
+// // //                 <Text strong>Customer:</Text>
+// // //                 <div>{deferral.customerName}</div>
+// // //                 <Text type="secondary" style={{ fontSize: 12 }}>
+// // //                   {deferral.businessName}
+// // //                 </Text>
+// // //               </Col>
+// // //               <Col span={12}>
+// // //                 <Text strong>Document:</Text>
+// // //                 <div>{deferral.deferralTitle}</div>
+// // //                 <Tag color="blue" style={{ marginTop: 4 }}>{deferral.documentType}</Tag>
+// // //               </Col>
+// // //             </Row>
+// // //           </Card>
+
+// // //           {/* Status Section */}
+// // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //               Status
+// // //             </Title>
+// // //             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+// // //               <Tag 
+// // //                 color={statusConfig.color} 
+// // //                 icon={statusConfig.icon}
+// // //                 style={{ fontSize: 14, padding: '8px 12px' }}
+// // //               >
+// // //                 {statusConfig.label}
+// // //               </Tag>
+// // //               <div>
+// // //                 <div>{statusConfig.description}</div>
+// // //                 {deferral.currentApprover && (
+// // //                   <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+// // //                     Current Approver: <strong>{deferral.currentApprover.name}</strong>
+// // //                   </div>
+// // //                 )}
+// // //               </div>
+// // //             </div>
+// // //           </Card>
+
+// // //           {/* Timeline Section */}
+// // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
+// // //               <ClockCircleOutlined /> Timeline
+// // //             </Title>
+// // //             <Row gutter={[16, 16]}>
+// // //               <Col span={8}>
+// // //                 <div>
+// // //                   <Text type="secondary" style={{ fontSize: 12 }}>Original Due Date</Text>
+// // //                   <div style={{ fontWeight: 'bold' }}>
+// // //                     {dayjs(deferral.originalDueDate).format('DD/MM/YYYY')}
+// // //                   </div>
+// // //                 </div>
+// // //               </Col>
+// // //               <Col span={8}>
+// // //                 <div>
+// // //                   <Text type="secondary" style={{ fontSize: 12 }}>Requested Extension</Text>
+// // //                   <div style={{ fontWeight: 'bold', color: WARNING_ORANGE }}>
+// // //                     {dayjs(deferral.requestedExpiry).format('DD/MM/YYYY')}
+// // //                   </div>
+// // //                   <Text type="secondary" style={{ fontSize: 11 }}>
+// // //                     ({deferral.daysSought} days)
+// // //                   </Text>
+// // //                 </div>
+// // //               </Col>
+// // //               <Col span={8}>
+// // //                 <div>
+// // //                   <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+// // //                   <div style={{ fontWeight: 'bold' }}>
+// // //                     {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
+// // //                   </div>
+// // //                 </div>
+// // //               </Col>
+// // //             </Row>
+// // //             {deferral.approvedDate && (
+// // //               <div style={{ marginTop: 16 }}>
+// // //                 <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+// // //                 <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+// // //                   {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+// // //                 </div>
+// // //               </div>
+// // //             )}
+// // //           </Card>
+
+// // //           {/* Reason Section */}
+// // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //               <UserOutlined /> Your Request Reason
+// // //             </Title>
+// // //             <div style={{
+// // //               padding: 12,
+// // //               background: '#f8f9fa',
+// // //               borderRadius: 4,
+// // //               borderLeft: `3px solid ${SECONDARY_PURPLE}`
+// // //             }}>
+// // //               {deferral.rmReason}
+// // //             </div>
+// // //           </Card>
+
+// // //           {/* Creator Comments (if any) */}
+// // //           {deferral.creatorComments && (
+// // //             <Card size="small" style={{ marginBottom: 16 }}>
+// // //               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //                 Creator Comments
+// // //               </Title>
+// // //               <div style={{
+// // //                 padding: 12,
+// // //                 background: '#e6f7ff',
+// // //                 borderRadius: 4,
+// // //                 borderLeft: `3px solid ${PRIMARY_BLUE}`
+// // //               }}>
+// // //                 {deferral.creatorComments}
+// // //               </div>
+// // //             </Card>
+// // //           )}
+
+// // //           {/* Actions for RM */}
+// // //           <Card size="small">
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //               Available Actions
+// // //             </Title>
+// // //             <div style={{ display: 'flex', gap: 8 }}>
+// // //               {deferral.canEdit && (
+// // //                 <Button type="primary" icon={<EditOutlined />}>
+// // //                   Edit Request
+// // //                 </Button>
+// // //               )}
+// // //               {deferral.canWithdraw && (
+// // //                 <Button danger icon={<DeleteOutlined />}>
+// // //                   Withdraw Request
+// // //                 </Button>
+// // //               )}
+// // //               {deferral.canUpload && (
+// // //                 <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+// // //                   Upload Document
+// // //                 </Button>
+// // //               )}
+// // //             </div>
+// // //           </Card>
+// // //         </div>
+// // //       )}
+// // //     </Modal>
+// // //   );
+// // // };
+
+// // // // Main DeferralPending Component for RM
+// // // const DeferralPending = ({ userId = "rm_current" }) => {
+// // //   const [selectedDeferral, setSelectedDeferral] = useState(null);
+// // //   const [modalOpen, setModalOpen] = useState(false);
+// // //   const [loading, setLoading] = useState(false);
+// // //   const [mockData, setMockData] = useState([]);
+  
+// // //   // Filters
+// // //   const [searchText, setSearchText] = useState("");
+
+// // //   // Load data
+// // //   useEffect(() => {
+// // //     setLoading(true);
+    
+// // //     setTimeout(() => {
+// // //       setMockData(MOCK_RM_PENDING_DEFERRALS);
+// // //       setLoading(false);
+// // //     }, 300);
+// // //   }, []);
+
+// // //   // Filter data - RM sees their own deferrals (both requested and approved)
+// // //   const filteredData = useMemo(() => {
+// // //     let filtered = mockData.filter((d) => 
+// // //       d.status === "deferral_requested" || d.status === "deferral_approved"
+// // //     );
+    
+// // //     // Apply search filter
+// // //     if (searchText) {
+// // //       filtered = filtered.filter(d =>
+// // //         d.deferralNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
+// // //       );
+// // //     }
+    
+// // //     return filtered;
+// // //   }, [mockData, searchText]);
+
+// // //   // Handle withdraw deferral
+// // //   const handleWithdraw = (deferralId) => {
+// // //     Modal.confirm({
+// // //       title: 'Withdraw Deferral Request',
+// // //       content: 'Are you sure you want to withdraw this deferral request?',
+// // //       onOk: () => {
+// // //         setMockData(prev => prev.filter(d => d._id !== deferralId));
+// // //         message.success('Deferral request withdrawn successfully');
+// // //       }
+// // //     });
+// // //   };
+
+// // //   // Handle edit deferral
+// // //   const handleEdit = (deferral) => {
+// // //     message.info(`Edit deferral ${deferral.deferralNumber}`);
+// // //     // Navigate to edit page or open edit modal
+// // //   };
+
+// // //   // Handle upload document
+// // //   const handleUpload = (deferral) => {
+// // //     message.info(`Upload document for ${deferral.deferralNumber}`);
+// // //     // Open upload modal or navigate to upload page
+// // //   };
+
+// // //   // Clear filters
+// // //   const clearFilters = () => {
+// // //     setSearchText("");
+// // //   };
+
+// // //   // Updated Columns as per your request: Deferral No, DCL No, Customer Name, Document, Type, Status, Days Sought, SLA
+// // //   const columns = [
+// // //     {
+// // //       title: "Deferral No",
+// // //       dataIndex: "deferralNumber",
+// // //       key: "deferralNumber",
+// // //       width: 140,
+// // //       render: (text) => (
+// // //         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+// // //           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
+// // //           {text}
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
+// // //     },
+// // //     {
+// // //       title: "DCL No",
+// // //       dataIndex: "dclNo",
+// // //       key: "dclNo",
+// // //       width: 120,
+// // //       render: (text) => (
+// // //         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
+// // //           {text}
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
+// // //     },
+// // //     {
+// // //       title: "Customer Name",
+// // //       dataIndex: "customerName",
+// // //       key: "customerName",
+// // //       width: 160,
+// // //       render: (text, record) => (
+// // //         <div style={{
+// // //           fontWeight: 600,
+// // //           color: PRIMARY_BLUE,
+// // //           display: "flex",
+// // //           alignItems: "center",
+// // //           gap: 6
+// // //         }}>
+// // //           <CustomerServiceOutlined style={{ fontSize: 12 }} />
+// // //           <div>
+// // //             <div>{text}</div>
+// // //             <div style={{ fontSize: 10, color: "#999", marginTop: 2 }}>
+// // //               {record.customerNumber}
+// // //             </div>
+// // //           </div>
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.customerName.localeCompare(b.customerName)
+// // //     },
+// // //     {
+// // //       title: "Document",
+// // //       dataIndex: "documentType",
+// // //       key: "documentType",
+// // //       width: 150,
+// // //       render: (text) => (
+// // //         <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+// // //           {text}
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.documentType.localeCompare(b.documentType)
+// // //     },
+// // //     {
+// // //       title: "Type",
+// // //       dataIndex: "deferralType",
+// // //       key: "deferralType",
+// // //       width: 100,
+// // //       render: (type) => (
+// // //         <Tag
+// // //           color={type === "New" ? "blue" : "orange"}
+// // //           style={{
+// // //             fontSize: 11,
+// // //             fontWeight: "bold",
+// // //             borderRadius: 4,
+// // //             minWidth: 70,
+// // //             textAlign: "center"
+// // //           }}
+// // //         >
+// // //           {type}
+// // //         </Tag>
+// // //       ),
+// // //       filters: [
+// // //         { text: 'New', value: 'New' },
+// // //         { text: 'Extension', value: 'Extension' }
+// // //       ],
+// // //       onFilter: (value, record) => record.deferralType === value,
+// // //       sorter: (a, b) => a.deferralType.localeCompare(b.deferralType)
+// // //     },
+// // //     {
+// // //       title: "Status",
+// // //       dataIndex: "status",
+// // //       key: "status",
+// // //       width: 120,
+// // //       render: (status) => {
+// // //         const statusConfig = {
+// // //           'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+// // //           'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+// // //           'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+// // //         };
+        
+// // //         const config = statusConfig[status] || { color: 'default', text: status };
+// // //         return (
+// // //           <Tag 
+// // //             color={config.color} 
+// // //             icon={config.icon}
+// // //             style={{ 
+// // //               fontSize: 11,
+// // //               fontWeight: "bold",
+// // //               borderRadius: 4,
+// // //               minWidth: 80,
+// // //               textAlign: "center"
+// // //             }}
+// // //           >
+// // //             {config.text}
+// // //           </Tag>
+// // //         );
+// // //       },
+// // //       filters: [
+// // //         { text: 'Pending', value: 'deferral_requested' },
+// // //         { text: 'Approved', value: 'deferral_approved' }
+// // //       ],
+// // //       onFilter: (value, record) => record.status === value,
+// // //       sorter: (a, b) => a.status.localeCompare(b.status)
+// // //     },
+// // //     {
+// // //       title: "Days Sought",
+// // //       dataIndex: "daysSought",
+// // //       key: "daysSought",
+// // //       width: 100,
+// // //       align: "center",
+// // //       render: (days) => (
+// // //         <div style={{
+// // //           fontWeight: "bold",
+// // //           color: days > 45 ? ERROR_RED : days > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+// // //           fontSize: 14,
+// // //           backgroundColor: days > 45 ? "#fff2f0" : days > 30 ? "#fff7e6" : "#f0f7ff",
+// // //           padding: "4px 8px",
+// // //           borderRadius: 4,
+// // //           display: "inline-block"
+// // //         }}>
+// // //           {days} days
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.daysSought - b.daysSought
+// // //     },
+// // //     {
+// // //       title: "SLA",
+// // //       dataIndex: "slaExpiry",
+// // //       key: "slaExpiry",
+// // //       width: 100,
+// // //       fixed: "right",
+// // //       render: (date) => {
+// // //         const daysLeft = dayjs(date).diff(dayjs(), 'days');
+// // //         const hoursLeft = dayjs(date).diff(dayjs(), 'hours');
+        
+// // //         let color = SUCCESS_GREEN;
+// // //         let text = `${daysLeft}d`;
+        
+// // //         if (daysLeft <= 0 && hoursLeft <= 0) {
+// // //           color = ERROR_RED;
+// // //           text = 'Expired';
+// // //         } else if (daysLeft <= 0) {
+// // //           color = ERROR_RED;
+// // //           text = `${hoursLeft}h`;
+// // //         } else if (daysLeft <= 1) {
+// // //           color = ERROR_RED;
+// // //           text = `${daysLeft}d`;
+// // //         } else if (daysLeft <= 3) {
+// // //           color = WARNING_ORANGE;
+// // //           text = `${daysLeft}d`;
+// // //         }
+        
+// // //         return (
+// // //           <Tag
+// // //             color={color}
+// // //             style={{ 
+// // //               fontWeight: "bold", 
+// // //               fontSize: 11,
+// // //               minWidth: 50,
+// // //               textAlign: "center"
+// // //             }}
+// // //           >
+// // //             {text}
+// // //           </Tag>
+// // //         );
+// // //       },
+// // //       sorter: (a, b) => dayjs(a.slaExpiry).diff(dayjs(b.slaExpiry))
+// // //     },
+// // //     {
+// // //       title: "Actions",
+// // //       key: "actions",
+// // //       width: 80,
+// // //       fixed: "right",
+// // //       render: (_, record) => (
+// // //         <Button
+// // //           type="link"
+// // //           size="small"
+// // //           onClick={() => {
+// // //             setSelectedDeferral(record);
+// // //             setModalOpen(true);
+// // //           }}
+// // //           style={{
+// // //             color: PRIMARY_BLUE,
+// // //             fontWeight: 500
+// // //           }}
+// // //         >
+// // //           <EyeOutlined /> View
+// // //         </Button>
+// // //       )
+// // //     }
+// // //   ];
+
+// // //   // Custom table styles
+// // //   const customTableStyles = `
+// // //     .deferral-pending-table .ant-table-wrapper {
+// // //       border-radius: 12px;
+// // //       overflow: hidden;
+// // //       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+// // //       border: 1px solid #e0e0e0;
+// // //     }
+// // //     .deferral-pending-table .ant-table-thead > tr > th {
+// // //       background-color: #f7f7f7 !important;
+// // //       color: ${PRIMARY_BLUE} !important;
+// // //       font-weight: 700;
+// // //       fontSize: 13px;
+// // //       padding: 14px 12px !important;
+// // //       border-bottom: 3px solid ${ACCENT_LIME} !important;
+// // //       border-right: none !important;
+// // //     }
+// // //     .deferral-pending-table .ant-table-tbody > tr > td {
+// // //       border-bottom: 1px solid #f0f0f0 !important;
+// // //       border-right: none !important;
+// // //       padding: 12px 12px !important;
+// // //       fontSize: 13px;
+// // //       color: #333;
+// // //     }
+// // //     .deferral-pending-table .ant-table-tbody > tr.ant-table-row:hover > td {
+// // //       background-color: rgba(181, 211, 52, 0.1) !important;
+// // //       cursor: pointer;
+// // //     }
+// // //     .deferral-pending-table .ant-table-row:hover .ant-table-cell:last-child {
+// // //       background-color: rgba(181, 211, 52, 0.1) !important;
+// // //     }
+// // //     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
+// // //       background-color: ${ACCENT_LIME} !important;
+// // //       border-color: ${ACCENT_LIME} !important;
+// // //     }
+// // //     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
+// // //       color: ${PRIMARY_BLUE} !important;
+// // //       font-weight: 600;
+// // //     }
+// // //   `;
+
+// // //   return (
+// // //     <div style={{ padding: 24 }}>
+// // //       <style>{customTableStyles}</style>
+
+// // //       {/* Header */}
+// // //       <Card
+// // //         style={{
+// // //           marginBottom: 24,
+// // //           borderRadius: 8,
+// // //           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+// // //           borderLeft: `4px solid ${ACCENT_LIME}`
+// // //         }}
+// // //         bodyStyle={{ padding: 16 }}
+// // //       >
+// // //         <Row justify="space-between" align="middle">
+// // //           <Col>
+// // //             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+// // //               My Deferral Requests
+// // //               <Badge
+// // //                 count={filteredData.length}
+// // //                 style={{
+// // //                   backgroundColor: ACCENT_LIME,
+// // //                   fontSize: 12
+// // //                 }}
+// // //               />
+// // //             </h2>
+// // //             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
+// // //               Track and manage your deferral requests
+// // //             </p>
+// // //           </Col>
+// // //           <Col>
+// // //             <Button
+// // //               type="primary"
+// // //               onClick={() => {
+// // //                 // Navigate to request new deferral
+// // //                 window.location.href = '/rm/deferrals/request';
+// // //               }}
+// // //               style={{
+// // //                 backgroundColor: PRIMARY_BLUE,
+// // //                 borderColor: PRIMARY_BLUE
+// // //               }}
+// // //             >
+// // //               + New Deferral Request
+// // //             </Button>
+// // //           </Col>
+// // //         </Row>
+// // //       </Card>
+
+// // //       {/* Filters */}
+// // //       <Card
+// // //         style={{
+// // //           marginBottom: 16,
+// // //           background: "#fafafa",
+// // //           border: `1px solid ${PRIMARY_BLUE}20`,
+// // //           borderRadius: 8
+// // //         }}
+// // //         size="small"
+// // //       >
+// // //         <Row gutter={[16, 16]} align="middle">
+// // //           <Col xs={24} sm={12} md={8}>
+// // //             <Input
+// // //               placeholder="Search by Deferral No, DCL No, Customer, or Document"
+// // //               prefix={<SearchOutlined />}
+// // //               value={searchText}
+// // //               onChange={(e) => setSearchText(e.target.value)}
+// // //               allowClear
+// // //               size="middle"
+// // //             />
+// // //           </Col>
+          
+// // //           <Col xs={24} sm={12} md={4}>
+// // //             <Button
+// // //               onClick={clearFilters}
+// // //               style={{ width: '100%' }}
+// // //               size="middle"
+// // //             >
+// // //               Clear Filters
+// // //             </Button>
+// // //           </Col>
+// // //         </Row>
+// // //       </Card>
+
+// // //       {/* Table Title */}
+// // //       <Divider style={{ margin: "12px 0" }}>
+// // //         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
+// // //           My Deferral Requests ({filteredData.length} items)
+// // //         </span>
+// // //       </Divider>
+
+// // //       {/* Table */}
+// // //       {loading ? (
+// // //         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
+// // //           <Spin tip="Loading deferral requests..." />
+// // //         </div>
+// // //       ) : filteredData.length === 0 ? (
+// // //         <Empty
+// // //           description={
+// // //             <div>
+// // //               <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
+// // //               <p style={{ color: "#999" }}>
+// // //                 {searchText
+// // //                   ? 'Try changing your search term'
+// // //                   : 'You haven\'t requested any deferrals yet'}
+// // //               </p>
+// // //               <Button
+// // //                 type="primary"
+// // //                 onClick={() => window.location.href = '/rm/deferrals/request'}
+// // //                 style={{ marginTop: 16 }}
+// // //               >
+// // //                 Request Your First Deferral
+// // //               </Button>
+// // //             </div>
+// // //           }
+// // //           style={{ padding: 40 }}
+// // //         />
+// // //       ) : (
+// // //         <div className="deferral-pending-table">
+// // //           <Table
+// // //             columns={columns}
+// // //             dataSource={filteredData}
+// // //             rowKey="_id"
+// // //             size="middle"
+// // //             pagination={{
+// // //               pageSize: 10,
+// // //               showSizeChanger: true,
+// // //               pageSizeOptions: ["10", "20", "50"],
+// // //               position: ["bottomCenter"],
+// // //               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
+// // //             }}
+// // //             scroll={{ x: 1100 }}
+// // //             onRow={(record) => ({
+// // //               onClick: () => {
+// // //                 setSelectedDeferral(record);
+// // //                 setModalOpen(true);
+// // //               },
+// // //             })}
+// // //           />
+// // //         </div>
+// // //       )}
+
+// // //       {/* Footer Info */}
+// // //       <div style={{
+// // //         marginTop: 24,
+// // //         padding: 16,
+// // //         background: "#f8f9fa",
+// // //         borderRadius: 8,
+// // //         fontSize: 12,
+// // //         color: "#666",
+// // //         border: `1px solid ${PRIMARY_BLUE}10`
+// // //       }}>
+// // //         <Row justify="space-between" align="middle">
+// // //           <Col>
+// // //             Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
+// // //           </Col>
+// // //           <Col>
+// // //             <Text type="secondary">
+// // //               Showing {filteredData.length} items • Data as of latest system update
+// // //             </Text>
+// // //           </Col>
+// // //         </Row>
+// // //       </div>
+
+// // //       {/* Deferral Details Modal */}
+// // //       {selectedDeferral && (
+// // //         <DeferralDetailsModal
+// // //           deferral={selectedDeferral}
+// // //           open={modalOpen}
+// // //           onClose={() => {
+// // //             setModalOpen(false);
+// // //             setSelectedDeferral(null);
+// // //           }}
+// // //         />
+// // //       )}
+// // //     </div>
+// // //   );
+// // // };
+
+// // // export default DeferralPending;
+
+
+
+
+
+// // import React, { useMemo, useState, useEffect } from "react";
+// // import {
+// //   Button,
+// //   Divider,
+// //   Table,
+// //   Tag,
+// //   Spin,
+// //   Empty,
+// //   Card,
+// //   Row,
+// //   Col,
+// //   Input,
+// //   Badge,
+// //   Typography,
+// //   Modal,
+// //   message,
+// //   Popconfirm
+// // } from "antd";
+// // import {
+// //   SearchOutlined,
+// //   FileTextOutlined,
+// //   UserOutlined,
+// //   CustomerServiceOutlined,
+// //   ClockCircleOutlined,
+// //   EyeOutlined,
+// //   EditOutlined,
+// //   DeleteOutlined,
+// //   CheckCircleOutlined,
+// //   CloseCircleOutlined
+// // } from "@ant-design/icons";
+// // import dayjs from "dayjs";
+
+// // // Theme Colors (same as other queues)
+// // const PRIMARY_BLUE = "#164679";
+// // const ACCENT_LIME = "#b5d334";
+// // const HIGHLIGHT_GOLD = "#fcb116";
+// // const LIGHT_YELLOW = "#fcd716";
+// // const SECONDARY_PURPLE = "#7e6496";
+// // const SUCCESS_GREEN = "#52c41a";
+// // const ERROR_RED = "#ff4d4f";
+// // const WARNING_ORANGE = "#faad14";
+
+// // const { Text, Title } = Typography;
+
+// // // MOCK DATA for RM's Pending Deferrals
+// // const MOCK_RM_PENDING_DEFERRALS = [
+// //   {
+// //     _id: "1",
+// //     deferralNumber: "DEF-2024-001",
+// //     dclNo: "DCL-2024-015",
+// //     customerNumber: "CUST001",
+// //     customerName: "Javan Dave",
+// //     businessName: "JAVAN DAVE AND SONS",
+// //     deferralTitle: "Bank Statements",
+// //     documentType: "Financial Statements",
+// //     deferralType: "New",
+// //     status: "deferral_requested", // RM requested, waiting for creator approval
+// //     daysSought: 30,
+// //     requestedExpiry: "2025-02-05T23:59:59Z",
+// //     originalDueDate: "2025-01-05T23:59:59Z",
+// //     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
+// //     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
+// //     createdAt: "2025-01-05T09:30:00Z",
+// //     updatedAt: "2025-01-05T09:30:00Z",
+// //     slaExpiry: "2025-01-12T23:59:59Z",
+// //     canEdit: true, // RM can edit if still pending
+// //     canWithdraw: true // RM can withdraw if still pending
+// //   },
+// //   {
+// //     _id: "2",
+// //     deferralNumber: "DEF-2024-002",
+// //     dclNo: "DCL-2024-028",
+// //     customerNumber: "CUST002",
+// //     customerName: "Diana Mwangi",
+// //     businessName: "DIANA MWANGI AND DAUGHTERS",
+// //     deferralTitle: "CR12 Certificate",
+// //     documentType: "Registration Documents",
+// //     deferralType: "Extension",
+// //     status: "deferral_requested",
+// //     daysSought: 15,
+// //     requestedExpiry: "2025-02-05T23:59:59Z",
+// //     originalDueDate: "2025-01-20T23:59:59Z",
+// //     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
+// //     rmReason: "CRB office experiencing delays in processing due to system upgrades",
+// //     createdAt: "2025-01-11T14:20:00Z",
+// //     updatedAt: "2025-01-11T14:20:00Z",
+// //     slaExpiry: "2025-01-18T23:59:59Z",
+// //     canEdit: true,
+// //     canWithdraw: true
+// //   },
+// //   {
+// //     _id: "3",
+// //     deferralNumber: "DEF-2024-003",
+// //     dclNo: "DCL-2024-042",
+// //     customerNumber: "CUST003",
+// //     customerName: "Lucy Nyambura",
+// //     businessName: "LUCY NYAMBURA AND SONS",
+// //     deferralTitle: "Lease Agreement",
+// //     documentType: "Legal Documents",
+// //     deferralType: "New",
+// //     status: "deferral_approved", // Already approved by creator
+// //     daysSought: 45,
+// //     requestedExpiry: "2025-03-05T23:59:59Z",
+// //     originalDueDate: "2025-01-20T23:59:59Z",
+// //     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
+// //     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+// //     creatorComments: "Approved. Please ensure document is submitted before expiry date.",
+// //     createdAt: "2025-01-20T11:15:00Z",
+// //     updatedAt: "2025-01-21T10:30:00Z",
+// //     approvedDate: "2025-01-21T10:30:00Z",
+// //     canEdit: false, // Cannot edit after approval
+// //     canWithdraw: false, // Cannot withdraw after approval
+// //     canUpload: true // Can upload document now
+// //   }
+// // ];
+
+// // // Deferral Details Modal for RM
+// // const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+// //   const getStatusConfig = (status) => {
+// //     switch (status) {
+// //       case 'deferral_requested':
+// //         return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+// //       case 'deferral_approved':
+// //         return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+// //       case 'deferral_rejected':
+// //         return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+// //       default:
+// //         return { color: 'default', label: status, description: '' };
+// //     }
+// //   };
+
+// //   const statusConfig = getStatusConfig(deferral?.status);
+
+// //   return (
+// //     <Modal
+// //       title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
+// //       open={open}
+// //       onCancel={onClose}
+// //       width={700}
+// //       footer={[
+// //         <Button key="close" onClick={onClose}>
+// //           Close
+// //         </Button>
+// //       ]}
+// //     >
+// //       {deferral && (
+// //         <div>
+// //           {/* Header Section */}
+// //           <Card
+// //             size="small"
+// //             style={{ marginBottom: 16, borderLeft: `4px solid ${ACCENT_LIME}` }}
+// //           >
+// //             <Row gutter={[16, 16]}>
+// //               <Col span={12}>
+// //                 <Text strong>Deferral Number:</Text>
+// //                 <div style={{ color: PRIMARY_BLUE, fontWeight: 'bold' }}>
+// //                   {deferral.deferralNumber}
+// //                 </div>
+// //               </Col>
+// //               <Col span={12}>
+// //                 <Text strong>DCL Number:</Text>
+// //                 <div>{deferral.dclNo}</div>
+// //               </Col>
+// //               <Col span={12}>
+// //                 <Text strong>Customer:</Text>
+// //                 <div>{deferral.customerName}</div>
+// //                 <Text type="secondary" style={{ fontSize: 12 }}>
+// //                   {deferral.businessName}
+// //                 </Text>
+// //               </Col>
+// //               <Col span={12}>
+// //                 <Text strong>Document:</Text>
+// //                 <div>{deferral.deferralTitle}</div>
+// //                 <Tag color="blue" style={{ marginTop: 4 }}>{deferral.documentType}</Tag>
+// //               </Col>
+// //             </Row>
+// //           </Card>
+
+// //           {/* Status Section */}
+// //           <Card size="small" style={{ marginBottom: 16 }}>
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //               Status
+// //             </Title>
+// //             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+// //               <Tag 
+// //                 color={statusConfig.color} 
+// //                 icon={statusConfig.icon}
+// //                 style={{ fontSize: 14, padding: '8px 12px' }}
+// //               >
+// //                 {statusConfig.label}
+// //               </Tag>
+// //               <div>
+// //                 <div>{statusConfig.description}</div>
+// //                 {deferral.currentApprover && (
+// //                   <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+// //                     Current Approver: <strong>{deferral.currentApprover.name}</strong>
+// //                   </div>
+// //                 )}
+// //               </div>
+// //             </div>
+// //           </Card>
+
+// //           {/* Timeline Section */}
+// //           <Card size="small" style={{ marginBottom: 16 }}>
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
+// //               <ClockCircleOutlined /> Timeline
+// //             </Title>
+// //             <Row gutter={[16, 16]}>
+// //               <Col span={8}>
+// //                 <div>
+// //                   <Text type="secondary" style={{ fontSize: 12 }}>Original Due Date</Text>
+// //                   <div style={{ fontWeight: 'bold' }}>
+// //                     {dayjs(deferral.originalDueDate).format('DD/MM/YYYY')}
+// //                   </div>
+// //                 </div>
+// //               </Col>
+// //               <Col span={8}>
+// //                 <div>
+// //                   <Text type="secondary" style={{ fontSize: 12 }}>Requested Extension</Text>
+// //                   <div style={{ fontWeight: 'bold', color: WARNING_ORANGE }}>
+// //                     {dayjs(deferral.requestedExpiry).format('DD/MM/YYYY')}
+// //                   </div>
+// //                   <Text type="secondary" style={{ fontSize: 11 }}>
+// //                     ({deferral.daysSought} days)
+// //                   </Text>
+// //                 </div>
+// //               </Col>
+// //               <Col span={8}>
+// //                 <div>
+// //                   <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+// //                   <div style={{ fontWeight: 'bold' }}>
+// //                     {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
+// //                   </div>
+// //                 </div>
+// //               </Col>
+// //             </Row>
+// //             {deferral.approvedDate && (
+// //               <div style={{ marginTop: 16 }}>
+// //                 <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+// //                 <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+// //                   {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+// //                 </div>
+// //               </div>
+// //             )}
+// //           </Card>
+
+// //           {/* Reason Section */}
+// //           <Card size="small" style={{ marginBottom: 16 }}>
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //               <UserOutlined /> Your Request Reason
+// //             </Title>
+// //             <div style={{
+// //               padding: 12,
+// //               background: '#f8f9fa',
+// //               borderRadius: 4,
+// //               borderLeft: `3px solid ${SECONDARY_PURPLE}`
+// //             }}>
+// //               {deferral.rmReason}
+// //             </div>
+// //           </Card>
+
+// //           {/* Creator Comments (if any) */}
+// //           {deferral.creatorComments && (
+// //             <Card size="small" style={{ marginBottom: 16 }}>
+// //               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //                 Creator Comments
+// //               </Title>
+// //               <div style={{
+// //                 padding: 12,
+// //                 background: '#e6f7ff',
+// //                 borderRadius: 4,
+// //                 borderLeft: `3px solid ${PRIMARY_BLUE}`
+// //               }}>
+// //                 {deferral.creatorComments}
+// //               </div>
+// //             </Card>
+// //           )}
+
+// //           {/* Actions for RM */}
+// //           <Card size="small">
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //               Available Actions
+// //             </Title>
+// //             <div style={{ display: 'flex', gap: 8 }}>
+// //               {deferral.canEdit && (
+// //                 <Button type="primary" icon={<EditOutlined />}>
+// //                   Edit Request
+// //                 </Button>
+// //               )}
+// //               {deferral.canWithdraw && (
+// //                 <Button danger icon={<DeleteOutlined />}>
+// //                   Withdraw Request
+// //                 </Button>
+// //               )}
+// //               {deferral.canUpload && (
+// //                 <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+// //                   Upload Document
+// //                 </Button>
+// //               )}
+// //             </div>
+// //           </Card>
+// //         </div>
+// //       )}
+// //     </Modal>
+// //   );
+// // };
+
+// // // Main DeferralPending Component for RM
+// // const DeferralPending = ({ userId = "rm_current" }) => {
+// //   const [selectedDeferral, setSelectedDeferral] = useState(null);
+// //   const [modalOpen, setModalOpen] = useState(false);
+// //   const [loading, setLoading] = useState(false);
+// //   const [mockData, setMockData] = useState([]);
+  
+// //   // Filters
+// //   const [searchText, setSearchText] = useState("");
+
+// //   // Load data
+// //   useEffect(() => {
+// //     setLoading(true);
+    
+// //     setTimeout(() => {
+// //       setMockData(MOCK_RM_PENDING_DEFERRALS);
+// //       setLoading(false);
+// //     }, 300);
+// //   }, []);
+
+// //   // Filter data - RM sees their own deferrals (both requested and approved)
+// //   const filteredData = useMemo(() => {
+// //     let filtered = mockData.filter((d) => 
+// //       d.status === "deferral_requested" || d.status === "deferral_approved"
+// //     );
+    
+// //     // Apply search filter
+// //     if (searchText) {
+// //       filtered = filtered.filter(d =>
+// //         d.deferralNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
+// //       );
+// //     }
+    
+// //     return filtered;
+// //   }, [mockData, searchText]);
+
+// //   // Handle withdraw deferral
+// //   const handleWithdraw = (deferralId) => {
+// //     Modal.confirm({
+// //       title: 'Withdraw Deferral Request',
+// //       content: 'Are you sure you want to withdraw this deferral request?',
+// //       onOk: () => {
+// //         setMockData(prev => prev.filter(d => d._id !== deferralId));
+// //         message.success('Deferral request withdrawn successfully');
+// //       }
+// //     });
+// //   };
+
+// //   // Handle edit deferral
+// //   const handleEdit = (deferral) => {
+// //     message.info(`Edit deferral ${deferral.deferralNumber}`);
+// //     // Navigate to edit page or open edit modal
+// //   };
+
+// //   // Handle upload document
+// //   const handleUpload = (deferral) => {
+// //     message.info(`Upload document for ${deferral.deferralNumber}`);
+// //     // Open upload modal or navigate to upload page
+// //   };
+
+// //   // Clear filters
+// //   const clearFilters = () => {
+// //     setSearchText("");
+// //   };
+
+// //   // Updated Columns as per your request
+// //   const columns = [
+// //     {
+// //       title: "Deferral No",
+// //       dataIndex: "deferralNumber",
+// //       key: "deferralNumber",
+// //       width: 140,
+// //       render: (text) => (
+// //         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+// //           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
+// //           {text}
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
+// //     },
+// //     {
+// //       title: "DCL No",
+// //       dataIndex: "dclNo",
+// //       key: "dclNo",
+// //       width: 120,
+// //       render: (text) => (
+// //         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
+// //           {text}
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
+// //     },
+// //     {
+// //       title: "Customer Name",
+// //       dataIndex: "customerName",
+// //       key: "customerName",
+// //       width: 160,
+// //       render: (text) => (
+// //         <div style={{
+// //           fontWeight: 600,
+// //           color: PRIMARY_BLUE,
+// //           display: "flex",
+// //           alignItems: "center",
+// //           gap: 6
+// //         }}>
+// //           <CustomerServiceOutlined style={{ fontSize: 12 }} />
+// //           <div>
+// //             <div>{text}</div>
+// //           </div>
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.customerName.localeCompare(b.customerName)
+// //     },
+// //     {
+// //       title: "Document",
+// //       dataIndex: "documentType",
+// //       key: "documentType",
+// //       width: 150,
+// //       render: (text) => (
+// //         <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+// //           {text}
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.documentType.localeCompare(b.documentType)
+// //     },
+// //     {
+// //       title: "Type",
+// //       dataIndex: "deferralType",
+// //       key: "deferralType",
+// //       width: 100,
+// //       render: (type) => (
+// //         <Tag
+// //           color={type === "New" ? "blue" : "orange"}
+// //           style={{
+// //             fontSize: 11,
+// //             fontWeight: "bold",
+// //             borderRadius: 4,
+// //             minWidth: 70,
+// //             textAlign: "center"
+// //           }}
+// //         >
+// //           {type}
+// //         </Tag>
+// //       ),
+// //       filters: [
+// //         { text: 'New', value: 'New' },
+// //         { text: 'Extension', value: 'Extension' }
+// //       ],
+// //       onFilter: (value, record) => record.deferralType === value,
+// //       sorter: (a, b) => a.deferralType.localeCompare(b.deferralType)
+// //     },
+// //     {
+// //       title: "Status",
+// //       dataIndex: "status",
+// //       key: "status",
+// //       width: 120,
+// //       render: (status) => {
+// //         const statusConfig = {
+// //           'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+// //           'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+// //           'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+// //         };
+        
+// //         const config = statusConfig[status] || { color: 'default', text: status };
+// //         return (
+// //           <Tag 
+// //             color={config.color} 
+// //             icon={config.icon}
+// //             style={{ 
+// //               fontSize: 11,
+// //               fontWeight: "bold",
+// //               borderRadius: 4,
+// //               minWidth: 80,
+// //               textAlign: "center"
+// //             }}
+// //           >
+// //             {config.text}
+// //           </Tag>
+// //         );
+// //       },
+// //       filters: [
+// //         { text: 'Pending', value: 'deferral_requested' },
+// //         { text: 'Approved', value: 'deferral_approved' }
+// //       ],
+// //       onFilter: (value, record) => record.status === value,
+// //       sorter: (a, b) => a.status.localeCompare(b.status)
+// //     },
+// //     {
+// //       title: "Days Sought",
+// //       dataIndex: "daysSought",
+// //       key: "daysSought",
+// //       width: 100,
+// //       align: "center",
+// //       render: (days) => (
+// //         <div style={{
+// //           fontWeight: "bold",
+// //           color: days > 45 ? ERROR_RED : days > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+// //           fontSize: 14,
+// //           backgroundColor: days > 45 ? "#fff2f0" : days > 30 ? "#fff7e6" : "#f0f7ff",
+// //           padding: "4px 8px",
+// //           borderRadius: 4,
+// //           display: "inline-block"
+// //         }}>
+// //           {days} days
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.daysSought - b.daysSought
+// //     },
+// //     {
+// //       title: "SLA",
+// //       dataIndex: "slaExpiry",
+// //       key: "slaExpiry",
+// //       width: 100,
+// //       fixed: "right",
+// //       render: (date) => {
+// //         const daysLeft = dayjs(date).diff(dayjs(), 'days');
+// //         const hoursLeft = dayjs(date).diff(dayjs(), 'hours');
+        
+// //         let color = SUCCESS_GREEN;
+// //         let text = `${daysLeft}d`;
+        
+// //         if (daysLeft <= 0 && hoursLeft <= 0) {
+// //           color = ERROR_RED;
+// //           text = 'Expired';
+// //         } else if (daysLeft <= 0) {
+// //           color = ERROR_RED;
+// //           text = `${hoursLeft}h`;
+// //         } else if (daysLeft <= 1) {
+// //           color = ERROR_RED;
+// //           text = `${daysLeft}d`;
+// //         } else if (daysLeft <= 3) {
+// //           color = WARNING_ORANGE;
+// //           text = `${daysLeft}d`;
+// //         }
+        
+// //         return (
+// //           <Tag
+// //             color={color}
+// //             style={{ 
+// //               fontWeight: "bold", 
+// //               fontSize: 11,
+// //               minWidth: 50,
+// //               textAlign: "center"
+// //             }}
+// //           >
+// //             {text}
+// //           </Tag>
+// //         );
+// //       },
+// //       sorter: (a, b) => dayjs(a.slaExpiry).diff(dayjs(b.slaExpiry))
+// //     }
+// //   ];
+
+// //   // Custom table styles
+// //   const customTableStyles = `
+// //     .deferral-pending-table .ant-table-wrapper {
+// //       border-radius: 12px;
+// //       overflow: hidden;
+// //       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+// //       border: 1px solid #e0e0e0;
+// //     }
+// //     .deferral-pending-table .ant-table-thead > tr > th {
+// //       background-color: #f7f7f7 !important;
+// //       color: ${PRIMARY_BLUE} !important;
+// //       font-weight: 700;
+// //       fontSize: 13px;
+// //       padding: 14px 12px !important;
+// //       border-bottom: 3px solid ${ACCENT_LIME} !important;
+// //       border-right: none !important;
+// //     }
+// //     .deferral-pending-table .ant-table-tbody > tr > td {
+// //       border-bottom: 1px solid #f0f0f0 !important;
+// //       border-right: none !important;
+// //       padding: 12px 12px !important;
+// //       fontSize: 13px;
+// //       color: #333;
+// //     }
+// //     .deferral-pending-table .ant-table-tbody > tr.ant-table-row:hover > td {
+// //       background-color: rgba(181, 211, 52, 0.1) !important;
+// //       cursor: pointer;
+// //     }
+// //     .deferral-pending-table .ant-table-row:hover .ant-table-cell:last-child {
+// //       background-color: rgba(181, 211, 52, 0.1) !important;
+// //     }
+// //     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
+// //       background-color: ${ACCENT_LIME} !important;
+// //       borderColor: ${ACCENT_LIME} !important;
+// //     }
+// //     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
+// //       color: ${PRIMARY_BLUE} !important;
+// //       font-weight: 600;
+// //     }
+// //   `;
+
+// //   return (
+// //     <div style={{ padding: 24 }}>
+// //       <style>{customTableStyles}</style>
+
+// //       {/* Header */}
+// //       <Card
+// //         style={{
+// //           marginBottom: 24,
+// //           borderRadius: 8,
+// //           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+// //           borderLeft: `4px solid ${ACCENT_LIME}`
+// //         }}
+// //         bodyStyle={{ padding: 16 }}
+// //       >
+// //         <Row justify="space-between" align="middle">
+// //           <Col>
+// //             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+// //               My Deferral Requests
+// //               <Badge
+// //                 count={filteredData.length}
+// //                 style={{
+// //                   backgroundColor: ACCENT_LIME,
+// //                   fontSize: 12
+// //                 }}
+// //               />
+// //             </h2>
+// //             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
+// //               Track and manage your deferral requests
+// //             </p>
+// //           </Col>
+// //           <Col>
+// //             <Button
+// //               type="primary"
+// //               onClick={() => {
+// //                 // Navigate to request new deferral
+// //                 window.location.href = '/rm/deferrals/request';
+// //               }}
+// //               style={{
+// //                 backgroundColor: PRIMARY_BLUE,
+// //                 borderColor: PRIMARY_BLUE
+// //               }}
+// //             >
+// //               + New Deferral Request
+// //             </Button>
+// //           </Col>
+// //         </Row>
+// //       </Card>
+
+// //       {/* Filters */}
+// //       <Card
+// //         style={{
+// //           marginBottom: 16,
+// //           background: "#fafafa",
+// //           border: `1px solid ${PRIMARY_BLUE}20`,
+// //           borderRadius: 8
+// //         }}
+// //         size="small"
+// //       >
+// //         <Row gutter={[16, 16]} align="middle">
+// //           <Col xs={24} sm={12} md={8}>
+// //             <Input
+// //               placeholder="Search by Deferral No, DCL No, Customer, or Document"
+// //               prefix={<SearchOutlined />}
+// //               value={searchText}
+// //               onChange={(e) => setSearchText(e.target.value)}
+// //               allowClear
+// //               size="middle"
+// //             />
+// //           </Col>
+          
+// //           <Col xs={24} sm={12} md={4}>
+// //             <Button
+// //               onClick={clearFilters}
+// //               style={{ width: '100%' }}
+// //               size="middle"
+// //             >
+// //               Clear Filters
+// //             </Button>
+// //           </Col>
+// //         </Row>
+// //       </Card>
+
+// //       {/* Table Title */}
+// //       <Divider style={{ margin: "12px 0" }}>
+// //         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
+// //           My Deferral Requests ({filteredData.length} items)
+// //         </span>
+// //       </Divider>
+
+// //       {/* Table */}
+// //       {loading ? (
+// //         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
+// //           <Spin tip="Loading deferral requests..." />
+// //         </div>
+// //       ) : filteredData.length === 0 ? (
+// //         <Empty
+// //           description={
+// //             <div>
+// //               <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
+// //               <p style={{ color: "#999" }}>
+// //                 {searchText
+// //                   ? 'Try changing your search term'
+// //                   : 'You haven\'t requested any deferrals yet'}
+// //               </p>
+// //               <Button
+// //                 type="primary"
+// //                 onClick={() => window.location.href = '/rm/deferrals/request'}
+// //                 style={{ marginTop: 16 }}
+// //               >
+// //                 Request Your First Deferral
+// //               </Button>
+// //             </div>
+// //           }
+// //           style={{ padding: 40 }}
+// //         />
+// //       ) : (
+// //         <div className="deferral-pending-table">
+// //           <Table
+// //             columns={columns}
+// //             dataSource={filteredData}
+// //             rowKey="_id"
+// //             size="middle"
+// //             pagination={{
+// //               pageSize: 10,
+// //               showSizeChanger: true,
+// //               pageSizeOptions: ["10", "20", "50"],
+// //               position: ["bottomCenter"],
+// //               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
+// //             }}
+// //             scroll={{ x: 1000 }}
+// //             onRow={(record) => ({
+// //               onClick: () => {
+// //                 setSelectedDeferral(record);
+// //                 setModalOpen(true);
+// //               },
+// //             })}
+// //           />
+// //         </div>
+// //       )}
+
+// //       {/* Footer Info */}
+// //       <div style={{
+// //         marginTop: 24,
+// //         padding: 16,
+// //         background: "#f8f9fa",
+// //         borderRadius: 8,
+// //         fontSize: 12,
+// //         color: "#666",
+// //         border: `1px solid ${PRIMARY_BLUE}10`
+// //       }}>
+// //         <Row justify="space-between" align="middle">
+// //           <Col>
+// //             Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
+// //           </Col>
+// //           <Col>
+// //             <Text type="secondary">
+// //               Showing {filteredData.length} items • Data as of latest system update
+// //             </Text>
+// //           </Col>
+// //         </Row>
+// //       </div>
+
+// //       {/* Deferral Details Modal */}
+// //       {selectedDeferral && (
+// //         <DeferralDetailsModal
+// //           deferral={selectedDeferral}
+// //           open={modalOpen}
+// //           onClose={() => {
+// //             setModalOpen(false);
+// //             setSelectedDeferral(null);
+// //           }}
+// //         />
+// //       )}
+// //     </div>
+// //   );
+// // };
+
+// // export default DeferralPending;
+
+
+
+
+
+// // // import React, { useMemo, useState, useEffect } from "react";
+// // // import {
+// // //   Button,
+// // //   Divider,
+// // //   Table,
+// // //   Tag,
+// // //   Spin,
+// // //   Empty,
+// // //   Card,
+// // //   Row,
+// // //   Col,
+// // //   Input,
+// // //   Badge,
+// // //   Typography,
+// // //   Modal,
+// // //   message,
+// // //   Popconfirm
+// // // } from "antd";
+// // // import {
+// // //   SearchOutlined,
+// // //   FileTextOutlined,
+// // //   UserOutlined,
+// // //   CustomerServiceOutlined,
+// // //   ClockCircleOutlined,
+// // //   EyeOutlined,
+// // //   EditOutlined,
+// // //   DeleteOutlined,
+// // //   CheckCircleOutlined,
+// // //   CloseCircleOutlined
+// // // } from "@ant-design/icons";
+// // // import dayjs from "dayjs";
+
+// // // // Theme Colors (same as other queues)
+// // // const PRIMARY_BLUE = "#164679";
+// // // const ACCENT_LIME = "#b5d334";
+// // // const HIGHLIGHT_GOLD = "#fcb116";
+// // // const LIGHT_YELLOW = "#fcd716";
+// // // const SECONDARY_PURPLE = "#7e6496";
+// // // const SUCCESS_GREEN = "#52c41a";
+// // // const ERROR_RED = "#ff4d4f";
+// // // const WARNING_ORANGE = "#faad14";
+
+// // // const { Text, Title } = Typography;
+
+// // // // MOCK DATA for RM's Pending Deferrals
+// // // const MOCK_RM_PENDING_DEFERRALS = [
+// // //   {
+// // //     _id: "1",
+// // //     deferralNumber: "DEF-2024-001",
+// // //     dclNo: "DCL-2024-015",
+// // //     customerNumber: "CUST001",
+// // //     customerName: "Javan Dave",
+// // //     businessName: "JAVAN DAVE AND SONS",
+// // //     deferralTitle: "Bank Statements",
+// // //     documentType: "Financial Statements",
+// // //     deferralType: "New",
+// // //     status: "deferral_requested", // RM requested, waiting for creator approval
+// // //     daysSought: 30,
+// // //     requestedExpiry: "2025-02-05T23:59:59Z",
+// // //     originalDueDate: "2025-01-05T23:59:59Z",
+// // //     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
+// // //     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
+// // //     createdAt: "2025-01-05T09:30:00Z",
+// // //     updatedAt: "2025-01-05T09:30:00Z",
+// // //     slaExpiry: "2025-01-12T23:59:59Z",
+// // //     canEdit: true, // RM can edit if still pending
+// // //     canWithdraw: true // RM can withdraw if still pending
+// // //   },
+// // //   {
+// // //     _id: "2",
+// // //     deferralNumber: "DEF-2024-002",
+// // //     dclNo: "DCL-2024-028",
+// // //     customerNumber: "CUST002",
+// // //     customerName: "Diana Mwangi",
+// // //     businessName: "DIANA MWANGI AND DAUGHTERS",
+// // //     deferralTitle: "CR12 Certificate",
+// // //     documentType: "Registration Documents",
+// // //     deferralType: "Extension",
+// // //     status: "deferral_requested",
+// // //     daysSought: 15,
+// // //     requestedExpiry: "2025-02-05T23:59:59Z",
+// // //     originalDueDate: "2025-01-20T23:59:59Z",
+// // //     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
+// // //     rmReason: "CRB office experiencing delays in processing due to system upgrades",
+// // //     createdAt: "2025-01-11T14:20:00Z",
+// // //     updatedAt: "2025-01-11T14:20:00Z",
+// // //     slaExpiry: "2025-01-18T23:59:59Z",
+// // //     canEdit: true,
+// // //     canWithdraw: true
+// // //   },
+// // //   {
+// // //     _id: "3",
+// // //     deferralNumber: "DEF-2024-003",
+// // //     dclNo: "DCL-2024-042",
+// // //     customerNumber: "CUST003",
+// // //     customerName: "Lucy Nyambura",
+// // //     businessName: "LUCY NYAMBURA AND SONS",
+// // //     deferralTitle: "Lease Agreement",
+// // //     documentType: "Legal Documents",
+// // //     deferralType: "New",
+// // //     status: "deferral_approved", // Already approved by creator
+// // //     daysSought: 45,
+// // //     requestedExpiry: "2025-03-05T23:59:59Z",
+// // //     originalDueDate: "2025-01-20T23:59:59Z",
+// // //     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
+// // //     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+// // //     creatorComments: "Approved. Please ensure document is submitted before expiry date.",
+// // //     createdAt: "2025-01-20T11:15:00Z",
+// // //     updatedAt: "2025-01-21T10:30:00Z",
+// // //     approvedDate: "2025-01-21T10:30:00Z",
+// // //     canEdit: false, // Cannot edit after approval
+// // //     canWithdraw: false, // Cannot withdraw after approval
+// // //     canUpload: true // Can upload document now
+// // //   }
+// // // ];
+
+// // // // Deferral Details Modal for RM
+// // // const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+// // //   const getStatusConfig = (status) => {
+// // //     switch (status) {
+// // //       case 'deferral_requested':
+// // //         return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+// // //       case 'deferral_approved':
+// // //         return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+// // //       case 'deferral_rejected':
+// // //         return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+// // //       default:
+// // //         return { color: 'default', label: status, description: '' };
+// // //     }
+// // //   };
+
+// // //   const statusConfig = getStatusConfig(deferral?.status);
+
+// // //   return (
+// // //     <Modal
+// // //       title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
+// // //       open={open}
+// // //       onCancel={onClose}
+// // //       width={700}
+// // //       footer={[
+// // //         <Button key="close" onClick={onClose}>
+// // //           Close
+// // //         </Button>
+// // //       ]}
+// // //     >
+// // //       {deferral && (
+// // //         <div>
+// // //           {/* Header Section */}
+// // //           <Card
+// // //             size="small"
+// // //             style={{ marginBottom: 16, borderLeft: `4px solid ${ACCENT_LIME}` }}
+// // //           >
+// // //             <Row gutter={[16, 16]}>
+// // //               <Col span={12}>
+// // //                 <Text strong>Deferral Number:</Text>
+// // //                 <div style={{ color: PRIMARY_BLUE, fontWeight: 'bold' }}>
+// // //                   {deferral.deferralNumber}
+// // //                 </div>
+// // //               </Col>
+// // //               <Col span={12}>
+// // //                 <Text strong>DCL Number:</Text>
+// // //                 <div>{deferral.dclNo}</div>
+// // //               </Col>
+// // //               <Col span={12}>
+// // //                 <Text strong>Customer:</Text>
+// // //                 <div>{deferral.customerName}</div>
+// // //                 <Text type="secondary" style={{ fontSize: 12 }}>
+// // //                   {deferral.businessName}
+// // //                 </Text>
+// // //               </Col>
+// // //               <Col span={12}>
+// // //                 <Text strong>Document:</Text>
+// // //                 <div>{deferral.deferralTitle}</div>
+// // //                 <Tag color="blue" style={{ marginTop: 4 }}>{deferral.documentType}</Tag>
+// // //               </Col>
+// // //             </Row>
+// // //           </Card>
+
+// // //           {/* Status Section */}
+// // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //               Status
+// // //             </Title>
+// // //             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+// // //               <Tag 
+// // //                 color={statusConfig.color} 
+// // //                 icon={statusConfig.icon}
+// // //                 style={{ fontSize: 14, padding: '8px 12px' }}
+// // //               >
+// // //                 {statusConfig.label}
+// // //               </Tag>
+// // //               <div>
+// // //                 <div>{statusConfig.description}</div>
+// // //                 {deferral.currentApprover && (
+// // //                   <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+// // //                     Current Approver: <strong>{deferral.currentApprover.name}</strong>
+// // //                   </div>
+// // //                 )}
+// // //               </div>
+// // //             </div>
+// // //           </Card>
+
+// // //           {/* Timeline Section */}
+// // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
+// // //               <ClockCircleOutlined /> Timeline
+// // //             </Title>
+// // //             <Row gutter={[16, 16]}>
+// // //               <Col span={8}>
+// // //                 <div>
+// // //                   <Text type="secondary" style={{ fontSize: 12 }}>Original Due Date</Text>
+// // //                   <div style={{ fontWeight: 'bold' }}>
+// // //                     {dayjs(deferral.originalDueDate).format('DD/MM/YYYY')}
+// // //                   </div>
+// // //                 </div>
+// // //               </Col>
+// // //               <Col span={8}>
+// // //                 <div>
+// // //                   <Text type="secondary" style={{ fontSize: 12 }}>Requested Extension</Text>
+// // //                   <div style={{ fontWeight: 'bold', color: WARNING_ORANGE }}>
+// // //                     {dayjs(deferral.requestedExpiry).format('DD/MM/YYYY')}
+// // //                   </div>
+// // //                   <Text type="secondary" style={{ fontSize: 11 }}>
+// // //                     ({deferral.daysSought} days)
+// // //                   </Text>
+// // //                 </div>
+// // //               </Col>
+// // //               <Col span={8}>
+// // //                 <div>
+// // //                   <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+// // //                   <div style={{ fontWeight: 'bold' }}>
+// // //                     {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
+// // //                   </div>
+// // //                 </div>
+// // //               </Col>
+// // //             </Row>
+// // //             {deferral.approvedDate && (
+// // //               <div style={{ marginTop: 16 }}>
+// // //                 <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+// // //                 <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+// // //                   {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+// // //                 </div>
+// // //               </div>
+// // //             )}
+// // //           </Card>
+
+// // //           {/* Reason Section */}
+// // //           <Card size="small" style={{ marginBottom: 16 }}>
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //               <UserOutlined /> Your Request Reason
+// // //             </Title>
+// // //             <div style={{
+// // //               padding: 12,
+// // //               background: '#f8f9fa',
+// // //               borderRadius: 4,
+// // //               borderLeft: `3px solid ${SECONDARY_PURPLE}`
+// // //             }}>
+// // //               {deferral.rmReason}
+// // //             </div>
+// // //           </Card>
+
+// // //           {/* Creator Comments (if any) */}
+// // //           {deferral.creatorComments && (
+// // //             <Card size="small" style={{ marginBottom: 16 }}>
+// // //               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //                 Creator Comments
+// // //               </Title>
+// // //               <div style={{
+// // //                 padding: 12,
+// // //                 background: '#e6f7ff',
+// // //                 borderRadius: 4,
+// // //                 borderLeft: `3px solid ${PRIMARY_BLUE}`
+// // //               }}>
+// // //                 {deferral.creatorComments}
+// // //               </div>
+// // //             </Card>
+// // //           )}
+
+// // //           {/* Actions for RM */}
+// // //           <Card size="small">
+// // //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// // //               Available Actions
+// // //             </Title>
+// // //             <div style={{ display: 'flex', gap: 8 }}>
+// // //               {deferral.canEdit && (
+// // //                 <Button type="primary" icon={<EditOutlined />}>
+// // //                   Edit Request
+// // //                 </Button>
+// // //               )}
+// // //               {deferral.canWithdraw && (
+// // //                 <Button danger icon={<DeleteOutlined />}>
+// // //                   Withdraw Request
+// // //                 </Button>
+// // //               )}
+// // //               {deferral.canUpload && (
+// // //                 <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+// // //                   Upload Document
+// // //                 </Button>
+// // //               )}
+// // //             </div>
+// // //           </Card>
+// // //         </div>
+// // //       )}
+// // //     </Modal>
+// // //   );
+// // // };
+
+// // // // Main DeferralPending Component for RM
+// // // const DeferralPending = ({ userId = "rm_current" }) => {
+// // //   const [selectedDeferral, setSelectedDeferral] = useState(null);
+// // //   const [modalOpen, setModalOpen] = useState(false);
+// // //   const [loading, setLoading] = useState(false);
+// // //   const [mockData, setMockData] = useState([]);
+  
+// // //   // Filters
+// // //   const [searchText, setSearchText] = useState("");
+
+// // //   // Load data
+// // //   useEffect(() => {
+// // //     setLoading(true);
+    
+// // //     setTimeout(() => {
+// // //       setMockData(MOCK_RM_PENDING_DEFERRALS);
+// // //       setLoading(false);
+// // //     }, 300);
+// // //   }, []);
+
+// // //   // Filter data - RM sees their own deferrals (both requested and approved)
+// // //   const filteredData = useMemo(() => {
+// // //     let filtered = mockData.filter((d) => 
+// // //       d.status === "deferral_requested" || d.status === "deferral_approved"
+// // //     );
+    
+// // //     // Apply search filter
+// // //     if (searchText) {
+// // //       filtered = filtered.filter(d =>
+// // //         d.deferralNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.businessName.toLowerCase().includes(searchText.toLowerCase()) ||
+// // //         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
+// // //       );
+// // //     }
+    
+// // //     return filtered;
+// // //   }, [mockData, searchText]);
+
+// // //   // Handle withdraw deferral
+// // //   const handleWithdraw = (deferralId) => {
+// // //     Modal.confirm({
+// // //       title: 'Withdraw Deferral Request',
+// // //       content: 'Are you sure you want to withdraw this deferral request?',
+// // //       onOk: () => {
+// // //         setMockData(prev => prev.filter(d => d._id !== deferralId));
+// // //         message.success('Deferral request withdrawn successfully');
+// // //       }
+// // //     });
+// // //   };
+
+// // //   // Handle edit deferral
+// // //   const handleEdit = (deferral) => {
+// // //     message.info(`Edit deferral ${deferral.deferralNumber}`);
+// // //     // Navigate to edit page or open edit modal
+// // //   };
+
+// // //   // Handle upload document
+// // //   const handleUpload = (deferral) => {
+// // //     message.info(`Upload document for ${deferral.deferralNumber}`);
+// // //     // Open upload modal or navigate to upload page
+// // //   };
+
+// // //   // Clear filters
+// // //   const clearFilters = () => {
+// // //     setSearchText("");
+// // //   };
+
+// // //   // Columns for RM's view
+// // //   const columns = [
+// // //     {
+// // //       title: "Deferral No",
+// // //       dataIndex: "deferralNumber",
+// // //       key: "deferralNumber",
+// // //       width: 140,
+// // //       render: (text) => (
+// // //         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+// // //           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
+// // //           {text}
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
+// // //     },
+// // //     {
+// // //       title: "DCL No",
+// // //       dataIndex: "dclNo",
+// // //       key: "dclNo",
+// // //       width: 120,
+// // //       render: (text) => (
+// // //         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
+// // //           {text}
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
+// // //     },
+// // //     {
+// // //       title: "Customer Name",
+// // //       dataIndex: "customerName",
+// // //       key: "customerName",
+// // //       width: 180,
+// // //       render: (text, record) => (
+// // //         <div style={{
+// // //           fontWeight: 600,
+// // //           color: PRIMARY_BLUE,
+// // //           display: "flex",
+// // //           alignItems: "center",
+// // //           gap: 6
+// // //         }}>
+// // //           <CustomerServiceOutlined style={{ fontSize: 12 }} />
+// // //           <div>
+// // //             <div>{text}</div>
+// // //             <div style={{ fontSize: 11, color: "#666", fontWeight: "normal" }}>
+// // //               {record.businessName}
+// // //             </div>
+// // //             <div style={{ fontSize: 10, color: "#999" }}>
+// // //               {record.customerNumber}
+// // //             </div>
+// // //           </div>
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.customerName.localeCompare(b.customerName)
+// // //     },
+// // //     {
+// // //       title: "Document",
+// // //       dataIndex: "deferralTitle",
+// // //       key: "deferralTitle",
+// // //       width: 180,
+// // //       render: (text, record) => (
+// // //         <div>
+// // //           <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+// // //             {text}
+// // //           </div>
+// // //           <div style={{ fontSize: 11, color: "#999" }}>
+// // //             {record.documentType}
+// // //           </div>
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.deferralTitle.localeCompare(b.deferralTitle)
+// // //     },
+// // //     {
+// // //       title: "Status",
+// // //       dataIndex: "status",
+// // //       key: "status",
+// // //       width: 120,
+// // //       render: (status) => {
+// // //         const statusConfig = {
+// // //           'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+// // //           'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+// // //           'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+// // //         };
+        
+// // //         const config = statusConfig[status] || { color: 'default', text: status };
+// // //         return (
+// // //           <Tag 
+// // //             color={config.color} 
+// // //             icon={config.icon}
+// // //             style={{ 
+// // //               fontSize: 11,
+// // //               fontWeight: "bold",
+// // //               borderRadius: 4,
+// // //               minWidth: 80,
+// // //               textAlign: "center"
+// // //             }}
+// // //           >
+// // //             {config.text}
+// // //           </Tag>
+// // //         );
+// // //       },
+// // //       filters: [
+// // //         { text: 'Pending', value: 'deferral_requested' },
+// // //         { text: 'Approved', value: 'deferral_approved' }
+// // //       ],
+// // //       onFilter: (value, record) => record.status === value,
+// // //       sorter: (a, b) => a.status.localeCompare(b.status)
+// // //     },
+// // //     {
+// // //       title: "Days Sought",
+// // //       dataIndex: "daysSought",
+// // //       key: "daysSought",
+// // //       width: 100,
+// // //       align: "center",
+// // //       render: (days) => (
+// // //         <div style={{
+// // //           fontWeight: "bold",
+// // //           color: days > 45 ? ERROR_RED : days > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+// // //           fontSize: 14,
+// // //           backgroundColor: days > 45 ? "#fff2f0" : days > 30 ? "#fff7e6" : "#f0f7ff",
+// // //           padding: "4px 8px",
+// // //           borderRadius: 4,
+// // //           display: "inline-block"
+// // //         }}>
+// // //           {days} days
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => a.daysSought - b.daysSought
+// // //     },
+// // //     {
+// // //       title: "Requested On",
+// // //       dataIndex: "createdAt",
+// // //       key: "createdAt",
+// // //       width: 100,
+// // //       render: (date) => (
+// // //         <div style={{ fontSize: 12 }}>
+// // //           {dayjs(date).format('DD/MM/YYYY')}
+// // //         </div>
+// // //       ),
+// // //       sorter: (a, b) => dayjs(a.createdAt).diff(dayjs(b.createdAt))
+// // //     },
+// // //     {
+// // //       title: "Actions",
+// // //       key: "actions",
+// // //       width: 150,
+// // //       fixed: "right",
+// // //       render: (_, record) => (
+// // //         <div style={{ display: "flex", gap: 4 }}>
+// // //           <Button
+// // //             type="link"
+// // //             size="small"
+// // //             onClick={() => {
+// // //               setSelectedDeferral(record);
+// // //               setModalOpen(true);
+// // //             }}
+// // //             style={{
+// // //               color: PRIMARY_BLUE,
+// // //               fontWeight: 500
+// // //             }}
+// // //           >
+// // //             <EyeOutlined /> View
+// // //           </Button>
+          
+// // //           {record.canEdit && (
+// // //             <Button
+// // //               type="link"
+// // //               size="small"
+// // //               onClick={() => handleEdit(record)}
+// // //               style={{ color: WARNING_ORANGE }}
+// // //             >
+// // //               <EditOutlined /> Edit
+// // //             </Button>
+// // //           )}
+          
+// // //           {record.canWithdraw && (
+// // //             <Popconfirm
+// // //               title="Withdraw Deferral Request"
+// // //               description="Are you sure you want to withdraw this request?"
+// // //               onConfirm={() => handleWithdraw(record._id)}
+// // //               okText="Yes"
+// // //               cancelText="No"
+// // //             >
+// // //               <Button
+// // //                 type="link"
+// // //                 size="small"
+// // //                 danger
+// // //               >
+// // //                 <DeleteOutlined /> Withdraw
+// // //               </Button>
+// // //             </Popconfirm>
+// // //           )}
+          
+// // //           {record.canUpload && (
+// // //             <Button
+// // //               type="link"
+// // //               size="small"
+// // //               onClick={() => handleUpload(record)}
+// // //               style={{ color: SUCCESS_GREEN }}
+// // //             >
+// // //               Upload
+// // //             </Button>
+// // //           )}
+// // //         </div>
+// // //       )
+// // //     }
+// // //   ];
+
+// // //   // Custom table styles
+// // //   const customTableStyles = `
+// // //     .deferral-pending-table .ant-table-wrapper {
+// // //       border-radius: 12px;
+// // //       overflow: hidden;
+// // //       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+// // //       border: 1px solid #e0e0e0;
+// // //     }
+// // //     .deferral-pending-table .ant-table-thead > tr > th {
+// // //       background-color: #f7f7f7 !important;
+// // //       color: ${PRIMARY_BLUE} !important;
+// // //       font-weight: 700;
+// // //       fontSize: 13px;
+// // //       padding: 14px 12px !important;
+// // //       border-bottom: 3px solid ${ACCENT_LIME} !important;
+// // //       border-right: none !important;
+// // //     }
+// // //     .deferral-pending-table .ant-table-tbody > tr > td {
+// // //       border-bottom: 1px solid #f0f0f0 !important;
+// // //       border-right: none !important;
+// // //       padding: 12px 12px !important;
+// // //       fontSize: 13px;
+// // //       color: #333;
+// // //     }
+// // //     .deferral-pending-table .ant-table-tbody > tr.ant-table-row:hover > td {
+// // //       background-color: rgba(181, 211, 52, 0.1) !important;
+// // //       cursor: pointer;
+// // //     }
+// // //     .deferral-pending-table .ant-table-row:hover .ant-table-cell:last-child {
+// // //       background-color: rgba(181, 211, 52, 0.1) !important;
+// // //     }
+// // //     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
+// // //       background-color: ${ACCENT_LIME} !important;
+// // //       border-color: ${ACCENT_LIME} !important;
+// // //     }
+// // //     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
+// // //       color: ${PRIMARY_BLUE} !important;
+// // //       font-weight: 600;
+// // //     }
+// // //   `;
+
+// // //   return (
+// // //     <div style={{ padding: 24 }}>
+// // //       <style>{customTableStyles}</style>
+
+// // //       {/* Header */}
+// // //       <Card
+// // //         style={{
+// // //           marginBottom: 24,
+// // //           borderRadius: 8,
+// // //           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+// // //           borderLeft: `4px solid ${ACCENT_LIME}`
+// // //         }}
+// // //         bodyStyle={{ padding: 16 }}
+// // //       >
+// // //         <Row justify="space-between" align="middle">
+// // //           <Col>
+// // //             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+// // //               My Deferral Requests
+// // //               <Badge
+// // //                 count={filteredData.length}
+// // //                 style={{
+// // //                   backgroundColor: ACCENT_LIME,
+// // //                   fontSize: 12
+// // //                 }}
+// // //               />
+// // //             </h2>
+// // //             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
+// // //               Track and manage your deferral requests
+// // //             </p>
+// // //           </Col>
+// // //           <Col>
+// // //             <Button
+// // //               type="primary"
+// // //               onClick={() => {
+// // //                 // Navigate to request new deferral
+// // //                 window.location.href = '/rm/deferrals/request';
+// // //               }}
+// // //               style={{
+// // //                 backgroundColor: PRIMARY_BLUE,
+// // //                 borderColor: PRIMARY_BLUE
+// // //               }}
+// // //             >
+// // //               + New Deferral Request
+// // //             </Button>
+// // //           </Col>
+// // //         </Row>
+// // //       </Card>
+
+// // //       {/* Filters */}
+// // //       <Card
+// // //         style={{
+// // //           marginBottom: 16,
+// // //           background: "#fafafa",
+// // //           border: `1px solid ${PRIMARY_BLUE}20`,
+// // //           borderRadius: 8
+// // //         }}
+// // //         size="small"
+// // //       >
+// // //         <Row gutter={[16, 16]} align="middle">
+// // //           <Col xs={24} sm={12} md={8}>
+// // //             <Input
+// // //               placeholder="Search by Deferral No, DCL No, Customer, or Document"
+// // //               prefix={<SearchOutlined />}
+// // //               value={searchText}
+// // //               onChange={(e) => setSearchText(e.target.value)}
+// // //               allowClear
+// // //               size="middle"
+// // //             />
+// // //           </Col>
+          
+// // //           <Col xs={24} sm={12} md={4}>
+// // //             <Button
+// // //               onClick={clearFilters}
+// // //               style={{ width: '100%' }}
+// // //               size="middle"
+// // //             >
+// // //               Clear Filters
+// // //             </Button>
+// // //           </Col>
+// // //         </Row>
+// // //       </Card>
+
+// // //       {/* Table Title */}
+// // //       <Divider style={{ margin: "12px 0" }}>
+// // //         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
+// // //           My Deferral Requests ({filteredData.length} items)
+// // //         </span>
+// // //       </Divider>
+
+// // //       {/* Table */}
+// // //       {loading ? (
+// // //         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
+// // //           <Spin tip="Loading deferral requests..." />
+// // //         </div>
+// // //       ) : filteredData.length === 0 ? (
+// // //         <Empty
+// // //           description={
+// // //             <div>
+// // //               <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
+// // //               <p style={{ color: "#999" }}>
+// // //                 {searchText
+// // //                   ? 'Try changing your search term'
+// // //                   : 'You haven\'t requested any deferrals yet'}
+// // //               </p>
+// // //               <Button
+// // //                 type="primary"
+// // //                 onClick={() => window.location.href = '/rm/deferrals/request'}
+// // //                 style={{ marginTop: 16 }}
+// // //               >
+// // //                 Request Your First Deferral
+// // //               </Button>
+// // //             </div>
+// // //           }
+// // //           style={{ padding: 40 }}
+// // //         />
+// // //       ) : (
+// // //         <div className="deferral-pending-table">
+// // //           <Table
+// // //             columns={columns}
+// // //             dataSource={filteredData}
+// // //             rowKey="_id"
+// // //             size="middle"
+// // //             pagination={{
+// // //               pageSize: 10,
+// // //               showSizeChanger: true,
+// // //               pageSizeOptions: ["10", "20", "50"],
+// // //               position: ["bottomCenter"],
+// // //               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
+// // //             }}
+// // //             scroll={{ x: 1300 }}
+// // //             onRow={(record) => ({
+// // //               onClick: () => {
+// // //                 setSelectedDeferral(record);
+// // //                 setModalOpen(true);
+// // //               },
+// // //             })}
+// // //           />
+// // //         </div>
+// // //       )}
+
+// // //       {/* Footer Info */}
+// // //       <div style={{
+// // //         marginTop: 24,
+// // //         padding: 16,
+// // //         background: "#f8f9fa",
+// // //         borderRadius: 8,
+// // //         fontSize: 12,
+// // //         color: "#666",
+// // //         border: `1px solid ${PRIMARY_BLUE}10`
+// // //       }}>
+// // //         <Row justify="space-between" align="middle">
+// // //           <Col>
+// // //             Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
+// // //           </Col>
+// // //           <Col>
+// // //             <Text type="secondary">
+// // //               Showing {filteredData.length} items • Data as of latest system update
+// // //             </Text>
+// // //           </Col>
+// // //         </Row>
+// // //       </div>
+
+// // //       {/* Deferral Details Modal */}
+// // //       {selectedDeferral && (
+// // //         <DeferralDetailsModal
+// // //           deferral={selectedDeferral}
+// // //           open={modalOpen}
+// // //           onClose={() => {
+// // //             setModalOpen(false);
+// // //             setSelectedDeferral(null);
+// // //           }}
+// // //         />
+// // //       )}
+// // //     </div>
+// // //   );
+// // // };
+
+// // // export default DeferralPending;
+
+
+
+
+
+
+// // import React, { useMemo, useState, useEffect } from "react";
+// // import {
+// //   Button,
+// //   Divider,
+// //   Table,
+// //   Tag,
+// //   Spin,
+// //   Empty,
+// //   Card,
+// //   Row,
+// //   Col,
+// //   Input,
+// //   Badge,
+// //   Typography,
+// //   Modal,
+// //   message,
+// //   Popconfirm
+// // } from "antd";
+// // import {
+// //   SearchOutlined,
+// //   FileTextOutlined,
+// //   UserOutlined,
+// //   CustomerServiceOutlined,
+// //   ClockCircleOutlined,
+// //   EyeOutlined,
+// //   EditOutlined,
+// //   DeleteOutlined,
+// //   CheckCircleOutlined,
+// //   CloseCircleOutlined
+// // } from "@ant-design/icons";
+// // import dayjs from "dayjs";
+
+// // // Theme Colors (same as other queues)
+// // const PRIMARY_BLUE = "#164679";
+// // const ACCENT_LIME = "#b5d334";
+// // const HIGHLIGHT_GOLD = "#fcb116";
+// // const LIGHT_YELLOW = "#fcd716";
+// // const SECONDARY_PURPLE = "#7e6496";
+// // const SUCCESS_GREEN = "#52c41a";
+// // const ERROR_RED = "#ff4d4f";
+// // const WARNING_ORANGE = "#faad14";
+
+// // const { Text, Title } = Typography;
+
+// // // MOCK DATA for RM's Pending Deferrals
+// // const MOCK_RM_PENDING_DEFERRALS = [
+// //   {
+// //     _id: "1",
+// //     deferralNumber: "DEF-2024-001",
+// //     dclNo: "DCL-2024-015",
+// //     customerNumber: "CUST001",
+// //     customerName: "Javan Dave",
+// //     businessName: "JAVAN DAVE AND SONS",
+// //     deferralTitle: "Bank Statements",
+// //     documentType: "Financial Statements",
+// //     deferralType: "New",
+// //     status: "deferral_requested", // RM requested, waiting for creator approval
+// //     daysSought: 30,
+// //     requestedExpiry: "2025-02-05T23:59:59Z",
+// //     originalDueDate: "2025-01-05T23:59:59Z",
+// //     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
+// //     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
+// //     createdAt: "2025-01-05T09:30:00Z",
+// //     updatedAt: "2025-01-05T09:30:00Z",
+// //     slaExpiry: "2025-01-12T23:59:59Z",
+// //     canEdit: true, // RM can edit if still pending
+// //     canWithdraw: true // RM can withdraw if still pending
+// //   },
+// //   {
+// //     _id: "2",
+// //     deferralNumber: "DEF-2024-002",
+// //     dclNo: "DCL-2024-028",
+// //     customerNumber: "CUST002",
+// //     customerName: "Diana Mwangi",
+// //     businessName: "DIANA MWANGI AND DAUGHTERS",
+// //     deferralTitle: "CR12 Certificate",
+// //     documentType: "Registration Documents",
+// //     deferralType: "Extension",
+// //     status: "deferral_requested",
+// //     daysSought: 15,
+// //     requestedExpiry: "2025-02-05T23:59:59Z",
+// //     originalDueDate: "2025-01-20T23:59:59Z",
+// //     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
+// //     rmReason: "CRB office experiencing delays in processing due to system upgrades",
+// //     createdAt: "2025-01-11T14:20:00Z",
+// //     updatedAt: "2025-01-11T14:20:00Z",
+// //     slaExpiry: "2025-01-18T23:59:59Z",
+// //     canEdit: true,
+// //     canWithdraw: true
+// //   },
+// //   {
+// //     _id: "3",
+// //     deferralNumber: "DEF-2024-003",
+// //     dclNo: "DCL-2024-042",
+// //     customerNumber: "CUST003",
+// //     customerName: "Lucy Nyambura",
+// //     businessName: "LUCY NYAMBURA AND SONS",
+// //     deferralTitle: "Lease Agreement",
+// //     documentType: "Legal Documents",
+// //     deferralType: "New",
+// //     status: "deferral_approved", // Already approved by creator
+// //     daysSought: 45,
+// //     requestedExpiry: "2025-03-05T23:59:59Z",
+// //     originalDueDate: "2025-01-20T23:59:59Z",
+// //     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
+// //     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+// //     creatorComments: "Approved. Please ensure document is submitted before expiry date.",
+// //     createdAt: "2025-01-20T11:15:00Z",
+// //     updatedAt: "2025-01-21T10:30:00Z",
+// //     approvedDate: "2025-01-21T10:30:00Z",
+// //     canEdit: false, // Cannot edit after approval
+// //     canWithdraw: false, // Cannot withdraw after approval
+// //     canUpload: true // Can upload document now
+// //   }
+// // ];
+
+// // // Deferral Details Modal for RM
+// // const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+// //   const getStatusConfig = (status) => {
+// //     switch (status) {
+// //       case 'deferral_requested':
+// //         return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+// //       case 'deferral_approved':
+// //         return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+// //       case 'deferral_rejected':
+// //         return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+// //       default:
+// //         return { color: 'default', label: status, description: '' };
+// //     }
+// //   };
+
+// //   const statusConfig = getStatusConfig(deferral?.status);
+
+// //   return (
+// //     <Modal
+// //       title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
+// //       open={open}
+// //       onCancel={onClose}
+// //       width={700}
+// //       footer={[
+// //         <Button key="close" onClick={onClose}>
+// //           Close
+// //         </Button>
+// //       ]}
+// //     >
+// //       {deferral && (
+// //         <div>
+// //           {/* Header Section */}
+// //           <Card
+// //             size="small"
+// //             style={{ marginBottom: 16, borderLeft: `4px solid ${ACCENT_LIME}` }}
+// //           >
+// //             <Row gutter={[16, 16]}>
+// //               <Col span={12}>
+// //                 <Text strong>Deferral Number:</Text>
+// //                 <div style={{ color: PRIMARY_BLUE, fontWeight: 'bold' }}>
+// //                   {deferral.deferralNumber}
+// //                 </div>
+// //               </Col>
+// //               <Col span={12}>
+// //                 <Text strong>DCL Number:</Text>
+// //                 <div>{deferral.dclNo}</div>
+// //               </Col>
+// //               <Col span={12}>
+// //                 <Text strong>Customer:</Text>
+// //                 <div>{deferral.customerName}</div>
+// //                 <Text type="secondary" style={{ fontSize: 12 }}>
+// //                   {deferral.businessName}
+// //                 </Text>
+// //               </Col>
+// //               <Col span={12}>
+// //                 <Text strong>Document:</Text>
+// //                 <div>{deferral.deferralTitle}</div>
+// //                 <Tag color="blue" style={{ marginTop: 4 }}>{deferral.documentType}</Tag>
+// //               </Col>
+// //             </Row>
+// //           </Card>
+
+// //           {/* Status Section */}
+// //           <Card size="small" style={{ marginBottom: 16 }}>
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //               Status
+// //             </Title>
+// //             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+// //               <Tag 
+// //                 color={statusConfig.color} 
+// //                 icon={statusConfig.icon}
+// //                 style={{ fontSize: 14, padding: '8px 12px' }}
+// //               >
+// //                 {statusConfig.label}
+// //               </Tag>
+// //               <div>
+// //                 <div>{statusConfig.description}</div>
+// //                 {deferral.currentApprover && (
+// //                   <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+// //                     Current Approver: <strong>{deferral.currentApprover.name}</strong>
+// //                   </div>
+// //                 )}
+// //               </div>
+// //             </div>
+// //           </Card>
+
+// //           {/* Timeline Section */}
+// //           <Card size="small" style={{ marginBottom: 16 }}>
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
+// //               <ClockCircleOutlined /> Timeline
+// //             </Title>
+// //             <Row gutter={[16, 16]}>
+// //               <Col span={8}>
+// //                 <div>
+// //                   <Text type="secondary" style={{ fontSize: 12 }}>Original Due Date</Text>
+// //                   <div style={{ fontWeight: 'bold' }}>
+// //                     {dayjs(deferral.originalDueDate).format('DD/MM/YYYY')}
+// //                   </div>
+// //                 </div>
+// //               </Col>
+// //               <Col span={8}>
+// //                 <div>
+// //                   <Text type="secondary" style={{ fontSize: 12 }}>Requested Extension</Text>
+// //                   <div style={{ fontWeight: 'bold', color: WARNING_ORANGE }}>
+// //                     {dayjs(deferral.requestedExpiry).format('DD/MM/YYYY')}
+// //                   </div>
+// //                   <Text type="secondary" style={{ fontSize: 11 }}>
+// //                     ({deferral.daysSought} days)
+// //                   </Text>
+// //                 </div>
+// //               </Col>
+// //               <Col span={8}>
+// //                 <div>
+// //                   <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+// //                   <div style={{ fontWeight: 'bold' }}>
+// //                     {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
+// //                   </div>
+// //                 </div>
+// //               </Col>
+// //             </Row>
+// //             {deferral.approvedDate && (
+// //               <div style={{ marginTop: 16 }}>
+// //                 <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+// //                 <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+// //                   {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+// //                 </div>
+// //               </div>
+// //             )}
+// //           </Card>
+
+// //           {/* Reason Section */}
+// //           <Card size="small" style={{ marginBottom: 16 }}>
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //               <UserOutlined /> Your Request Reason
+// //             </Title>
+// //             <div style={{
+// //               padding: 12,
+// //               background: '#f8f9fa',
+// //               borderRadius: 4,
+// //               borderLeft: `3px solid ${SECONDARY_PURPLE}`
+// //             }}>
+// //               {deferral.rmReason}
+// //             </div>
+// //           </Card>
+
+// //           {/* Creator Comments (if any) */}
+// //           {deferral.creatorComments && (
+// //             <Card size="small" style={{ marginBottom: 16 }}>
+// //               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //                 Creator Comments
+// //               </Title>
+// //               <div style={{
+// //                 padding: 12,
+// //                 background: '#e6f7ff',
+// //                 borderRadius: 4,
+// //                 borderLeft: `3px solid ${PRIMARY_BLUE}`
+// //               }}>
+// //                 {deferral.creatorComments}
+// //               </div>
+// //             </Card>
+// //           )}
+
+// //           {/* Actions for RM */}
+// //           <Card size="small">
+// //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+// //               Available Actions
+// //             </Title>
+// //             <div style={{ display: 'flex', gap: 8 }}>
+// //               {deferral.canEdit && (
+// //                 <Button type="primary" icon={<EditOutlined />}>
+// //                   Edit Request
+// //                 </Button>
+// //               )}
+// //               {deferral.canWithdraw && (
+// //                 <Button danger icon={<DeleteOutlined />}>
+// //                   Withdraw Request
+// //                 </Button>
+// //               )}
+// //               {deferral.canUpload && (
+// //                 <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+// //                   Upload Document
+// //                 </Button>
+// //               )}
+// //             </div>
+// //           </Card>
+// //         </div>
+// //       )}
+// //     </Modal>
+// //   );
+// // };
+
+// // // Main DeferralPending Component for RM
+// // const DeferralPending = ({ userId = "rm_current" }) => {
+// //   const [selectedDeferral, setSelectedDeferral] = useState(null);
+// //   const [modalOpen, setModalOpen] = useState(false);
+// //   const [loading, setLoading] = useState(false);
+// //   const [mockData, setMockData] = useState([]);
+  
+// //   // Filters
+// //   const [searchText, setSearchText] = useState("");
+
+// //   // Load data
+// //   useEffect(() => {
+// //     setLoading(true);
+    
+// //     setTimeout(() => {
+// //       setMockData(MOCK_RM_PENDING_DEFERRALS);
+// //       setLoading(false);
+// //     }, 300);
+// //   }, []);
+
+// //   // Filter data - RM sees their own deferrals (both requested and approved)
+// //   const filteredData = useMemo(() => {
+// //     let filtered = mockData.filter((d) => 
+// //       d.status === "deferral_requested" || d.status === "deferral_approved"
+// //     );
+    
+// //     // Apply search filter
+// //     if (searchText) {
+// //       filtered = filtered.filter(d =>
+// //         d.deferralNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
+// //         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
+// //       );
+// //     }
+    
+// //     return filtered;
+// //   }, [mockData, searchText]);
+
+// //   // Handle withdraw deferral
+// //   const handleWithdraw = (deferralId) => {
+// //     Modal.confirm({
+// //       title: 'Withdraw Deferral Request',
+// //       content: 'Are you sure you want to withdraw this deferral request?',
+// //       onOk: () => {
+// //         setMockData(prev => prev.filter(d => d._id !== deferralId));
+// //         message.success('Deferral request withdrawn successfully');
+// //       }
+// //     });
+// //   };
+
+// //   // Handle edit deferral
+// //   const handleEdit = (deferral) => {
+// //     message.info(`Edit deferral ${deferral.deferralNumber}`);
+// //     // Navigate to edit page or open edit modal
+// //   };
+
+// //   // Handle upload document
+// //   const handleUpload = (deferral) => {
+// //     message.info(`Upload document for ${deferral.deferralNumber}`);
+// //     // Open upload modal or navigate to upload page
+// //   };
+
+// //   // Clear filters
+// //   const clearFilters = () => {
+// //     setSearchText("");
+// //   };
+
+// //   // Updated Columns as per your request: Deferral No, DCL No, Customer Name, Document, Type, Status, Days Sought, SLA
+// //   const columns = [
+// //     {
+// //       title: "Deferral No",
+// //       dataIndex: "deferralNumber",
+// //       key: "deferralNumber",
+// //       width: 140,
+// //       render: (text) => (
+// //         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
+// //           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
+// //           {text}
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
+// //     },
+// //     {
+// //       title: "DCL No",
+// //       dataIndex: "dclNo",
+// //       key: "dclNo",
+// //       width: 120,
+// //       render: (text) => (
+// //         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
+// //           {text}
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
+// //     },
+// //     {
+// //       title: "Customer Name",
+// //       dataIndex: "customerName",
+// //       key: "customerName",
+// //       width: 160,
+// //       render: (text, record) => (
+// //         <div style={{
+// //           fontWeight: 600,
+// //           color: PRIMARY_BLUE,
+// //           display: "flex",
+// //           alignItems: "center",
+// //           gap: 6
+// //         }}>
+// //           <CustomerServiceOutlined style={{ fontSize: 12 }} />
+// //           <div>
+// //             <div>{text}</div>
+// //             <div style={{ fontSize: 10, color: "#999", marginTop: 2 }}>
+// //               {record.customerNumber}
+// //             </div>
+// //           </div>
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.customerName.localeCompare(b.customerName)
+// //     },
+// //     {
+// //       title: "Document",
+// //       dataIndex: "documentType",
+// //       key: "documentType",
+// //       width: 150,
+// //       render: (text) => (
+// //         <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+// //           {text}
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.documentType.localeCompare(b.documentType)
+// //     },
+// //     {
+// //       title: "Type",
+// //       dataIndex: "deferralType",
+// //       key: "deferralType",
+// //       width: 100,
+// //       render: (type) => (
+// //         <Tag
+// //           color={type === "New" ? "blue" : "orange"}
+// //           style={{
+// //             fontSize: 11,
+// //             fontWeight: "bold",
+// //             borderRadius: 4,
+// //             minWidth: 70,
+// //             textAlign: "center"
+// //           }}
+// //         >
+// //           {type}
+// //         </Tag>
+// //       ),
+// //       filters: [
+// //         { text: 'New', value: 'New' },
+// //         { text: 'Extension', value: 'Extension' }
+// //       ],
+// //       onFilter: (value, record) => record.deferralType === value,
+// //       sorter: (a, b) => a.deferralType.localeCompare(b.deferralType)
+// //     },
+// //     {
+// //       title: "Status",
+// //       dataIndex: "status",
+// //       key: "status",
+// //       width: 120,
+// //       render: (status) => {
+// //         const statusConfig = {
+// //           'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+// //           'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+// //           'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+// //         };
+        
+// //         const config = statusConfig[status] || { color: 'default', text: status };
+// //         return (
+// //           <Tag 
+// //             color={config.color} 
+// //             icon={config.icon}
+// //             style={{ 
+// //               fontSize: 11,
+// //               fontWeight: "bold",
+// //               borderRadius: 4,
+// //               minWidth: 80,
+// //               textAlign: "center"
+// //             }}
+// //           >
+// //             {config.text}
+// //           </Tag>
+// //         );
+// //       },
+// //       filters: [
+// //         { text: 'Pending', value: 'deferral_requested' },
+// //         { text: 'Approved', value: 'deferral_approved' }
+// //       ],
+// //       onFilter: (value, record) => record.status === value,
+// //       sorter: (a, b) => a.status.localeCompare(b.status)
+// //     },
+// //     {
+// //       title: "Days Sought",
+// //       dataIndex: "daysSought",
+// //       key: "daysSought",
+// //       width: 100,
+// //       align: "center",
+// //       render: (days) => (
+// //         <div style={{
+// //           fontWeight: "bold",
+// //           color: days > 45 ? ERROR_RED : days > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+// //           fontSize: 14,
+// //           backgroundColor: days > 45 ? "#fff2f0" : days > 30 ? "#fff7e6" : "#f0f7ff",
+// //           padding: "4px 8px",
+// //           borderRadius: 4,
+// //           display: "inline-block"
+// //         }}>
+// //           {days} days
+// //         </div>
+// //       ),
+// //       sorter: (a, b) => a.daysSought - b.daysSought
+// //     },
+// //     {
+// //       title: "SLA",
+// //       dataIndex: "slaExpiry",
+// //       key: "slaExpiry",
+// //       width: 100,
+// //       fixed: "right",
+// //       render: (date) => {
+// //         const daysLeft = dayjs(date).diff(dayjs(), 'days');
+// //         const hoursLeft = dayjs(date).diff(dayjs(), 'hours');
+        
+// //         let color = SUCCESS_GREEN;
+// //         let text = `${daysLeft}d`;
+        
+// //         if (daysLeft <= 0 && hoursLeft <= 0) {
+// //           color = ERROR_RED;
+// //           text = 'Expired';
+// //         } else if (daysLeft <= 0) {
+// //           color = ERROR_RED;
+// //           text = `${hoursLeft}h`;
+// //         } else if (daysLeft <= 1) {
+// //           color = ERROR_RED;
+// //           text = `${daysLeft}d`;
+// //         } else if (daysLeft <= 3) {
+// //           color = WARNING_ORANGE;
+// //           text = `${daysLeft}d`;
+// //         }
+        
+// //         return (
+// //           <Tag
+// //             color={color}
+// //             style={{ 
+// //               fontWeight: "bold", 
+// //               fontSize: 11,
+// //               minWidth: 50,
+// //               textAlign: "center"
+// //             }}
+// //           >
+// //             {text}
+// //           </Tag>
+// //         );
+// //       },
+// //       sorter: (a, b) => dayjs(a.slaExpiry).diff(dayjs(b.slaExpiry))
+// //     },
+// //     {
+// //       title: "Actions",
+// //       key: "actions",
+// //       width: 80,
+// //       fixed: "right",
+// //       render: (_, record) => (
+// //         <Button
+// //           type="link"
+// //           size="small"
+// //           onClick={() => {
+// //             setSelectedDeferral(record);
+// //             setModalOpen(true);
+// //           }}
+// //           style={{
+// //             color: PRIMARY_BLUE,
+// //             fontWeight: 500
+// //           }}
+// //         >
+// //           <EyeOutlined /> View
+// //         </Button>
+// //       )
+// //     }
+// //   ];
+
+// //   // Custom table styles
+// //   const customTableStyles = `
+// //     .deferral-pending-table .ant-table-wrapper {
+// //       border-radius: 12px;
+// //       overflow: hidden;
+// //       box-shadow: 0 10px 30px rgba(22, 70, 121, 0.08);
+// //       border: 1px solid #e0e0e0;
+// //     }
+// //     .deferral-pending-table .ant-table-thead > tr > th {
+// //       background-color: #f7f7f7 !important;
+// //       color: ${PRIMARY_BLUE} !important;
+// //       font-weight: 700;
+// //       fontSize: 13px;
+// //       padding: 14px 12px !important;
+// //       border-bottom: 3px solid ${ACCENT_LIME} !important;
+// //       border-right: none !important;
+// //     }
+// //     .deferral-pending-table .ant-table-tbody > tr > td {
+// //       border-bottom: 1px solid #f0f0f0 !important;
+// //       border-right: none !important;
+// //       padding: 12px 12px !important;
+// //       fontSize: 13px;
+// //       color: #333;
+// //     }
+// //     .deferral-pending-table .ant-table-tbody > tr.ant-table-row:hover > td {
+// //       background-color: rgba(181, 211, 52, 0.1) !important;
+// //       cursor: pointer;
+// //     }
+// //     .deferral-pending-table .ant-table-row:hover .ant-table-cell:last-child {
+// //       background-color: rgba(181, 211, 52, 0.1) !important;
+// //     }
+// //     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
+// //       background-color: ${ACCENT_LIME} !important;
+// //       border-color: ${ACCENT_LIME} !important;
+// //     }
+// //     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
+// //       color: ${PRIMARY_BLUE} !important;
+// //       font-weight: 600;
+// //     }
+// //   `;
+
+// //   return (
+// //     <div style={{ padding: 24 }}>
+// //       <style>{customTableStyles}</style>
+
+// //       {/* Header */}
+// //       <Card
+// //         style={{
+// //           marginBottom: 24,
+// //           borderRadius: 8,
+// //           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+// //           borderLeft: `4px solid ${ACCENT_LIME}`
+// //         }}
+// //         bodyStyle={{ padding: 16 }}
+// //       >
+// //         <Row justify="space-between" align="middle">
+// //           <Col>
+// //             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
+// //               My Deferral Requests
+// //               <Badge
+// //                 count={filteredData.length}
+// //                 style={{
+// //                   backgroundColor: ACCENT_LIME,
+// //                   fontSize: 12
+// //                 }}
+// //               />
+// //             </h2>
+// //             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
+// //               Track and manage your deferral requests
+// //             </p>
+// //           </Col>
+// //           <Col>
+// //             <Button
+// //               type="primary"
+// //               onClick={() => {
+// //                 // Navigate to request new deferral
+// //                 window.location.href = '/rm/deferrals/request';
+// //               }}
+// //               style={{
+// //                 backgroundColor: PRIMARY_BLUE,
+// //                 borderColor: PRIMARY_BLUE
+// //               }}
+// //             >
+// //               + New Deferral Request
+// //             </Button>
+// //           </Col>
+// //         </Row>
+// //       </Card>
+
+// //       {/* Filters */}
+// //       <Card
+// //         style={{
+// //           marginBottom: 16,
+// //           background: "#fafafa",
+// //           border: `1px solid ${PRIMARY_BLUE}20`,
+// //           borderRadius: 8
+// //         }}
+// //         size="small"
+// //       >
+// //         <Row gutter={[16, 16]} align="middle">
+// //           <Col xs={24} sm={12} md={8}>
+// //             <Input
+// //               placeholder="Search by Deferral No, DCL No, Customer, or Document"
+// //               prefix={<SearchOutlined />}
+// //               value={searchText}
+// //               onChange={(e) => setSearchText(e.target.value)}
+// //               allowClear
+// //               size="middle"
+// //             />
+// //           </Col>
+          
+// //           <Col xs={24} sm={12} md={4}>
+// //             <Button
+// //               onClick={clearFilters}
+// //               style={{ width: '100%' }}
+// //               size="middle"
+// //             >
+// //               Clear Filters
+// //             </Button>
+// //           </Col>
+// //         </Row>
+// //       </Card>
+
+// //       {/* Table Title */}
+// //       <Divider style={{ margin: "12px 0" }}>
+// //         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
+// //           My Deferral Requests ({filteredData.length} items)
+// //         </span>
+// //       </Divider>
+
+// //       {/* Table */}
+// //       {loading ? (
+// //         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: 40 }}>
+// //           <Spin tip="Loading deferral requests..." />
+// //         </div>
+// //       ) : filteredData.length === 0 ? (
+// //         <Empty
+// //           description={
+// //             <div>
+// //               <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
+// //               <p style={{ color: "#999" }}>
+// //                 {searchText
+// //                   ? 'Try changing your search term'
+// //                   : 'You haven\'t requested any deferrals yet'}
+// //               </p>
+// //               <Button
+// //                 type="primary"
+// //                 onClick={() => window.location.href = '/rm/deferrals/request'}
+// //                 style={{ marginTop: 16 }}
+// //               >
+// //                 Request Your First Deferral
+// //               </Button>
+// //             </div>
+// //           }
+// //           style={{ padding: 40 }}
+// //         />
+// //       ) : (
+// //         <div className="deferral-pending-table">
+// //           <Table
+// //             columns={columns}
+// //             dataSource={filteredData}
+// //             rowKey="_id"
+// //             size="middle"
+// //             pagination={{
+// //               pageSize: 10,
+// //               showSizeChanger: true,
+// //               pageSizeOptions: ["10", "20", "50"],
+// //               position: ["bottomCenter"],
+// //               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
+// //             }}
+// //             scroll={{ x: 1100 }}
+// //             onRow={(record) => ({
+// //               onClick: () => {
+// //                 setSelectedDeferral(record);
+// //                 setModalOpen(true);
+// //               },
+// //             })}
+// //           />
+// //         </div>
+// //       )}
+
+// //       {/* Footer Info */}
+// //       <div style={{
+// //         marginTop: 24,
+// //         padding: 16,
+// //         background: "#f8f9fa",
+// //         borderRadius: 8,
+// //         fontSize: 12,
+// //         color: "#666",
+// //         border: `1px solid ${PRIMARY_BLUE}10`
+// //       }}>
+// //         <Row justify="space-between" align="middle">
+// //           <Col>
+// //             Report generated on: {dayjs().format('DD/MM/YYYY HH:mm:ss')}
+// //           </Col>
+// //           <Col>
+// //             <Text type="secondary">
+// //               Showing {filteredData.length} items • Data as of latest system update
+// //             </Text>
+// //           </Col>
+// //         </Row>
+// //       </div>
+
+// //       {/* Deferral Details Modal */}
+// //       {selectedDeferral && (
+// //         <DeferralDetailsModal
+// //           deferral={selectedDeferral}
+// //           open={modalOpen}
+// //           onClose={() => {
+// //             setModalOpen(false);
+// //             setSelectedDeferral(null);
+// //           }}
+// //         />
+// //       )}
+// //     </div>
+// //   );
+// // };
+
+// // export default DeferralPending;
+
+
+
+
+
 // import React, { useMemo, useState, useEffect } from "react";
 // import {
 //   Button,
@@ -13,10 +4043,8 @@
 //   Badge,
 //   Typography,
 //   Modal,
-//   Form,
-//   Input as AntInput,
-//   DatePicker,
-//   message
+//   message,
+//   Popconfirm
 // } from "antd";
 // import {
 //   SearchOutlined,
@@ -24,10 +4052,11 @@
 //   UserOutlined,
 //   CustomerServiceOutlined,
 //   ClockCircleOutlined,
-//   CheckCircleOutlined,
-//   CloseCircleOutlined,
 //   EyeOutlined,
-//   CalendarOutlined
+//   EditOutlined,
+//   DeleteOutlined,
+//   CheckCircleOutlined,
+//   CloseCircleOutlined
 // } from "@ant-design/icons";
 // import dayjs from "dayjs";
 
@@ -42,10 +4071,9 @@
 // const WARNING_ORANGE = "#faad14";
 
 // const { Text, Title } = Typography;
-// const { TextArea } = AntInput;
 
-// // MOCK DATA for Deferral Pending Queue
-// const MOCK_PENDING_DEFERRALS = [
+// // MOCK DATA for RM's Pending Deferrals
+// const MOCK_RM_PENDING_DEFERRALS = [
 //   {
 //     _id: "1",
 //     deferralNumber: "DEF-2024-001",
@@ -56,20 +4084,17 @@
 //     deferralTitle: "Bank Statements",
 //     documentType: "Financial Statements",
 //     deferralType: "New",
-//     status: "pending_creator_review",
+//     status: "deferral_requested", // RM requested, waiting for creator approval
 //     daysSought: 30,
 //     requestedExpiry: "2025-02-05T23:59:59Z",
 //     originalDueDate: "2025-01-05T23:59:59Z",
 //     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
-//     previousApprovers: [
-//       { _id: "creator2", name: "Pascal Kariuki", email: "pascal.k@ncba.co.ke" },
-//       { _id: "creator3", name: "Emmanuel Nzeki", email: "emmanuel.n@ncba.co.ke" }
-//     ],
-//     rmRequestedBy: { _id: "rm1", name: "John Kamau", email: "john.k@ncba.co.ke" },
 //     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
 //     createdAt: "2025-01-05T09:30:00Z",
 //     updatedAt: "2025-01-05T09:30:00Z",
-//     slaExpiry: "2025-01-12T23:59:59Z"
+//     slaExpiry: "2025-01-12T23:59:59Z",
+//     canEdit: true, // RM can edit if still pending
+//     canWithdraw: true // RM can withdraw if still pending
 //   },
 //   {
 //     _id: "2",
@@ -81,19 +4106,17 @@
 //     deferralTitle: "CR12 Certificate",
 //     documentType: "Registration Documents",
 //     deferralType: "Extension",
-//     status: "pending_creator_review",
+//     status: "deferral_requested",
 //     daysSought: 15,
 //     requestedExpiry: "2025-02-05T23:59:59Z",
 //     originalDueDate: "2025-01-20T23:59:59Z",
 //     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
-//     previousApprovers: [
-//       { _id: "creator5", name: "Shallot Maala", email: "shallot.m@ncba.co.ke" }
-//     ],
-//     rmRequestedBy: { _id: "rm2", name: "Sarah Wangui", email: "sarah.w@ncba.co.ke" },
 //     rmReason: "CRB office experiencing delays in processing due to system upgrades",
 //     createdAt: "2025-01-11T14:20:00Z",
 //     updatedAt: "2025-01-11T14:20:00Z",
-//     slaExpiry: "2025-01-18T23:59:59Z"
+//     slaExpiry: "2025-01-18T23:59:59Z",
+//     canEdit: true,
+//     canWithdraw: true
 //   },
 //   {
 //     _id: "3",
@@ -105,53 +4128,50 @@
 //     deferralTitle: "Lease Agreement",
 //     documentType: "Legal Documents",
 //     deferralType: "New",
-//     status: "pending_creator_review",
+//     status: "deferral_approved", // Already approved by creator
 //     daysSought: 45,
 //     requestedExpiry: "2025-03-05T23:59:59Z",
 //     originalDueDate: "2025-01-20T23:59:59Z",
 //     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
-//     previousApprovers: [
-//       { _id: "creator2", name: "Pascal Kariuki", email: "pascal.k@ncba.co.ke" },
-//       { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" }
-//     ],
-//     rmRequestedBy: { _id: "rm3", name: "David Omondi", email: "david.o@ncba.co.ke" },
 //     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+//     creatorComments: "Approved. Please ensure document is submitted before expiry date.",
 //     createdAt: "2025-01-20T11:15:00Z",
-//     updatedAt: "2025-01-20T11:15:00Z",
-//     slaExpiry: "2025-01-27T23:59:59Z"
+//     updatedAt: "2025-01-21T10:30:00Z",
+//     approvedDate: "2025-01-21T10:30:00Z",
+//     canEdit: false, // Cannot edit after approval
+//     canWithdraw: false, // Cannot withdraw after approval
+//     canUpload: true // Can upload document now
 //   }
 // ];
 
-// // Deferral Review Modal Component
-// const DeferralReviewModal = ({ deferral, open, onClose, onDecision }) => {
-//   const [form] = Form.useForm();
-//   const [loading, setLoading] = useState(false);
-//   const [decision, setDecision] = useState(null);
-
-//   const handleSubmit = async (values) => {
-//     setLoading(true);
-//     try {
-//       await onDecision({
-//         decision: values.decision,
-//         comments: values.comments,
-//         finalExpiryDate: values.finalExpiryDate
-//       });
-//       message.success(`Deferral ${values.decision === 'accept' ? 'accepted' : 'rejected'} successfully`);
-//       onClose();
-//     } catch (error) {
-//       message.error('Failed to process decision');
-//     } finally {
-//       setLoading(false);
+// // Deferral Details Modal for RM
+// const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+//   const getStatusConfig = (status) => {
+//     switch (status) {
+//       case 'deferral_requested':
+//         return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+//       case 'deferral_approved':
+//         return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+//       case 'deferral_rejected':
+//         return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+//       default:
+//         return { color: 'default', label: status, description: '' };
 //     }
 //   };
 
+//   const statusConfig = getStatusConfig(deferral?.status);
+
 //   return (
 //     <Modal
-//       title={<span style={{ color: PRIMARY_BLUE }}>Review Deferral Request</span>}
+//       title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
 //       open={open}
 //       onCancel={onClose}
-//       width={800}
-//       footer={null}
+//       width={700}
+//       footer={[
+//         <Button key="close" onClick={onClose}>
+//           Close
+//         </Button>
+//       ]}
 //     >
 //       {deferral && (
 //         <div>
@@ -186,6 +4206,30 @@
 //             </Row>
 //           </Card>
 
+//           {/* Status Section */}
+//           <Card size="small" style={{ marginBottom: 16 }}>
+//             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+//               Status
+//             </Title>
+//             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+//               <Tag 
+//                 color={statusConfig.color} 
+//                 icon={statusConfig.icon}
+//                 style={{ fontSize: 14, padding: '8px 12px' }}
+//               >
+//                 {statusConfig.label}
+//               </Tag>
+//               <div>
+//                 <div>{statusConfig.description}</div>
+//                 {deferral.currentApprover && (
+//                   <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+//                     Current Approver: <strong>{deferral.currentApprover.name}</strong>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           </Card>
+
 //           {/* Timeline Section */}
 //           <Card size="small" style={{ marginBottom: 16 }}>
 //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
@@ -213,19 +4257,27 @@
 //               </Col>
 //               <Col span={8}>
 //                 <div>
-//                   <Text type="secondary" style={{ fontSize: 12 }}>SLA Expiry</Text>
-//                   <div style={{ fontWeight: 'bold', color: ERROR_RED }}>
-//                     {dayjs(deferral.slaExpiry).format('DD/MM/YYYY')}
+//                   <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+//                   <div style={{ fontWeight: 'bold' }}>
+//                     {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
 //                   </div>
 //                 </div>
 //               </Col>
 //             </Row>
+//             {deferral.approvedDate && (
+//               <div style={{ marginTop: 16 }}>
+//                 <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+//                 <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+//                   {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+//                 </div>
+//               </div>
+//             )}
 //           </Card>
 
 //           {/* Reason Section */}
 //           <Card size="small" style={{ marginBottom: 16 }}>
 //             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
-//               <UserOutlined /> RM's Request Reason
+//               <UserOutlined /> Your Request Reason
 //             </Title>
 //             <div style={{
 //               padding: 12,
@@ -235,123 +4287,56 @@
 //             }}>
 //               {deferral.rmReason}
 //             </div>
-//             <div style={{ marginTop: 8, fontSize: 12 }}>
-//               <Text type="secondary">
-//                 Requested by: {deferral.rmRequestedBy?.name} ({deferral.rmRequestedBy?.email})
-//               </Text>
-//             </div>
 //           </Card>
 
-//           {/* Approval History */}
-//           <Card size="small" style={{ marginBottom: 16 }}>
-//             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
-//               Approval History
-//             </Title>
-//             {deferral.previousApprovers.map((approver, index) => (
-//               <div key={index} style={{ marginBottom: 8, padding: 8, background: '#f8f9fa' }}>
-//                 <Text strong>{approver.name}</Text>
-//                 <Text type="secondary" style={{ marginLeft: 8 }}>{approver.email}</Text>
-//               </div>
-//             ))}
-//           </Card>
-
-//           {/* Decision Form */}
-//           <Form form={form} layout="vertical" onFinish={handleSubmit}>
-//             <Card size="small">
-//               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
-//                 Your Decision
+//           {/* Creator Comments (if any) */}
+//           {deferral.creatorComments && (
+//             <Card size="small" style={{ marginBottom: 16 }}>
+//               <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+//                 Creator Comments
 //               </Title>
-              
-//               <Form.Item
-//                 name="decision"
-//                 label="Decision"
-//                 rules={[{ required: true, message: 'Please select a decision' }]}
-//               >
-//                 <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-//                   <Button
-//                     type={decision === 'accept' ? 'primary' : 'default'}
-//                     style={{
-//                       background: decision === 'accept' ? SUCCESS_GREEN : undefined,
-//                       borderColor: SUCCESS_GREEN,
-//                       color: decision === 'accept' ? 'white' : SUCCESS_GREEN
-//                     }}
-//                     onClick={() => {
-//                       setDecision('accept');
-//                       form.setFieldValue('decision', 'accept');
-//                     }}
-//                     icon={<CheckCircleOutlined />}
-//                   >
-//                     Accept
-//                   </Button>
-//                   <Button
-//                     type={decision === 'reject' ? 'primary' : 'default'}
-//                     style={{
-//                       background: decision === 'reject' ? ERROR_RED : undefined,
-//                       borderColor: ERROR_RED,
-//                       color: decision === 'reject' ? 'white' : ERROR_RED
-//                     }}
-//                     onClick={() => {
-//                       setDecision('reject');
-//                       form.setFieldValue('decision', 'reject');
-//                     }}
-//                     icon={<CloseCircleOutlined />}
-//                   >
-//                     Reject
-//                   </Button>
-//                 </div>
-//               </Form.Item>
-
-//               {decision === 'accept' && (
-//                 <Form.Item
-//                   name="finalExpiryDate"
-//                   label="Final Expiry Date"
-//                   rules={[{ required: true, message: 'Please select final expiry date' }]}
-//                 >
-//                   <DatePicker
-//                     style={{ width: '100%' }}
-//                     disabledDate={(current) => current && current < dayjs(deferral.originalDueDate)}
-//                     suffixIcon={<CalendarOutlined />}
-//                   />
-//                 </Form.Item>
-//               )}
-
-//               <Form.Item
-//                 name="comments"
-//                 label="Comments"
-//                 rules={[{ required: true, message: 'Please provide comments for your decision' }]}
-//               >
-//                 <TextArea
-//                   rows={3}
-//                   placeholder="Enter your comments here..."
-//                   maxLength={500}
-//                   showCount
-//                 />
-//               </Form.Item>
-
-//               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-//                 <Button onClick={onClose}>Cancel</Button>
-//                 <Button
-//                   type="primary"
-//                   htmlType="submit"
-//                   loading={loading}
-//                   style={{
-//                     background: decision === 'accept' ? SUCCESS_GREEN : ERROR_RED,
-//                     borderColor: decision === 'accept' ? SUCCESS_GREEN : ERROR_RED
-//                   }}
-//                 >
-//                   {decision === 'accept' ? 'Approve Deferral' : 'Reject Deferral'}
-//                 </Button>
+//               <div style={{
+//                 padding: 12,
+//                 background: '#e6f7ff',
+//                 borderRadius: 4,
+//                 borderLeft: `3px solid ${PRIMARY_BLUE}`
+//               }}>
+//                 {deferral.creatorComments}
 //               </div>
 //             </Card>
-//           </Form>
+//           )}
+
+//           {/* Actions for RM */}
+//           <Card size="small">
+//             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+//               Available Actions
+//             </Title>
+//             <div style={{ display: 'flex', gap: 8 }}>
+//               {deferral.canEdit && (
+//                 <Button type="primary" icon={<EditOutlined />}>
+//                   Edit Request
+//                 </Button>
+//               )}
+//               {deferral.canWithdraw && (
+//                 <Button danger icon={<DeleteOutlined />}>
+//                   Withdraw Request
+//                 </Button>
+//               )}
+//               {deferral.canUpload && (
+//                 <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+//                   Upload Document
+//                 </Button>
+//               )}
+//             </div>
+//           </Card>
 //         </div>
 //       )}
 //     </Modal>
 //   );
 // };
 
-// // Main DeferralPending Component
-// const DeferralPending = ({ userId = "creator_current" }) => {
+// // Main DeferralPending Component for RM
+// const DeferralPending = ({ userId = "rm_current" }) => {
 //   const [selectedDeferral, setSelectedDeferral] = useState(null);
 //   const [modalOpen, setModalOpen] = useState(false);
 //   const [loading, setLoading] = useState(false);
@@ -365,14 +4350,16 @@
 //     setLoading(true);
     
 //     setTimeout(() => {
-//       setMockData(MOCK_PENDING_DEFERRALS);
+//       setMockData(MOCK_RM_PENDING_DEFERRALS);
 //       setLoading(false);
 //     }, 300);
 //   }, []);
 
-//   // Filter data
+//   // Filter data - RM sees their own deferrals (both requested and approved)
 //   const filteredData = useMemo(() => {
-//     let filtered = mockData.filter((d) => d.status === "pending_creator_review");
+//     let filtered = mockData.filter((d) => 
+//       d.status === "deferral_requested" || d.status === "deferral_approved"
+//     );
     
 //     // Apply search filter
 //     if (searchText) {
@@ -381,7 +4368,6 @@
 //         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
 //         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
 //         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
-//         d.businessName.toLowerCase().includes(searchText.toLowerCase()) ||
 //         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
 //       );
 //     }
@@ -389,22 +4375,28 @@
 //     return filtered;
 //   }, [mockData, searchText]);
 
-//   // Handle decision
-//   const handleDecision = async (decisionData) => {
-//     setLoading(true);
-//     setTimeout(() => {
-//       setMockData(prev => prev.filter(d => d._id !== selectedDeferral._id));
-//       setLoading(false);
-//       setModalOpen(false);
-//       setSelectedDeferral(null);
-      
-//       // Show success message
-//       message.success(
-//         decisionData.decision === 'accept' 
-//           ? 'Deferral accepted successfully' 
-//           : 'Deferral rejected successfully'
-//       );
-//     }, 500);
+//   // Handle withdraw deferral
+//   const handleWithdraw = (deferralId) => {
+//     Modal.confirm({
+//       title: 'Withdraw Deferral Request',
+//       content: 'Are you sure you want to withdraw this deferral request?',
+//       onOk: () => {
+//         setMockData(prev => prev.filter(d => d._id !== deferralId));
+//         message.success('Deferral request withdrawn successfully');
+//       }
+//     });
+//   };
+
+//   // Handle edit deferral
+//   const handleEdit = (deferral) => {
+//     message.info(`Edit deferral ${deferral.deferralNumber}`);
+//     // Navigate to edit page or open edit modal
+//   };
+
+//   // Handle upload document
+//   const handleUpload = (deferral) => {
+//     message.info(`Upload document for ${deferral.deferralNumber}`);
+//     // Open upload modal or navigate to upload page
 //   };
 
 //   // Clear filters
@@ -412,34 +4404,39 @@
 //     setSearchText("");
 //   };
 
-//   // Columns
+//   // Updated Columns as per your request
 //   const columns = [
 //     {
 //       title: "Deferral No",
 //       dataIndex: "deferralNumber",
+//       key: "deferralNumber",
 //       width: 140,
 //       render: (text) => (
 //         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 8 }}>
 //           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
 //           {text}
 //         </div>
-//       )
+//       ),
+//       sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
 //     },
 //     {
 //       title: "DCL No",
 //       dataIndex: "dclNo",
+//       key: "dclNo",
 //       width: 120,
 //       render: (text) => (
 //         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
 //           {text}
 //         </div>
-//       )
+//       ),
+//       sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
 //     },
 //     {
-//       title: "Customer",
+//       title: "Customer Name",
 //       dataIndex: "customerName",
-//       width: 180,
-//       render: (text, record) => (
+//       key: "customerName",
+//       width: 160,
+//       render: (text) => (
 //         <div style={{
 //           fontWeight: 600,
 //           color: PRIMARY_BLUE,
@@ -450,31 +4447,27 @@
 //           <CustomerServiceOutlined style={{ fontSize: 12 }} />
 //           <div>
 //             <div>{text}</div>
-//             <div style={{ fontSize: 11, color: "#666" }}>
-//               {record.businessName}
-//             </div>
 //           </div>
 //         </div>
-//       )
+//       ),
+//       sorter: (a, b) => a.customerName.localeCompare(b.customerName)
 //     },
 //     {
 //       title: "Document",
-//       dataIndex: "deferralTitle",
-//       width: 160,
-//       render: (text, record) => (
-//         <div>
-//           <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
-//             {text}
-//           </div>
-//           <div style={{ fontSize: 11, color: "#999" }}>
-//             {record.documentType}
-//           </div>
+//       dataIndex: "documentType",
+//       key: "documentType",
+//       width: 150,
+//       render: (text) => (
+//         <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+//           {text}
 //         </div>
-//       )
+//       ),
+//       sorter: (a, b) => a.documentType.localeCompare(b.documentType)
 //     },
 //     {
 //       title: "Type",
 //       dataIndex: "deferralType",
+//       key: "deferralType",
 //       width: 100,
 //       render: (type) => (
 //         <Tag
@@ -489,50 +4482,113 @@
 //         >
 //           {type}
 //         </Tag>
-//       )
+//       ),
+//       filters: [
+//         { text: 'New', value: 'New' },
+//         { text: 'Extension', value: 'Extension' }
+//       ],
+//       onFilter: (value, record) => record.deferralType === value,
+//       sorter: (a, b) => a.deferralType.localeCompare(b.deferralType)
+//     },
+//     {
+//       title: "Status",
+//       dataIndex: "status",
+//       key: "status",
+//       width: 120,
+//       render: (status) => {
+//         const statusConfig = {
+//           'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+//           'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+//           'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+//         };
+        
+//         const config = statusConfig[status] || { color: 'default', text: status };
+//         return (
+//           <Tag 
+//             color={config.color} 
+//             icon={config.icon}
+//             style={{ 
+//               fontSize: 11,
+//               fontWeight: "bold",
+//               borderRadius: 4,
+//               minWidth: 80,
+//               textAlign: "center"
+//             }}
+//           >
+//             {config.text}
+//           </Tag>
+//         );
+//       },
+//       filters: [
+//         { text: 'Pending', value: 'deferral_requested' },
+//         { text: 'Approved', value: 'deferral_approved' }
+//       ],
+//       onFilter: (value, record) => record.status === value,
+//       sorter: (a, b) => a.status.localeCompare(b.status)
 //     },
 //     {
 //       title: "Days Sought",
 //       dataIndex: "daysSought",
-//       width: 90,
+//       key: "daysSought",
+//       width: 100,
 //       align: "center",
 //       render: (days) => (
 //         <div style={{
 //           fontWeight: "bold",
-//           color: days > 30 ? ERROR_RED : WARNING_ORANGE,
-//           fontSize: 14
+//           color: days > 45 ? ERROR_RED : days > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+//           fontSize: 14,
+//           backgroundColor: days > 45 ? "#fff2f0" : days > 30 ? "#fff7e6" : "#f0f7ff",
+//           padding: "4px 8px",
+//           borderRadius: 4,
+//           display: "inline-block"
 //         }}>
-//           {days}d
+//           {days} days
 //         </div>
-//       )
-//     },
-//     {
-//       title: "Requested By",
-//       dataIndex: "rmRequestedBy",
-//       width: 130,
-//       render: (rm) => (
-//         <div style={{ fontSize: 12 }}>
-//           <div style={{ fontWeight: 500 }}>{rm?.name}</div>
-//           <div style={{ color: "#666", fontSize: 11 }}>RM</div>
-//         </div>
-//       )
+//       ),
+//       sorter: (a, b) => a.daysSought - b.daysSought
 //     },
 //     {
 //       title: "SLA",
 //       dataIndex: "slaExpiry",
-//       width: 90,
+//       key: "slaExpiry",
+//       width: 100,
 //       fixed: "right",
 //       render: (date) => {
 //         const daysLeft = dayjs(date).diff(dayjs(), 'days');
+//         const hoursLeft = dayjs(date).diff(dayjs(), 'hours');
+        
+//         let color = SUCCESS_GREEN;
+//         let text = `${daysLeft}d`;
+        
+//         if (daysLeft <= 0 && hoursLeft <= 0) {
+//           color = ERROR_RED;
+//           text = 'Expired';
+//         } else if (daysLeft <= 0) {
+//           color = ERROR_RED;
+//           text = `${hoursLeft}h`;
+//         } else if (daysLeft <= 1) {
+//           color = ERROR_RED;
+//           text = `${daysLeft}d`;
+//         } else if (daysLeft <= 3) {
+//           color = WARNING_ORANGE;
+//           text = `${daysLeft}d`;
+//         }
+        
 //         return (
 //           <Tag
-//             color={daysLeft <= 1 ? ERROR_RED : daysLeft <= 3 ? WARNING_ORANGE : SUCCESS_GREEN}
-//             style={{ fontWeight: "bold", fontSize: 11 }}
+//             color={color}
+//             style={{ 
+//               fontWeight: "bold", 
+//               fontSize: 11,
+//               minWidth: 50,
+//               textAlign: "center"
+//             }}
 //           >
-//             {daysLeft > 0 ? `${daysLeft}d` : 'Expired'}
+//             {text}
 //           </Tag>
 //         );
-//       }
+//       },
+//       sorter: (a, b) => dayjs(a.slaExpiry).diff(dayjs(b.slaExpiry))
 //     }
 //   ];
 
@@ -564,9 +4620,12 @@
 //       background-color: rgba(181, 211, 52, 0.1) !important;
 //       cursor: pointer;
 //     }
+//     .deferral-pending-table .ant-table-row:hover .ant-table-cell:last-child {
+//       background-color: rgba(181, 211, 52, 0.1) !important;
+//     }
 //     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
 //       background-color: ${ACCENT_LIME} !important;
-//       border-color: ${ACCENT_LIME} !important;
+//       borderColor: ${ACCENT_LIME} !important;
 //     }
 //     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
 //       color: ${PRIMARY_BLUE} !important;
@@ -591,7 +4650,7 @@
 //         <Row justify="space-between" align="middle">
 //           <Col>
 //             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
-//               Pending Deferrals
+//               My Deferral Requests
 //               <Badge
 //                 count={filteredData.length}
 //                 style={{
@@ -601,8 +4660,23 @@
 //               />
 //             </h2>
 //             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
-//               Review and approve/reject deferral requests from Relationship Managers
+//               Track and manage your deferral requests
 //             </p>
+//           </Col>
+//           <Col>
+//             <Button
+//               type="primary"
+//               onClick={() => {
+//                 // Navigate to request new deferral
+//                 window.location.href = '/rm/deferrals/request';
+//               }}
+//               style={{
+//                 backgroundColor: PRIMARY_BLUE,
+//                 borderColor: PRIMARY_BLUE
+//               }}
+//             >
+//               + New Deferral Request
+//             </Button>
 //           </Col>
 //         </Row>
 //       </Card>
@@ -644,7 +4718,7 @@
 //       {/* Table Title */}
 //       <Divider style={{ margin: "12px 0" }}>
 //         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
-//           Pending Deferral Review ({filteredData.length} items)
+//           My Deferral Requests ({filteredData.length} items)
 //         </span>
 //       </Divider>
 
@@ -657,12 +4731,19 @@
 //         <Empty
 //           description={
 //             <div>
-//               <p style={{ fontSize: 16, marginBottom: 8 }}>No pending deferral requests</p>
+//               <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
 //               <p style={{ color: "#999" }}>
 //                 {searchText
 //                   ? 'Try changing your search term'
-//                   : 'All deferral requests have been processed'}
+//                   : 'You haven\'t requested any deferrals yet'}
 //               </p>
+//               <Button
+//                 type="primary"
+//                 onClick={() => window.location.href = '/rm/deferrals/request'}
+//                 style={{ marginTop: 16 }}
+//               >
+//                 Request Your First Deferral
+//               </Button>
 //             </div>
 //           }
 //           style={{ padding: 40 }}
@@ -681,7 +4762,7 @@
 //               position: ["bottomCenter"],
 //               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
 //             }}
-//             scroll={{ x: 1200 }}
+//             scroll={{ x: 1000 }}
 //             onRow={(record) => ({
 //               onClick: () => {
 //                 setSelectedDeferral(record);
@@ -714,16 +4795,15 @@
 //         </Row>
 //       </div>
 
-//       {/* Deferral Review Modal */}
+//       {/* Deferral Details Modal */}
 //       {selectedDeferral && (
-//         <DeferralReviewModal
+//         <DeferralDetailsModal
 //           deferral={selectedDeferral}
 //           open={modalOpen}
 //           onClose={() => {
 //             setModalOpen(false);
 //             setSelectedDeferral(null);
 //           }}
-//           onDecision={handleDecision}
 //         />
 //       )}
 //     </div>
@@ -750,10 +4830,8 @@ import {
   Badge,
   Typography,
   Modal,
-  Form,
-  Input as AntInput,
-  DatePicker,
-  message
+  message,
+  Popconfirm
 } from "antd";
 import {
   SearchOutlined,
@@ -761,10 +4839,11 @@ import {
   UserOutlined,
   CustomerServiceOutlined,
   ClockCircleOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   EyeOutlined,
-  CalendarOutlined
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -779,10 +4858,9 @@ const ERROR_RED = "#ff4d4f";
 const WARNING_ORANGE = "#faad14";
 
 const { Text, Title } = Typography;
-const { TextArea } = AntInput;
 
-// MOCK DATA for Deferral Pending Queue
-const MOCK_PENDING_DEFERRALS = [
+// MOCK DATA for RM's Pending Deferrals
+const MOCK_RM_PENDING_DEFERRALS = [
   {
     _id: "1",
     deferralNumber: "DEF-2024-001",
@@ -793,20 +4871,17 @@ const MOCK_PENDING_DEFERRALS = [
     deferralTitle: "Bank Statements",
     documentType: "Financial Statements",
     deferralType: "New",
-    status: "pending_creator_review",
+    status: "deferral_requested", // RM requested, waiting for creator approval
     daysSought: 30,
     requestedExpiry: "2025-02-05T23:59:59Z",
     originalDueDate: "2025-01-05T23:59:59Z",
     currentApprover: { _id: "creator1", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
-    previousApprovers: [
-      { _id: "creator2", name: "Pascal Kariuki", email: "pascal.k@ncba.co.ke" },
-      { _id: "creator3", name: "Emmanuel Nzeki", email: "emmanuel.n@ncba.co.ke" }
-    ],
-    rmRequestedBy: { _id: "rm1", name: "John Kamau", email: "john.k@ncba.co.ke" },
     rmReason: "Customer awaiting CBE clearance and bank statement generation for Q4 2024",
     createdAt: "2025-01-05T09:30:00Z",
     updatedAt: "2025-01-05T09:30:00Z",
-    slaExpiry: "2025-01-12T23:59:59Z"
+    slaExpiry: "2025-01-12T23:59:59Z",
+    canEdit: true, // RM can edit if still pending
+    canWithdraw: true // RM can withdraw if still pending
   },
   {
     _id: "2",
@@ -818,19 +4893,17 @@ const MOCK_PENDING_DEFERRALS = [
     deferralTitle: "CR12 Certificate",
     documentType: "Registration Documents",
     deferralType: "Extension",
-    status: "pending_creator_review",
+    status: "deferral_requested",
     daysSought: 15,
     requestedExpiry: "2025-02-05T23:59:59Z",
     originalDueDate: "2025-01-20T23:59:59Z",
     currentApprover: { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
-    previousApprovers: [
-      { _id: "creator5", name: "Shallot Maala", email: "shallot.m@ncba.co.ke" }
-    ],
-    rmRequestedBy: { _id: "rm2", name: "Sarah Wangui", email: "sarah.w@ncba.co.ke" },
     rmReason: "CRB office experiencing delays in processing due to system upgrades",
     createdAt: "2025-01-11T14:20:00Z",
     updatedAt: "2025-01-11T14:20:00Z",
-    slaExpiry: "2025-01-18T23:59:59Z"
+    slaExpiry: "2025-01-18T23:59:59Z",
+    canEdit: true,
+    canWithdraw: true
   },
   {
     _id: "3",
@@ -842,53 +4915,50 @@ const MOCK_PENDING_DEFERRALS = [
     deferralTitle: "Lease Agreement",
     documentType: "Legal Documents",
     deferralType: "New",
-    status: "pending_creator_review",
+    status: "deferral_approved", // Already approved by creator
     daysSought: 45,
     requestedExpiry: "2025-03-05T23:59:59Z",
     originalDueDate: "2025-01-20T23:59:59Z",
     currentApprover: { _id: "creator6", name: "Titus Munene", email: "titus.m@ncba.co.ke" },
-    previousApprovers: [
-      { _id: "creator2", name: "Pascal Kariuki", email: "pascal.k@ncba.co.ke" },
-      { _id: "creator4", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" }
-    ],
-    rmRequestedBy: { _id: "rm3", name: "David Omondi", email: "david.o@ncba.co.ke" },
     rmReason: "Landlord traveling overseas, agreement pending signature upon return",
+    creatorComments: "Approved. Please ensure document is submitted before expiry date.",
     createdAt: "2025-01-20T11:15:00Z",
-    updatedAt: "2025-01-20T11:15:00Z",
-    slaExpiry: "2025-01-27T23:59:59Z"
+    updatedAt: "2025-01-21T10:30:00Z",
+    approvedDate: "2025-01-21T10:30:00Z",
+    canEdit: false, // Cannot edit after approval
+    canWithdraw: false, // Cannot withdraw after approval
+    canUpload: true // Can upload document now
   }
 ];
 
-// Deferral Review Modal Component
-const DeferralReviewModal = ({ deferral, open, onClose, onDecision }) => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [decision, setDecision] = useState(null);
-
-  const handleSubmit = async (values) => {
-    setLoading(true);
-    try {
-      await onDecision({
-        decision: values.decision,
-        comments: values.comments,
-        finalExpiryDate: values.finalExpiryDate
-      });
-      message.success(`Deferral ${values.decision === 'accept' ? 'accepted' : 'rejected'} successfully`);
-      onClose();
-    } catch (error) {
-      message.error('Failed to process decision');
-    } finally {
-      setLoading(false);
+// Deferral Details Modal for RM
+const DeferralDetailsModal = ({ deferral, open, onClose }) => {
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case 'deferral_requested':
+        return { color: 'orange', icon: <ClockCircleOutlined />, label: 'Pending Review', description: 'Awaiting Creator approval' };
+      case 'deferral_approved':
+        return { color: 'green', icon: <CheckCircleOutlined />, label: 'Approved', description: 'Deferral approved by Creator' };
+      case 'deferral_rejected':
+        return { color: 'red', icon: <CloseCircleOutlined />, label: 'Rejected', description: 'Deferral request was rejected' };
+      default:
+        return { color: 'default', label: status, description: '' };
     }
   };
 
+  const statusConfig = getStatusConfig(deferral?.status);
+
   return (
     <Modal
-      title={<span style={{ color: PRIMARY_BLUE }}>Review Deferral Request</span>}
+      title={<span style={{ color: PRIMARY_BLUE }}>Deferral Request Details</span>}
       open={open}
       onCancel={onClose}
-      width={800}
-      footer={null}
+      width={700}
+      footer={[
+        <Button key="close" onClick={onClose}>
+          Close
+        </Button>
+      ]}
     >
       {deferral && (
         <div>
@@ -923,6 +4993,30 @@ const DeferralReviewModal = ({ deferral, open, onClose, onDecision }) => {
             </Row>
           </Card>
 
+          {/* Status Section */}
+          <Card size="small" style={{ marginBottom: 16 }}>
+            <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+              Status
+            </Title>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Tag 
+                color={statusConfig.color} 
+                icon={statusConfig.icon}
+                style={{ fontSize: 14, padding: '8px 12px' }}
+              >
+                {statusConfig.label}
+              </Tag>
+              <div>
+                <div>{statusConfig.description}</div>
+                {deferral.currentApprover && (
+                  <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+                    Current Approver: <strong>{deferral.currentApprover.name}</strong>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
           {/* Timeline Section */}
           <Card size="small" style={{ marginBottom: 16 }}>
             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
@@ -950,19 +5044,27 @@ const DeferralReviewModal = ({ deferral, open, onClose, onDecision }) => {
               </Col>
               <Col span={8}>
                 <div>
-                  <Text type="secondary" style={{ fontSize: 12 }}>SLA Expiry</Text>
-                  <div style={{ fontWeight: 'bold', color: ERROR_RED }}>
-                    {dayjs(deferral.slaExpiry).format('DD/MM/YYYY')}
+                  <Text type="secondary" style={{ fontSize: 12 }}>Request Date</Text>
+                  <div style={{ fontWeight: 'bold' }}>
+                    {dayjs(deferral.createdAt).format('DD/MM/YYYY')}
                   </div>
                 </div>
               </Col>
             </Row>
+            {deferral.approvedDate && (
+              <div style={{ marginTop: 16 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>Approved Date</Text>
+                <div style={{ fontWeight: 'bold', color: SUCCESS_GREEN }}>
+                  {dayjs(deferral.approvedDate).format('DD/MM/YYYY HH:mm')}
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Reason Section */}
           <Card size="small" style={{ marginBottom: 16 }}>
             <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
-              <UserOutlined /> RM's Request Reason
+              <UserOutlined /> Your Request Reason
             </Title>
             <div style={{
               padding: 12,
@@ -972,123 +5074,56 @@ const DeferralReviewModal = ({ deferral, open, onClose, onDecision }) => {
             }}>
               {deferral.rmReason}
             </div>
-            <div style={{ marginTop: 8, fontSize: 12 }}>
-              <Text type="secondary">
-                Requested by: {deferral.rmRequestedBy?.name} ({deferral.rmRequestedBy?.email})
-              </Text>
-            </div>
           </Card>
 
-          {/* Approval History */}
-          <Card size="small" style={{ marginBottom: 16 }}>
-            <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
-              Approval History
-            </Title>
-            {deferral.previousApprovers.map((approver, index) => (
-              <div key={index} style={{ marginBottom: 8, padding: 8, background: '#f8f9fa' }}>
-                <Text strong>{approver.name}</Text>
-                <Text type="secondary" style={{ marginLeft: 8 }}>{approver.email}</Text>
-              </div>
-            ))}
-          </Card>
-
-          {/* Decision Form */}
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <Card size="small">
-              <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 16 }}>
-                Your Decision
+          {/* Creator Comments (if any) */}
+          {deferral.creatorComments && (
+            <Card size="small" style={{ marginBottom: 16 }}>
+              <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+                Creator Comments
               </Title>
-              
-              <Form.Item
-                name="decision"
-                label="Decision"
-                rules={[{ required: true, message: 'Please select a decision' }]}
-              >
-                <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-                  <Button
-                    type={decision === 'accept' ? 'primary' : 'default'}
-                    style={{
-                      background: decision === 'accept' ? SUCCESS_GREEN : undefined,
-                      borderColor: SUCCESS_GREEN,
-                      color: decision === 'accept' ? 'white' : SUCCESS_GREEN
-                    }}
-                    onClick={() => {
-                      setDecision('accept');
-                      form.setFieldValue('decision', 'accept');
-                    }}
-                    icon={<CheckCircleOutlined />}
-                  >
-                    Accept
-                  </Button>
-                  <Button
-                    type={decision === 'reject' ? 'primary' : 'default'}
-                    style={{
-                      background: decision === 'reject' ? ERROR_RED : undefined,
-                      borderColor: ERROR_RED,
-                      color: decision === 'reject' ? 'white' : ERROR_RED
-                    }}
-                    onClick={() => {
-                      setDecision('reject');
-                      form.setFieldValue('decision', 'reject');
-                    }}
-                    icon={<CloseCircleOutlined />}
-                  >
-                    Reject
-                  </Button>
-                </div>
-              </Form.Item>
-
-              {decision === 'accept' && (
-                <Form.Item
-                  name="finalExpiryDate"
-                  label="Final Expiry Date"
-                  rules={[{ required: true, message: 'Please select final expiry date' }]}
-                >
-                  <DatePicker
-                    style={{ width: '100%' }}
-                    disabledDate={(current) => current && current < dayjs(deferral.originalDueDate)}
-                    suffixIcon={<CalendarOutlined />}
-                  />
-                </Form.Item>
-              )}
-
-              <Form.Item
-                name="comments"
-                label="Comments"
-                rules={[{ required: true, message: 'Please provide comments for your decision' }]}
-              >
-                <TextArea
-                  rows={3}
-                  placeholder="Enter your comments here..."
-                  maxLength={500}
-                  showCount
-                />
-              </Form.Item>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  style={{
-                    background: decision === 'accept' ? SUCCESS_GREEN : ERROR_RED,
-                    borderColor: decision === 'accept' ? SUCCESS_GREEN : ERROR_RED
-                  }}
-                >
-                  {decision === 'accept' ? 'Approve Deferral' : 'Reject Deferral'}
-                </Button>
+              <div style={{
+                padding: 12,
+                background: '#e6f7ff',
+                borderRadius: 4,
+                borderLeft: `3px solid ${PRIMARY_BLUE}`
+              }}>
+                {deferral.creatorComments}
               </div>
             </Card>
-          </Form>
+          )}
+
+          {/* Actions for RM */}
+          <Card size="small">
+            <Title level={5} style={{ color: PRIMARY_BLUE, marginBottom: 8 }}>
+              Available Actions
+            </Title>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {deferral.canEdit && (
+                <Button type="primary" icon={<EditOutlined />}>
+                  Edit Request
+                </Button>
+              )}
+              {deferral.canWithdraw && (
+                <Button danger icon={<DeleteOutlined />}>
+                  Withdraw Request
+                </Button>
+              )}
+              {deferral.canUpload && (
+                <Button type="primary" style={{ backgroundColor: SUCCESS_GREEN }}>
+                  Upload Document
+                </Button>
+              )}
+            </div>
+          </Card>
         </div>
       )}
     </Modal>
   );
 };
 
-// Main DeferralPending Component
-const DeferralPending = ({ userId = "creator_current" }) => {
+// Main DeferralPending Component for RM
+const DeferralPending = ({ userId = "rm_current" }) => {
   const [selectedDeferral, setSelectedDeferral] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -1102,14 +5137,16 @@ const DeferralPending = ({ userId = "creator_current" }) => {
     setLoading(true);
     
     setTimeout(() => {
-      setMockData(MOCK_PENDING_DEFERRALS);
+      setMockData(MOCK_RM_PENDING_DEFERRALS);
       setLoading(false);
     }, 300);
   }, []);
 
-  // Filter data
+  // Filter data - RM sees their own deferrals (both requested and approved)
   const filteredData = useMemo(() => {
-    let filtered = mockData.filter((d) => d.status === "pending_creator_review");
+    let filtered = mockData.filter((d) => 
+      d.status === "deferral_requested" || d.status === "deferral_approved"
+    );
     
     // Apply search filter
     if (searchText) {
@@ -1118,7 +5155,6 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
-        d.businessName.toLowerCase().includes(searchText.toLowerCase()) ||
         d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
       );
     }
@@ -1126,22 +5162,28 @@ const DeferralPending = ({ userId = "creator_current" }) => {
     return filtered;
   }, [mockData, searchText]);
 
-  // Handle decision
-  const handleDecision = async (decisionData) => {
-    setLoading(true);
-    setTimeout(() => {
-      setMockData(prev => prev.filter(d => d._id !== selectedDeferral._id));
-      setLoading(false);
-      setModalOpen(false);
-      setSelectedDeferral(null);
-      
-      // Show success message
-      message.success(
-        decisionData.decision === 'accept' 
-          ? 'Deferral accepted successfully' 
-          : 'Deferral rejected successfully'
-      );
-    }, 500);
+  // Handle withdraw deferral
+  const handleWithdraw = (deferralId) => {
+    Modal.confirm({
+      title: 'Withdraw Deferral Request',
+      content: 'Are you sure you want to withdraw this deferral request?',
+      onOk: () => {
+        setMockData(prev => prev.filter(d => d._id !== deferralId));
+        message.success('Deferral request withdrawn successfully');
+      }
+    });
+  };
+
+  // Handle edit deferral
+  const handleEdit = (deferral) => {
+    message.info(`Edit deferral ${deferral.deferralNumber}`);
+    // Navigate to edit page or open edit modal
+  };
+
+  // Handle upload document
+  const handleUpload = (deferral) => {
+    message.info(`Upload document for ${deferral.deferralNumber}`);
+    // Open upload modal or navigate to upload page
   };
 
   // Clear filters
@@ -1149,7 +5191,7 @@ const DeferralPending = ({ userId = "creator_current" }) => {
     setSearchText("");
   };
 
-  // Updated Columns as per your request
+  // Updated Columns to show deferralTitle (specific document names) instead of documentType
   const columns = [
     {
       title: "Deferral No",
@@ -1180,8 +5222,8 @@ const DeferralPending = ({ userId = "creator_current" }) => {
       title: "Customer Name",
       dataIndex: "customerName",
       key: "customerName",
-      width: 180,
-      render: (text, record) => (
+      width: 160,
+      render: (text) => (
         <div style={{
           fontWeight: 600,
           color: PRIMARY_BLUE,
@@ -1192,12 +5234,6 @@ const DeferralPending = ({ userId = "creator_current" }) => {
           <CustomerServiceOutlined style={{ fontSize: 12 }} />
           <div>
             <div>{text}</div>
-            <div style={{ fontSize: 11, color: "#666", fontWeight: "normal" }}>
-              {record.businessName}
-            </div>
-            <div style={{ fontSize: 10, color: "#999" }}>
-              {record.customerNumber}
-            </div>
           </div>
         </div>
       ),
@@ -1206,19 +5242,20 @@ const DeferralPending = ({ userId = "creator_current" }) => {
     {
       title: "Document",
       dataIndex: "deferralTitle",
-      key: "deferralTitle",
-      width: 180,
-      render: (text, record) => (
-        <div>
-          <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
-            {text}
-          </div>
-          <div style={{ fontSize: 11, color: "#999" }}>
-            {record.documentType}
-          </div>
+      key: "document",
+      width: 150,
+      render: (text) => (
+        <div style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>
+          {text}
         </div>
       ),
-      sorter: (a, b) => a.deferralTitle.localeCompare(b.deferralTitle)
+      sorter: (a, b) => a.deferralTitle.localeCompare(b.deferralTitle),
+      filters: [
+        { text: 'Bank Statements', value: 'Bank Statements' },
+        { text: 'CR12 Certificate', value: 'CR12 Certificate' },
+        { text: 'Lease Agreement', value: 'Lease Agreement' }
+      ],
+      onFilter: (value, record) => record.deferralTitle === value,
     },
     {
       title: "Type",
@@ -1247,6 +5284,42 @@ const DeferralPending = ({ userId = "creator_current" }) => {
       sorter: (a, b) => a.deferralType.localeCompare(b.deferralType)
     },
     {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      render: (status) => {
+        const statusConfig = {
+          'deferral_requested': { color: 'orange', text: 'Pending', icon: <ClockCircleOutlined /> },
+          'deferral_approved': { color: 'green', text: 'Approved', icon: <CheckCircleOutlined /> },
+          'deferral_rejected': { color: 'red', text: 'Rejected', icon: <CloseCircleOutlined /> }
+        };
+        
+        const config = statusConfig[status] || { color: 'default', text: status };
+        return (
+          <Tag 
+            color={config.color} 
+            icon={config.icon}
+            style={{ 
+              fontSize: 11,
+              fontWeight: "bold",
+              borderRadius: 4,
+              minWidth: 80,
+              textAlign: "center"
+            }}
+          >
+            {config.text}
+          </Tag>
+        );
+      },
+      filters: [
+        { text: 'Pending', value: 'deferral_requested' },
+        { text: 'Approved', value: 'deferral_approved' }
+      ],
+      onFilter: (value, record) => record.status === value,
+      sorter: (a, b) => a.status.localeCompare(b.status)
+    },
+    {
       title: "Days Sought",
       dataIndex: "daysSought",
       key: "daysSought",
@@ -1266,30 +5339,6 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         </div>
       ),
       sorter: (a, b) => a.daysSought - b.daysSought
-    },
-    {
-      title: "RM",
-      dataIndex: "rmRequestedBy",
-      key: "rmRequestedBy",
-      width: 130,
-      render: (rm) => (
-        <div style={{ fontSize: 12 }}>
-          <div style={{ 
-            fontWeight: 500,
-            color: PRIMARY_BLUE,
-            display: "flex",
-            alignItems: "center",
-            gap: 4
-          }}>
-            <UserOutlined style={{ fontSize: 11 }} />
-            {rm?.name}
-          </div>
-          <div style={{ color: "#666", fontSize: 11, fontStyle: "italic" }}>
-            Relationship Manager
-          </div>
-        </div>
-      ),
-      sorter: (a, b) => a.rmRequestedBy?.name?.localeCompare(b.rmRequestedBy?.name)
     },
     {
       title: "SLA",
@@ -1333,28 +5382,6 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         );
       },
       sorter: (a, b) => dayjs(a.slaExpiry).diff(dayjs(b.slaExpiry))
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 80,
-      fixed: "right",
-      render: (_, record) => (
-        <Button
-          type="link"
-          size="small"
-          onClick={() => {
-            setSelectedDeferral(record);
-            setModalOpen(true);
-          }}
-          style={{
-            color: PRIMARY_BLUE,
-            fontWeight: 500
-          }}
-        >
-          <EyeOutlined /> Review
-        </Button>
-      )
     }
   ];
 
@@ -1391,7 +5418,7 @@ const DeferralPending = ({ userId = "creator_current" }) => {
     }
     .deferral-pending-table .ant-pagination .ant-pagination-item-active {
       background-color: ${ACCENT_LIME} !important;
-      border-color: ${ACCENT_LIME} !important;
+      borderColor: ${ACCENT_LIME} !important;
     }
     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
       color: ${PRIMARY_BLUE} !important;
@@ -1416,7 +5443,7 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         <Row justify="space-between" align="middle">
           <Col>
             <h2 style={{ margin: 0, color: PRIMARY_BLUE, display: "flex", alignItems: "center", gap: 12 }}>
-              Pending Deferrals
+              My Deferral Requests
               <Badge
                 count={filteredData.length}
                 style={{
@@ -1426,21 +5453,22 @@ const DeferralPending = ({ userId = "creator_current" }) => {
               />
             </h2>
             <p style={{ margin: "4px 0 0", color: "#666", fontSize: 14 }}>
-              Review and approve/reject deferral requests from Relationship Managers
+              Track and manage your deferral requests
             </p>
           </Col>
           <Col>
             <Button
               type="primary"
               onClick={() => {
-                // Add any export or additional action
+                // Navigate to request new deferral
+                window.location.href = '/rm/deferrals/request';
               }}
               style={{
                 backgroundColor: PRIMARY_BLUE,
                 borderColor: PRIMARY_BLUE
               }}
             >
-              Export to Excel
+              + New Deferral Request
             </Button>
           </Col>
         </Row>
@@ -1480,51 +5508,10 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         </Row>
       </Card>
 
-      {/* Summary Stats */}
-      <div style={{ 
-        display: 'flex', 
-        gap: 16, 
-        marginBottom: 16,
-        flexWrap: 'wrap' 
-      }}>
-        <Card size="small" style={{ flex: 1, minWidth: 150 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: PRIMARY_BLUE }}>
-              {filteredData.length}
-            </div>
-            <div style={{ fontSize: 12, color: '#666' }}>Total Pending</div>
-          </div>
-        </Card>
-        <Card size="small" style={{ flex: 1, minWidth: 150 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: WARNING_ORANGE }}>
-              {filteredData.filter(d => dayjs(d.slaExpiry).diff(dayjs(), 'days') <= 1).length}
-            </div>
-            <div style={{ fontSize: 12, color: '#666' }}>Urgent (≤1 day)</div>
-          </div>
-        </Card>
-        <Card size="small" style={{ flex: 1, minWidth: 150 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: SECONDARY_PURPLE }}>
-              {filteredData.filter(d => d.deferralType === 'New').length}
-            </div>
-            <div style={{ fontSize: 12, color: '#666' }}>New Deferrals</div>
-          </div>
-        </Card>
-        <Card size="small" style={{ flex: 1, minWidth: 150 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: ACCENT_LIME }}>
-              {filteredData.filter(d => d.deferralType === 'Extension').length}
-            </div>
-            <div style={{ fontSize: 12, color: '#666' }}>Extensions</div>
-          </div>
-        </Card>
-      </div>
-
       {/* Table Title */}
       <Divider style={{ margin: "12px 0" }}>
         <span style={{ color: PRIMARY_BLUE, fontSize: 16, fontWeight: 600 }}>
-          Pending Deferral Review ({filteredData.length} items)
+          My Deferral Requests ({filteredData.length} items)
         </span>
       </Divider>
 
@@ -1537,12 +5524,19 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         <Empty
           description={
             <div>
-              <p style={{ fontSize: 16, marginBottom: 8 }}>No pending deferral requests</p>
+              <p style={{ fontSize: 16, marginBottom: 8 }}>No deferral requests found</p>
               <p style={{ color: "#999" }}>
                 {searchText
                   ? 'Try changing your search term'
-                  : 'All deferral requests have been processed'}
+                  : 'You haven\'t requested any deferrals yet'}
               </p>
+              <Button
+                type="primary"
+                onClick={() => window.location.href = '/rm/deferrals/request'}
+                style={{ marginTop: 16 }}
+              >
+                Request Your First Deferral
+              </Button>
             </div>
           }
           style={{ padding: 40 }}
@@ -1561,7 +5555,7 @@ const DeferralPending = ({ userId = "creator_current" }) => {
               position: ["bottomCenter"],
               showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} deferrals`
             }}
-            scroll={{ x: 1200 }}
+            scroll={{ x: 1000 }}
             onRow={(record) => ({
               onClick: () => {
                 setSelectedDeferral(record);
@@ -1594,16 +5588,15 @@ const DeferralPending = ({ userId = "creator_current" }) => {
         </Row>
       </div>
 
-      {/* Deferral Review Modal */}
+      {/* Deferral Details Modal */}
       {selectedDeferral && (
-        <DeferralReviewModal
+        <DeferralDetailsModal
           deferral={selectedDeferral}
           open={modalOpen}
           onClose={() => {
             setModalOpen(false);
             setSelectedDeferral(null);
           }}
-          onDecision={handleDecision}
         />
       )}
     </div>
