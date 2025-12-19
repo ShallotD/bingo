@@ -1,4 +1,14 @@
 import React from "react";
+import {
+  Button,
+  Select,
+  Typography,
+  Divider
+} from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+const { Option } = Select;
 
 export default function ApproverSelector({
   approvers,
@@ -9,56 +19,110 @@ export default function ApproverSelector({
   isSubmitting
 }) {
   return (
-    <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-300 p-6 overflow-y-auto">
-      <h2 className="text-lg font-semibold mb-2">Approver Selection</h2>
-      <p className="text-sm text-gray-600 mb-4">
+    <>
+      <Title level={4} style={{ color: "#2B1C67", marginBottom: 8 }}>
+        Approver Selection
+      </Title>
+      
+      <Text type="secondary" style={{ display: "block", marginBottom: 16 }}>
         Select approver(s) for this deferral request.
-      </p>
+      </Text>
+
+      <Divider style={{ margin: "16px 0" }} />
 
       {approvers.map((approver, index) => (
-        <div key={index} className="mb-4">
-          <label className="text-sm font-medium block mb-1">
-            Approver {index + 1}
-          </label>
-          <select
+        <div key={index} style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <Text strong style={{ fontSize: 13 }}>
+              Approver {index + 1}
+            </Text>
+            {approvers.length > 1 && (
+              <Button
+                type="text"
+                danger
+                size="small"
+                icon={<DeleteOutlined />}
+                onClick={() => removeApprover(index)}
+                style={{ padding: 0, fontSize: 11, height: "auto" }}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+          
+          <Select
             value={approver}
-            onChange={(e) => updateApprover(index, e.target.value)}
-            className="w-full border p-2 rounded-lg bg-gray-50"
+            onChange={(value) => updateApprover(index, value)}
+            style={{ width: "100%" }}
+            placeholder="-- Choose Approver --"
+            size="middle"
           >
-            <option value="">-- Choose Approver --</option>
-            <option value="James Mwangi">James Mwangi</option>
-            <option value="Grace Nduta">Grace Nduta</option>
-            <option value="Patrick Maingi">Patrick Maingi</option>
-            <option value="Sarah Wambui">Sarah Wambui</option>
-            <option value="Anthony Kariuki">Anthony Kariuki</option>
-          </select>
-
-          {approvers.length > 1 && (
-            <button
-              className="text-red-600 text-sm mt-2"
-              onClick={() => removeApprover(index)}
-            >
-              Remove Approver
-            </button>
-          )}
+            <Option value="">-- Choose Approver --</Option>
+            <Option value="James Mwangi">James Mwangi</Option>
+            <Option value="Grace Nduta">Grace Nduta</Option>
+            <Option value="Patrick Maingi">Patrick Maingi</Option>
+            <Option value="Sarah Wambui">Sarah Wambui</Option>
+            <Option value="Anthony Kariuki">Anthony Kariuki</Option>
+          </Select>
         </div>
       ))}
 
-      <button
+      <Button
         onClick={addApprover}
-        className="w-full bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-lg mt-2 shadow-md transition"
+        style={{ 
+          width: "100%", 
+          marginBottom: 24,
+          backgroundColor: "#1e40af",
+          borderColor: "#1e40af",
+          color: "white",
+          fontWeight: "500",
+          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "#1e3a8a";
+          e.currentTarget.style.borderColor = "#1e3a8a";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "#1e40af";
+          e.currentTarget.style.borderColor = "#1e40af";
+        }}
       >
-        + Add Another Approver
-      </button>
+        <PlusOutlined /> Add Another Approver
+      </Button>
 
-      <button
+      <Divider style={{ margin: "16px 0" }} />
+
+      <Button
         onClick={onSubmitDeferral}
-        disabled={isSubmitting}
-        className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg mt-4 shadow-md transition disabled:opacity-50"
+        loading={isSubmitting}
+        block
+        size="large"
+        style={{
+          backgroundColor: "#16a34a",
+          borderColor: "#16a34a",
+          color: "white",
+          fontWeight: "bold",
+          marginBottom: 8,
+          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "#15803d";
+          e.currentTarget.style.borderColor = "#15803d";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "#16a34a";
+          e.currentTarget.style.borderColor = "#16a34a";
+        }}
+        disabled={approvers.filter(a => a !== "").length === 0}
       >
         {isSubmitting ? "Submitting..." : "Submit Deferral"}
-      </button>
-    </div>
+      </Button>
+
+      <div style={{ fontSize: 11, color: "#999", textAlign: "center" }}>
+        <Text type="secondary">
+          {approvers.filter(a => a !== "").length} approver(s) selected
+        </Text>
+      </div>
+    </>
   );
 }
-

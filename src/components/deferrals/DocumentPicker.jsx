@@ -1,6 +1,25 @@
 import React, { useState } from "react";
+import {
+  Card,
+  Input,
+  Tag,
+  Button,
+  Typography
+} from "antd";
+import {
+  SearchOutlined,
+  FolderOutlined,
+  FileOutlined,
+  DeleteOutlined
+} from "@ant-design/icons";
 
-export default function DocumentPicker({ selectedDocuments, setSelectedDocuments }) {
+const { Text } = Typography;
+
+// Theme colors from MyQueue
+const PRIMARY_PURPLE = "#2B1C67";
+const SUCCESS_GREEN = "#52c41a";
+
+function DocumentPicker({ selectedDocuments, setSelectedDocuments }) {
   const [search, setSearch] = useState("");
 
   const allDocuments = [
@@ -27,7 +46,7 @@ export default function DocumentPicker({ selectedDocuments, setSelectedDocuments
     { name: "Affidavit of Title", type: "Primary", category: "Non-Allowable" },
     { name: "Sale agreement", type: "Primary", category: "Non-Allowable" },
     { name: "Offer Letter (Straight annual reviews) - to pursued as limit extensions and not deferrals", type: "Primary", category: "Non-Allowable" },
-    { name: "Any New Guarantees (director, company, property owners’ guarantee etc.) and Indemnities", type: "Primary", category: "Non-Allowable" },
+    { name: "Any New Guarantees (director, company, property owners' guarantee etc.) and Indemnities", type: "Primary", category: "Non-Allowable" },
     { name: "Deeds of Assignment of Incomes and Receivables", type: "Primary", category: "Non-Allowable" },
     { name: "Deeds of Indemnity", type: "Primary", category: "Non-Allowable" },
     { name: "Deeds of Subordination", type: "Primary", category: "Allowable" },
@@ -41,8 +60,8 @@ export default function DocumentPicker({ selectedDocuments, setSelectedDocuments
     { name: "Current Vehicle Inspection Reports", type: "Primary", category: "Allowable" },
     { name: "Machine/Equipment Warranties", type: "Primary", category: "Allowable" },
     { name: "Change of payee(s) or details of payee(s)", type: "Primary", category: "Non-Allowable" },
-    { name: "For All Construction Related Credit Facilities Prior to Disbursement: architects certificates, Quantity Surveyor’s Report, Bills of Quantities, certificate of occupation/completion Approved drawings, Contractor’s All Risk Insurance Cover, Professional Certificates, Letters of Undertaking, National Environment Management Authority (NEMA), Energy and Petroleum Regulatory Authority (EPRA) and Road Authorities (KENHA, KURA,KERRA). National Construction Authority Approval, Contractor’s profile, National Construction Authority certificate and Professional Certificates", type: "Primary", category: "Allowable" },
-    { name: "Where applicable, Compliance with provisions of the bank’s and the United Nations Environmental and Social Management System (ESMS) and IFC Performance Standards", type: "Primary", category: "Allowable" },
+    { name: "For All Construction Related Credit Facilities Prior to Disbursement: architects certificates, Quantity Surveyor's Report, Bills of Quantities, certificate of occupation/completion Approved drawings, Contractor's All Risk Insurance Cover, Professional Certificates, Letters of Undertaking, National Environment Management Authority (NEMA), Energy and Petroleum Regulatory Authority (EPRA) and Road Authorities (KENHA, KURA,KERRA). National Construction Authority Approval, Contractor's profile, National Construction Authority certificate and Professional Certificates", type: "Primary", category: "Allowable" },
+    { name: "Where applicable, Compliance with provisions of the bank's and the United Nations Environmental and Social Management System (ESMS) and IFC Performance Standards", type: "Primary", category: "Allowable" },
     { name: "Original share certificates (for shares & Bonds held as collateral)Share certificates for sectional units and blank transfer forms.", type: "Primary", category: "Allowable" },
     { name: "Land searches", type: "Primary", category: "Allowable" },
     { name: "Amendments on logbooks (subject to the customer having executed required documentation)", type: "Primary", category: "Allowable" },
@@ -56,7 +75,7 @@ export default function DocumentPicker({ selectedDocuments, setSelectedDocuments
     { name: "Receipt of Final/Original Invoices from off takers, motor vehicle dealers/sellers etc.", type: "Secondary", category: "Allowable" },
     { name: "Employer salary remittance letters and their originals", type: "Secondary", category: "Allowable" },
     { name: "Employer check off letters and their originals", type: "Secondary", category: "Allowable" },
-    { name: "Authority to sell letters from the bank’s approved dealers.", type: "Secondary", category: "Allowable" },
+    { name: "Authority to sell letters from the bank's approved dealers.", type: "Secondary", category: "Allowable" },
     { name: "Provision of sellers bank details", type: "Secondary", category: "Allowable" },
     { name: "Landlords Letter", type: "Secondary", category: "Allowable" },
     { name: "Direct Debit or Standing Order forms/instructions", type: "Secondary", category: "Allowable" },
@@ -67,13 +86,10 @@ export default function DocumentPicker({ selectedDocuments, setSelectedDocuments
     { name: "Occupational safety and health audit reports", type: "Secondary", category: "Non-Allowable" },
   ];
 
-  // ✅ UPDATED handleSelect FUNCTION
   const handleSelect = (doc) => {
-    if (!selectedDocuments.includes(doc)) {
+    if (!selectedDocuments.some(selected => selected.name === doc.name)) {
       setSelectedDocuments([...selectedDocuments, doc]);
     }
-
-    // CLEAR SEARCH + HIDE RESULTS
     setSearch("");
   };
 
@@ -93,68 +109,166 @@ export default function DocumentPicker({ selectedDocuments, setSelectedDocuments
     doc.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getCategoryColor = (category) => {
+    return category === "Allowable" ? "green" : "red";
+  };
+
+  const getTypeColor = (type) => {
+    return type === "Primary" ? "blue" : "orange";
+  };
+
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium">Document Name</label>
-      <input
-        type="text"
-        placeholder="Search document..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full border p-2 rounded mb-1"
-      />
+    <Card
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <FolderOutlined style={{ color: PRIMARY_PURPLE }} />
+          <span style={{ color: PRIMARY_PURPLE, fontSize: 16 }}>Document Name</span>
+        </div>
+      }
+      size="small"
+      style={{ marginBottom: 16, border: `1px solid ${PRIMARY_PURPLE}20` }}
+    >
+      <div style={{ marginBottom: 16 }}>
+        <Text strong style={{ display: 'block', marginBottom: 8 }}>Search Document</Text>
+        <Input
+          placeholder="Type to search document..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          size="large"
+          suffix={<SearchOutlined />}
+        />
+      </div>
 
       {/* Search Results */}
-      {search && (
-        <div className="max-h-60 overflow-auto border rounded bg-white shadow">
-          {filteredDocs.length === 0 && (
-            <div className="p-2 text-gray-500">No documents found</div>
-          )}
-          {filteredDocs.map((doc, i) => (
-            <div
-              key={i}
-              onClick={() => handleSelect(doc)}
-              className="p-2 cursor-pointer hover:bg-gray-100"
-            >
-              {doc.name}
-            </div>
-          ))}
+      {search && filteredDocs.length > 0 && (
+        <Card 
+          size="small" 
+          style={{ 
+            marginBottom: 16, 
+            maxHeight: 300, 
+            overflowY: 'auto',
+            border: `1px solid ${PRIMARY_PURPLE}30`
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {filteredDocs.map((doc, i) => (
+              <div
+                key={i}
+                onClick={() => handleSelect(doc)}
+                style={{
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid #f0f0f0',
+                  borderRadius: 4,
+                  backgroundColor: '#fafafa',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e6f7ff'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fafafa'}
+              >
+                <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 4 }}>
+                  {doc.name}
+                </div>
+                <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
+                  <Tag color={getTypeColor(doc.type)} size="small">{doc.type}</Tag>
+                  <Tag color={getCategoryColor(doc.category)} size="small">{doc.category}</Tag>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {search && filteredDocs.length === 0 && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: 16, 
+          color: '#999',
+          backgroundColor: '#fafafa',
+          borderRadius: 4,
+          marginBottom: 16
+        }}>
+          No documents found
         </div>
       )}
 
       {/* Selected Documents */}
       {selectedDocuments.length > 0 && (
-        <div className="space-y-1 mt-2">
-          <div className="font-medium text-sm">
-            Selected Documents ({selectedDocuments.length})
-          </div>
-          {selectedDocuments.map((doc, i) => (
-            <div
-              key={i}
-              className="flex justify-between items-center border p-2 rounded bg-gray-50 space-x-2"
-            >
-              {/* Editable Document Name */}
-              <input
-                type="text"
-                value={doc.name}
-                onChange={(e) => updateDocumentName(i, e.target.value)}
-                className="flex-1 border rounded p-1"
-              />
-              {/* Type & Category (greyed out) */}
-              <div className="flex space-x-1 text-xs text-gray-500 select-none">
-                <span>{doc.type}</span>
-                <span>{doc.category}</span>
-              </div>
-              <button
-                className="text-red-600 text-sm underline"
-                onClick={() => removeDocument(i)}
-              >
-                Remove
-              </button>
+        <Card
+          title={
+            <div style={{ fontSize: 14, fontWeight: 500 }}>
+              Selected Documents ({selectedDocuments.length})
             </div>
-          ))}
+          }
+          size="small"
+          style={{ border: `1px solid ${SUCCESS_GREEN}30`, backgroundColor: `${SUCCESS_GREEN}08` }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {selectedDocuments.map((doc, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '12px',
+                  border: '1px solid #e8e8e8',
+                  borderRadius: 4,
+                  backgroundColor: 'white',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <Input
+                      value={doc.name}
+                      onChange={(e) => updateDocumentName(i, e.target.value)}
+                      style={{ marginBottom: 8 }}
+                      placeholder="Document name"
+                    />
+                    <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
+                      <Tag 
+                        color={getTypeColor(doc.type)} 
+                        style={{ margin: 0, fontSize: 11 }}
+                      >
+                        {doc.type}
+                      </Tag>
+                      <Tag 
+                        color={getCategoryColor(doc.category)} 
+                        style={{ margin: 0, fontSize: 11 }}
+                      >
+                        {doc.category}
+                      </Tag>
+                    </div>
+                  </div>
+                  <Button
+                    type="text"
+                    danger
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    onClick={() => removeDocument(i)}
+                    style={{ minWidth: 'auto' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {selectedDocuments.length === 0 && !search && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: 24, 
+          color: '#999',
+          backgroundColor: '#fafafa',
+          borderRadius: 4
+        }}>
+          <FileOutlined style={{ fontSize: 32, marginBottom: 8 }} />
+          <div>No documents selected</div>
+          <Text type="secondary" style={{ fontSize: 12, marginTop: 4 }}>
+            Search and select documents above
+          </Text>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
+
+export default DocumentPicker;
