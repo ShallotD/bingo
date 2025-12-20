@@ -4,23 +4,39 @@ import {
   Input,
   Tag,
   Button,
-  Typography
+  Typography,
+  Table,
+  Row,
+  Col,
+  Badge,
+  Alert,
 } from "antd";
 import {
   SearchOutlined,
-  FolderOutlined,
   FileOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  CheckOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
 
-// Theme colors from MyQueue
+// Theme colors
 const PRIMARY_PURPLE = "#2B1C67";
 const SUCCESS_GREEN = "#52c41a";
+const ACCENT_LIME = "#b5d334";
+const SECONDARY_BLUE = "#164679";
+const ERROR_RED = "#ff4d4f";
+const WARNING_ORANGE = "#faad14"; // Added this constant
 
 function DocumentPicker({ selectedDocuments, setSelectedDocuments }) {
   const [search, setSearch] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingValue, setEditingValue] = useState("");
+  
+  const MAX_DOCUMENTS = 5;
 
   const allDocuments = [
     // Primary Documents
@@ -87,6 +103,11 @@ function DocumentPicker({ selectedDocuments, setSelectedDocuments }) {
   ];
 
   const handleSelect = (doc) => {
+    // Check if maximum limit has been reached
+    if (selectedDocuments.length >= MAX_DOCUMENTS) {
+      return;
+    }
+    
     if (!selectedDocuments.some(selected => selected.name === doc.name)) {
       setSelectedDocuments([...selectedDocuments, doc]);
     }
@@ -99,10 +120,27 @@ function DocumentPicker({ selectedDocuments, setSelectedDocuments }) {
     setSelectedDocuments(temp);
   };
 
-  const updateDocumentName = (index, value) => {
+  const startEditing = (index, currentName) => {
+    setEditingIndex(index);
+    setEditingValue(currentName);
+  };
+
+  const saveEdit = (index) => {
+    if (editingValue.trim() === "") {
+      cancelEdit();
+      return;
+    }
+    
     const temp = [...selectedDocuments];
-    temp[index].name = value;
+    temp[index].name = editingValue;
     setSelectedDocuments(temp);
+    setEditingIndex(null);
+    setEditingValue("");
+  };
+
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setEditingValue("");
   };
 
   const filteredDocs = allDocuments.filter((doc) =>
@@ -110,164 +148,430 @@ function DocumentPicker({ selectedDocuments, setSelectedDocuments }) {
   );
 
   const getCategoryColor = (category) => {
-    return category === "Allowable" ? "green" : "red";
+    return category === "Allowable" ? SUCCESS_GREEN : ERROR_RED;
   };
 
   const getTypeColor = (type) => {
-    return type === "Primary" ? "blue" : "orange";
+    return type === "Primary" ? PRIMARY_PURPLE : "#fa8c16";
   };
 
-  return (
-    <Card
-      title={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FolderOutlined style={{ color: PRIMARY_PURPLE }} />
-          <span style={{ color: PRIMARY_PURPLE, fontSize: 16 }}>Document Name</span>
+  // Columns for selected documents table
+  const selectedDocumentsColumns = [
+    {
+      title: "#",
+      key: "index",
+      width: 60,
+      align: "center",
+      render: (_, __, index) => (
+        <div style={{
+          fontWeight: "bold",
+          color: PRIMARY_PURPLE,
+          fontSize: 13
+        }}>
+          {index + 1}
         </div>
-      }
-      size="small"
-      style={{ marginBottom: 16, border: `1px solid ${PRIMARY_PURPLE}20` }}
-    >
-      <div style={{ marginBottom: 16 }}>
-        <Text strong style={{ display: 'block', marginBottom: 8 }}>Search Document</Text>
-        <Input
-          placeholder="Type to search document..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          size="large"
-          suffix={<SearchOutlined />}
+      ),
+    },
+    {
+      title: "Document Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record, index) => (
+        editingIndex === index ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Input
+              value={editingValue}
+              onChange={(e) => setEditingValue(e.target.value)}
+              onPressEnter={() => saveEdit(index)}
+              autoFocus
+              style={{ flex: 1, fontSize: 13 }}
+              size="middle"
+            />
+            <div style={{ display: "flex", gap: 4 }}>
+              <Button
+                type="text"
+                size="small"
+                icon={<SaveOutlined />}
+                onClick={() => saveEdit(index)}
+                style={{ color: SUCCESS_GREEN }}
+                title="Save"
+              />
+              <Button
+                type="text"
+                size="small"
+                icon={<CloseOutlined />}
+                onClick={cancelEdit}
+                style={{ color: ERROR_RED }}
+                title="Cancel"
+              />
+            </div>
+          </div>
+        ) : (
+          <div 
+            style={{
+              fontSize: 13,
+              color: "#333",
+              lineHeight: 1.4,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingRight: 8
+            }}
+            onClick={() => startEditing(index, text)}
+          >
+            <span style={{ flex: 1 }}>{text}</span>
+          </div>
+        )
+      ),
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      width: 110,
+      align: "center",
+      render: (type) => (
+        <div style={{
+          color: getTypeColor(type),
+          fontWeight: 600,
+          fontSize: 13,
+          textAlign: "center"
+        }}>
+          {type}
+        </div>
+      ),
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      width: 120,
+      align: "center",
+      render: (category) => (
+        <div style={{
+          color: getCategoryColor(category),
+          fontWeight: 600,
+          fontSize: 13,
+          textAlign: "center"
+        }}>
+          {category}
+        </div>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      width: 90,
+      align: "center",
+      render: (_, __, index) => (
+        <Button
+          type="text"
+          danger
+          size="small"
+          icon={<DeleteOutlined />}
+          onClick={() => removeDocument(index)}
+          style={{ minWidth: "auto", fontSize: 12 }}
+          title="Remove document"
         />
-      </div>
+      ),
+    },
+  ];
+
+  // Custom table styles matching the Completed component EXACTLY
+  const customTableStyles = `
+    .document-picker-table .ant-table-wrapper {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(43, 28, 103, 0.08);
+      border: 1px solid #e0e0e0;
+    }
+    .document-picker-table .ant-table-thead > tr > th {
+      background-color: #f7f7f7 !important;
+      color: ${PRIMARY_PURPLE} !important;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 14px 12px !important;
+      border-bottom: 3px solid ${ACCENT_LIME} !important;
+      border-right: none !important;
+    }
+    .document-picker-table .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #f0f0f0 !important;
+      border-right: none !important;
+      padding: 12px 12px !important;
+      font-size: 13px;
+      color: #333;
+    }
+    .document-picker-table .ant-table-tbody > tr.ant-table-row:hover > td {
+      background-color: rgba(181, 211, 52, 0.1) !important;
+      cursor: pointer;
+    }
+    .document-picker-table .ant-pagination .ant-pagination-item-active {
+      background-color: ${ACCENT_LIME} !important;
+      border-color: ${ACCENT_LIME} !important;
+    }
+    .document-picker-table .ant-pagination .ant-pagination-item-active a {
+      color: ${PRIMARY_PURPLE} !important;
+      font-weight: 600;
+    }
+  `;
+
+  return (
+    <div style={{ padding: 0 }}>
+      <style>{customTableStyles}</style>
+
+      {/* Search Section */}
+      <Card
+        style={{
+          marginBottom: 16,
+          background: "#fafafa",
+          border: `1px solid ${PRIMARY_PURPLE}20`,
+          borderRadius: 8
+        }}
+        size="small"
+      >
+        <Row gutter={[16, 16]} align="middle">
+          <Col xs={24} sm={12} md={8}>
+            <Input
+              placeholder="Search documents..."
+              prefix={<SearchOutlined />}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              allowClear
+              size="middle"
+              style={{ fontSize: 13 }}
+            />
+          </Col>
+          
+          {selectedDocuments.length > 0 && (
+            <Col xs={24} sm={12} md={4}>
+              <Button
+                danger
+                onClick={() => setSelectedDocuments([])}
+                style={{ width: "100%" }}
+                size="middle"
+              >
+                Clear All
+              </Button>
+            </Col>
+          )}
+        </Row>
+      </Card>
 
       {/* Search Results */}
       {search && filteredDocs.length > 0 && (
-        <Card 
-          size="small" 
-          style={{ 
-            marginBottom: 16, 
+        <Card
+          style={{
+            marginBottom: 16,
+            border: `1px solid ${PRIMARY_PURPLE}20`,
+            borderRadius: 8
+          }}
+          size="small"
+        >
+          <div style={{ 
+            padding: "8px 12px", 
+            backgroundColor: "#fafafa",
+            borderRadius: 4,
+            fontSize: 13,
+            color: "#666",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 8
+          }}>
+            <span>
+              Found {filteredDocs.length} document{filteredDocs.length !== 1 ? "s" : ""}
+            </span>
+            <span>
+              {selectedDocuments.length >= MAX_DOCUMENTS ? (
+                <span style={{ color: ERROR_RED, fontWeight: 500 }}>
+                  Maximum reached ({MAX_DOCUMENTS}/{MAX_DOCUMENTS})
+                </span>
+              ) : (
+                "Click to select"
+              )}
+            </span>
+          </div>
+
+          <div style={{ 
             maxHeight: 300, 
-            overflowY: 'auto',
-            border: `1px solid ${PRIMARY_PURPLE}30`
+            overflowY: "auto",
+            border: `1px solid ${PRIMARY_PURPLE}10`,
+            borderRadius: 4,
+            backgroundColor: "white"
+          }}>
+            {filteredDocs.map((doc, i) => {
+              const isSelected = selectedDocuments.some(selected => selected.name === doc.name);
+              const isMaxReached = selectedDocuments.length >= MAX_DOCUMENTS;
+              const canSelect = !isSelected && !isMaxReached;
+              
+              return (
+                <div
+                  key={i}
+                  onClick={() => canSelect && handleSelect(doc)}
+                  style={{
+                    padding: "12px",
+                    cursor: canSelect ? "pointer" : "not-allowed",
+                    borderBottom: i < filteredDocs.length - 1 ? "1px solid #f0f0f0" : "none",
+                    backgroundColor: isSelected ? `${SUCCESS_GREEN}08` : isMaxReached ? "#fafafa" : "white",
+                    transition: "all 0.2s",
+                    opacity: isMaxReached && !isSelected ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => canSelect && (e.currentTarget.style.backgroundColor = "#e6f7ff")}
+                  onMouseLeave={(e) => canSelect && (e.currentTarget.style.backgroundColor = isSelected ? `${SUCCESS_GREEN}08` : "white")}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: 8, 
+                        marginBottom: 4 
+                      }}>
+                        {isSelected && (
+                          <CheckOutlined style={{ 
+                            color: SUCCESS_GREEN, 
+                            fontSize: 14,
+                            flexShrink: 0
+                          }} />
+                        )}
+                        <div style={{ 
+                          fontSize: 14, 
+                          fontWeight: 500, 
+                          color: isSelected ? "#666" : isMaxReached ? "#999" : "#262626",
+                          flex: 1
+                        }}>
+                          {doc.name}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 8, fontSize: 12, marginTop: 8 }}>
+                        <div style={{
+                          color: getTypeColor(doc.type),
+                          fontWeight: 500,
+                          fontSize: 12,
+                          opacity: isMaxReached && !isSelected ? 0.7 : 1
+                        }}>
+                          {doc.type}
+                        </div>
+                        <div style={{
+                          color: getCategoryColor(doc.category),
+                          fontWeight: 500,
+                          fontSize: 12,
+                          opacity: isMaxReached && !isSelected ? 0.7 : 1
+                        }}>
+                          {doc.category}
+                        </div>
+                      </div>
+                    </div>
+                    {isSelected ? (
+                      <div style={{
+                        padding: "4px 10px",
+                        backgroundColor: SUCCESS_GREEN,
+                        color: "white",
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        flexShrink: 0
+                      }}>
+                        Selected
+                      </div>
+                    ) : isMaxReached ? (
+                      <div style={{
+                        padding: "4px 10px",
+                        backgroundColor: "#f0f0f0",
+                        color: "#999",
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        flexShrink: 0
+                      }}>
+                        Max Reached
+                      </div>
+                    ) : (
+                      <div style={{
+                        padding: "4px 10px",
+                        backgroundColor: ACCENT_LIME,
+                        color: "white",
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        flexShrink: 0
+                      }}>
+                        Add
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* Selected Documents Table */}
+      {selectedDocuments.length > 0 ? (
+        <>
+          <div className="document-picker-table">
+            <Table
+              columns={selectedDocumentsColumns}
+              dataSource={selectedDocuments.map((doc, index) => ({
+                ...doc,
+                key: index
+              }))}
+              size="middle"
+              pagination={false}
+              scroll={{ x: 500 }}
+            />
+          </div>
+          
+          {/* Footer with document count */}
+          <div style={{
+            marginTop: 12,
+            padding: "8px 12px",
+            backgroundColor: selectedDocuments.length >= MAX_DOCUMENTS ? "#fff7e6" : "#f6ffed",
+            borderRadius: 4,
+            border: `1px solid ${selectedDocuments.length >= MAX_DOCUMENTS ? "#faad14" : "#52c41a"}20`,
+            fontSize: 12,
+            color: "#666",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
+            <div>
+              <strong>{selectedDocuments.length}</strong> document{selectedDocuments.length !== 1 ? 's' : ''} selected
+            </div>
+            <div style={{ 
+              fontWeight: selectedDocuments.length >= MAX_DOCUMENTS ? "bold" : "normal",
+              color: selectedDocuments.length >= MAX_DOCUMENTS ? "#fa8c16" : "#52c41a"
+            }}>
+              {selectedDocuments.length >= MAX_DOCUMENTS ? (
+                <span>Maximum limit reached</span>
+              ) : (
+                <span>{MAX_DOCUMENTS - selectedDocuments.length} more can be added</span>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <Card
+          style={{
+            textAlign: "center",
+            padding: 40,
+            color: "#999",
+            backgroundColor: "white",
+            borderRadius: 8,
+            border: "1px dashed #d9d9d9",
+            marginTop: 16
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {filteredDocs.map((doc, i) => (
-              <div
-                key={i}
-                onClick={() => handleSelect(doc)}
-                style={{
-                  padding: '8px 12px',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid #f0f0f0',
-                  borderRadius: 4,
-                  backgroundColor: '#fafafa',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e6f7ff'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fafafa'}
-              >
-                <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 4 }}>
-                  {doc.name}
-                </div>
-                <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
-                  <Tag color={getTypeColor(doc.type)} size="small">{doc.type}</Tag>
-                  <Tag color={getCategoryColor(doc.category)} size="small">{doc.category}</Tag>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {search && filteredDocs.length === 0 && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: 16, 
-          color: '#999',
-          backgroundColor: '#fafafa',
-          borderRadius: 4,
-          marginBottom: 16
-        }}>
-          No documents found
-        </div>
-      )}
-
-      {/* Selected Documents */}
-      {selectedDocuments.length > 0 && (
-        <Card
-          title={
-            <div style={{ fontSize: 14, fontWeight: 500 }}>
-              Selected Documents ({selectedDocuments.length})
-            </div>
-          }
-          size="small"
-          style={{ border: `1px solid ${SUCCESS_GREEN}30`, backgroundColor: `${SUCCESS_GREEN}08` }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {selectedDocuments.map((doc, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: '12px',
-                  border: '1px solid #e8e8e8',
-                  borderRadius: 4,
-                  backgroundColor: 'white',
-                }}
-              >
-                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}>
-                  <div style={{ flex: 1 }}>
-                    <Input
-                      value={doc.name}
-                      onChange={(e) => updateDocumentName(i, e.target.value)}
-                      style={{ marginBottom: 8 }}
-                      placeholder="Document name"
-                    />
-                    <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
-                      <Tag 
-                        color={getTypeColor(doc.type)} 
-                        style={{ margin: 0, fontSize: 11 }}
-                      >
-                        {doc.type}
-                      </Tag>
-                      <Tag 
-                        color={getCategoryColor(doc.category)} 
-                        style={{ margin: 0, fontSize: 11 }}
-                      >
-                        {doc.category}
-                      </Tag>
-                    </div>
-                  </div>
-                  <Button
-                    type="text"
-                    danger
-                    size="small"
-                    icon={<DeleteOutlined />}
-                    onClick={() => removeDocument(i)}
-                    style={{ minWidth: 'auto' }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {selectedDocuments.length === 0 && !search && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: 24, 
-          color: '#999',
-          backgroundColor: '#fafafa',
-          borderRadius: 4
-        }}>
-          <FileOutlined style={{ fontSize: 32, marginBottom: 8 }} />
-          <div>No documents selected</div>
-          <Text type="secondary" style={{ fontSize: 12, marginTop: 4 }}>
-            Search and select documents above
+          <FileOutlined style={{ fontSize: 48, marginBottom: 16, color: "#d9d9d9" }} />
+          <div style={{ fontSize: 16, marginBottom: 8 }}>No documents selected yet</div>
+          <Text type="secondary" style={{ fontSize: 14 }}>
+            Search for documents above and click to add them here (Max: {MAX_DOCUMENTS} documents)
           </Text>
-        </div>
+        </Card>
       )}
-    </Card>
+    </div>
   );
 }
 

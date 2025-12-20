@@ -1,5 +1,3 @@
-<!-- 
-
 📄 NCBA Digital Document Checklist (DCL) System
 
 A workflow management system for NCBA Credit Operations
@@ -225,7 +223,7 @@ B. Pending approval deferrals
 
 Same list from Deferrals page but non-actionable.
 
-C. All DCLs — regardless of status -->
+C. All DCLs — regardless of status 
 
 
 
