@@ -23,10 +23,7 @@ export default function ApproverSelector({
       <Title level={4} style={{ color: "#2B1C67", marginBottom: 8 }}>
         Approver Selection
       </Title>
-      
-      <Text type="secondary" style={{ display: "block", marginBottom: 16 }}>
-        Select approver(s) for this deferral request.
-      </Text>
+
 
       <Divider style={{ margin: "16px 0" }} />
 
@@ -57,7 +54,7 @@ export default function ApproverSelector({
             placeholder="-- Choose Approver --"
             size="middle"
           >
-            <Option value="">-- Choose Approver --</Option>
+            <Option value=""> Choose Approver </Option>
             <Option value="James Mwangi">James Mwangi</Option>
             <Option value="Grace Nduta">Grace Nduta</Option>
             <Option value="Patrick Maingi">Patrick Maingi</Option>

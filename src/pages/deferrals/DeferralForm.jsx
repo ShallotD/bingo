@@ -5455,7 +5455,7 @@ export default function DeferralForm({ userId, onSuccess }) {
         </Col>
         
         <Col span={24}>
-          <Text strong>Deferral Description (Reason)</Text>
+          <Text strong>Deferral Description</Text>
           <TextArea
             value={deferralDescription}
             onChange={(e) => setDeferralDescription(e.target.value)}
