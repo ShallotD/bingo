@@ -906,14 +906,10 @@ export default function DeferralForm({ userId, onSuccess }) {
                 <Text type="success" style={{ display: "block", marginTop: 8, fontSize: '12px' }}>
                   ✓ DCL document ready: {dclFile.name}
                 </Text>
-                <Text type="secondary" style={{ display: "block", marginTop: 4, fontSize: '10px' }}>
-                  Click the eye icon to view or trash icon to delete
-                </Text>
+      
               </div>
             )}
-            <Text type="secondary" style={{ display: "block", marginTop: 8, fontSize: '12px' }}>
-              Accepted formats: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG
-            </Text>
+      
           </Card>
         </Col>
         
@@ -955,15 +951,11 @@ export default function DeferralForm({ userId, onSuccess }) {
                   <Text type="success" style={{ display: "block", marginTop: 8, fontSize: '12px' }}>
                     ✓ {additionalFiles.length} additional document{additionalFiles.length !== 1 ? 's' : ''} ready
                   </Text>
-                  <Text type="secondary" style={{ display: "block", marginTop: 4, fontSize: '10px' }}>
-                    Click the eye icon to view or trash icon to delete each document
-                  </Text>
+      
                 </div>
               </div>
             )}
-            <Text type="secondary" style={{ display: "block", marginTop: 8, fontSize: '12px' }}>
-              Upload multiple files: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG
-            </Text>
+
           </Card>
         </Col>
       </Row>
@@ -990,22 +982,10 @@ export default function DeferralForm({ userId, onSuccess }) {
         removeApprover={removeApprover}
         onSubmitDeferral={handleSubmitDeferral}
         isSubmitting={isSubmitting}
-        dclFileReady={!!dclFile}
+        // dclFileReady={!!dclFile}
+        onCancel={() => navigate('/rm/deferrals/pending')}
       />
       
-      {/* Add Cancel Button */}
-      <Button
-        type="default"
-        size="large"
-        onClick={() => navigate('/rm/deferrals/pending')}
-        style={{
-          width: "100%",
-          marginTop: 16,
-          fontWeight: "bold",
-        }}
-      >
-        Cancel
-      </Button>
     </Card>
   );
 

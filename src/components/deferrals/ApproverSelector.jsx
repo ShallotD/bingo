@@ -16,14 +16,14 @@ export default function ApproverSelector({
   addApprover,
   removeApprover,
   onSubmitDeferral,
-  isSubmitting
+  isSubmitting,
+  onCancel // Add this new prop for the cancel function
 }) {
   return (
     <>
       <Title level={4} style={{ color: "#2B1C67", marginBottom: 8 }}>
         Approver Selection
       </Title>
-
 
       <Divider style={{ margin: "16px 0" }} />
 
@@ -89,31 +89,38 @@ export default function ApproverSelector({
 
       <Divider style={{ margin: "16px 0" }} />
 
-      <Button
-        onClick={onSubmitDeferral}
-        loading={isSubmitting}
-        block
-        size="large"
-        style={{
-          backgroundColor: "#16a34a",
-          borderColor: "#16a34a",
-          color: "white",
-          fontWeight: "bold",
-          marginBottom: 8,
-          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "#15803d";
-          e.currentTarget.style.borderColor = "#15803d";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "#16a34a";
-          e.currentTarget.style.borderColor = "#16a34a";
-        }}
-        disabled={approvers.filter(a => a !== "").length === 0}
-      >
-        {isSubmitting ? "Submitting..." : "Submit Deferral"}
-      </Button>
+      {/* Both buttons at the same level */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+        <Button
+          type="default"
+          size="large"
+          onClick={onCancel}
+          style={{
+            flex: 1,
+            fontWeight: "bold",
+          }}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        
+        <Button
+          onClick={onSubmitDeferral}
+          loading={isSubmitting}
+          size="large"
+          type="primary"
+          style={{
+            flex: 1,
+            backgroundColor: "#16a34a",
+            borderColor: "#16a34a",
+            color: "white",
+            fontWeight: "bold",
+          }}
+          disabled={approvers.filter(a => a !== "").length === 0}
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
+      </div>
 
       <div style={{ fontSize: 11, color: "#999", textAlign: "center" }}>
         <Text type="secondary">
