@@ -17,8 +17,10 @@ export default function ApproverSelector({
   removeApprover,
   onSubmitDeferral,
   isSubmitting,
-  onCancel // Add this new prop for the cancel function
+  onCancel
 }) {
+  const selectedCount = approvers.filter(a => a !== "").length;
+  
   return (
     <>
       <Title level={4} style={{ color: "#2B1C67", marginBottom: 8 }}>
@@ -40,7 +42,12 @@ export default function ApproverSelector({
                 size="small"
                 icon={<DeleteOutlined />}
                 onClick={() => removeApprover(index)}
-                style={{ padding: 0, fontSize: 11, height: "auto" }}
+                style={{ 
+                  padding: 0, 
+                  fontSize: 11, 
+                  height: "auto",
+                  color: "#ff4d4f" // Red for destructive action
+                }}
               >
                 Remove
               </Button>
@@ -69,19 +76,19 @@ export default function ApproverSelector({
         style={{ 
           width: "100%", 
           marginBottom: 24,
-          backgroundColor: "#1e40af",
-          borderColor: "#1e40af",
+          backgroundColor: "#1890ff", // Blue for add/action
+          borderColor: "#1890ff",
           color: "white",
           fontWeight: "500",
           boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "#1e3a8a";
-          e.currentTarget.style.borderColor = "#1e3a8a";
+          e.currentTarget.style.backgroundColor = "#40a9ff";
+          e.currentTarget.style.borderColor = "#40a9ff";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "#1e40af";
-          e.currentTarget.style.borderColor = "#1e40af";
+          e.currentTarget.style.backgroundColor = "#1890ff";
+          e.currentTarget.style.borderColor = "#1890ff";
         }}
       >
         <PlusOutlined /> Add Another Approver
@@ -98,8 +105,23 @@ export default function ApproverSelector({
           style={{
             flex: 1,
             fontWeight: "bold",
+            backgroundColor: "#f5f5f5", // Light gray for cancel
+            borderColor: "#d9d9d9",
+            color: "#595959"
           }}
           disabled={isSubmitting}
+          onMouseEnter={(e) => {
+            if (!isSubmitting) {
+              e.currentTarget.style.backgroundColor = "#e8e8e8";
+              e.currentTarget.style.borderColor = "#bfbfbf";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isSubmitting) {
+              e.currentTarget.style.backgroundColor = "#f5f5f5";
+              e.currentTarget.style.borderColor = "#d9d9d9";
+            }
+          }}
         >
           Cancel
         </Button>
@@ -111,20 +133,32 @@ export default function ApproverSelector({
           type="primary"
           style={{
             flex: 1,
-            backgroundColor: "#16a34a",
-            borderColor: "#16a34a",
+            backgroundColor: selectedCount > 0 ? "#52c41a" : "#d9d9d9", // Green when ready, gray when disabled
+            borderColor: selectedCount > 0 ? "#52c41a" : "#d9d9d9",
             color: "white",
             fontWeight: "bold",
           }}
-          disabled={approvers.filter(a => a !== "").length === 0}
+          disabled={selectedCount === 0}
+          onMouseEnter={(e) => {
+            if (selectedCount > 0) {
+              e.currentTarget.style.backgroundColor = "#73d13d";
+              e.currentTarget.style.borderColor = "#73d13d";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (selectedCount > 0) {
+              e.currentTarget.style.backgroundColor = "#52c41a";
+              e.currentTarget.style.borderColor = "#52c41a";
+            }
+          }}
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {isSubmitting ? "Submitting..." : "Submit Deferral"}
         </Button>
       </div>
 
       <div style={{ fontSize: 11, color: "#999", textAlign: "center" }}>
         <Text type="secondary">
-          {approvers.filter(a => a !== "").length} approver(s) selected
+          {selectedCount} approver(s) selected
         </Text>
       </div>
     </>
