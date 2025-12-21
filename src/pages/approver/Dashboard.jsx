@@ -1456,4 +1456,4 @@ const Approver = ({ userId = "approver_current" }) => {
   );
 };
 
-export default Approver;
+export default Dashboard;
