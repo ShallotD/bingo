@@ -488,6 +488,12 @@ const getFileExtension = (filename) => {
 const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
   const [addCommentVisible, setAddCommentVisible] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [localDeferral, setLocalDeferral] = useState(deferral);
+  
+  // Update local deferral when prop changes
+  useEffect(() => {
+    setLocalDeferral(deferral);
+  }, [deferral]);
   
   const getStatusConfig = (status) => {
     switch (status) {
@@ -525,7 +531,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
     }
   };
 
-  const statusConfig = getStatusConfig(deferral?.status);
+  const statusConfig = getStatusConfig(localDeferral?.status);
 
   const handleAddComment = (deferralId, comment) => {
     const newComment = {
@@ -559,9 +565,15 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
         url: URL.createObjectURL(file) // Create URL for preview
       };
       
-      // Add to attachments
+      // Update local state immediately for UI feedback
+      setLocalDeferral(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, newAttachment]
+      }));
+      
+      // Add to attachments via parent
       if (onAction) {
-        onAction('uploadComplete', deferral._id, [newAttachment]);
+        onAction('uploadComplete', localDeferral._id, [newAttachment]);
       }
       
       message.success(`${file.name} uploaded successfully!`);
@@ -577,7 +589,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
       };
       
       if (onAction) {
-        onAction('addComment', deferral._id, historyEntry);
+        onAction('addComment', localDeferral._id, historyEntry);
       }
     }, 1500);
   };
@@ -590,19 +602,19 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
       okType: 'danger',
       onOk: () => {
         message.success('Deferral request withdrawn successfully');
-        if (onAction) onAction('withdraw', deferral._id);
+        if (onAction) onAction('withdraw', localDeferral._id);
         onClose();
       }
     });
   };
 
-  if (!deferral) return null;
+  if (!localDeferral) return null;
 
   return (
     <>
       <style>{customStyles}</style>
       <Modal
-        title={`Deferral Request: ${deferral.deferralNumber}`}
+        title={`Deferral Request: ${localDeferral.deferralNumber}`}
         open={open}
         onCancel={onClose}
         width={950}
@@ -619,7 +631,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
           >
             Add Comment
           </Button>,
-          deferral.canWithdraw && (
+          localDeferral.canWithdraw && (
             <Popconfirm
               title="Withdraw Deferral Request?"
               description="This action cannot be undone."
@@ -633,7 +645,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
               </Button>
             </Popconfirm>
           ),
-          deferral.canUpload && (
+          localDeferral.canUpload && (
             <Upload
               accept=".pdf,.PDF,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
               beforeUpload={(file) => {
@@ -675,7 +687,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
           )
         ]}
       >
-        {deferral && (
+        {localDeferral && (
           <>
             {/* Deferral Details Card */}
             <Card
@@ -696,11 +708,11 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
               <Descriptions size="middle" column={{ xs: 1, sm: 2, lg: 3 }}>
                 <Descriptions.Item label="Deferral Number">
                   <Text strong style={{ color: PRIMARY_BLUE }}>
-                    {deferral.deferralNumber}
+                    {localDeferral.deferralNumber}
                   </Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="DCL No">
-                  {deferral.dclNo}
+                  {localDeferral.dclNo}
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
                   <div style={{ fontWeight: 500 }}>
@@ -709,39 +721,39 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
                 </Descriptions.Item>
                 <Descriptions.Item label="Customer">
                   <div style={{ fontWeight: 500 }}>
-                    {deferral.customerName}
+                    {localDeferral.customerName}
                   </div>
                 </Descriptions.Item>
                 <Descriptions.Item label="Loan Type">
                   <div style={{ fontWeight: 500 }}>
-                    {deferral.loanType}
+                    {localDeferral.loanType}
                   </div>
                 </Descriptions.Item>
                 <Descriptions.Item label="Document">
                   <div style={{ fontWeight: 500 }}>
-                    {deferral.deferralTitle}
+                    {localDeferral.deferralTitle}
                   </div>
                 </Descriptions.Item>
                 <Descriptions.Item label="Deferral Type">
                   <div style={{ fontWeight: 500 }}>
-                    {deferral.deferralType}
+                    {localDeferral.deferralType}
                   </div>
                 </Descriptions.Item>
                 <Descriptions.Item label="Days Sought">
                   <div style={{
                     fontWeight: "bold",
-                    color: deferral.daysSought > 45 ? ERROR_RED : deferral.daysSought > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
+                    color: localDeferral.daysSought > 45 ? ERROR_RED : localDeferral.daysSought > 30 ? WARNING_ORANGE : PRIMARY_BLUE,
                     fontSize: 14
                   }}>
-                    {deferral.daysSought} days
+                    {localDeferral.daysSought} days
                   </div>
                 </Descriptions.Item>
                 <Descriptions.Item label="Current Approver">
-                  {deferral.currentApprover?.name || "Pending Assignment"}
+                  {localDeferral.currentApprover?.name || "Pending Assignment"}
                 </Descriptions.Item>
                 <Descriptions.Item label="SLA Expiry">
-                  <div style={{ color: dayjs(deferral.slaExpiry).isBefore(dayjs()) ? ERROR_RED : PRIMARY_BLUE }}>
-                    {dayjs(deferral.slaExpiry).format('DD MMM YYYY HH:mm')}
+                  <div style={{ color: dayjs(localDeferral.slaExpiry).isBefore(dayjs()) ? ERROR_RED : PRIMARY_BLUE }}>
+                    {dayjs(localDeferral.slaExpiry).format('DD MMM YYYY HH:mm')}
                   </div>
                 </Descriptions.Item>
               </Descriptions>
@@ -752,14 +764,14 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
               size="small"
               title={
                 <span style={{ color: PRIMARY_BLUE, fontSize: 14 }}>
-                  Attachments ({deferral.attachments?.length || 0} files)
+                  Attachments ({localDeferral.attachments?.length || 0} files)
                 </span>
               }
               style={{ marginBottom: 18 }}
             >
-              {deferral.attachments && deferral.attachments.length > 0 ? (
+              {localDeferral.attachments && localDeferral.attachments.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {deferral.attachments.map(att => (
+                  {localDeferral.attachments.map(att => (
                     <div key={att.id} style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -789,6 +801,18 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
                         <Button 
                           type="text" 
                           icon={<DownloadOutlined />}
+                          onClick={() => {
+                            // Simulate download
+                            if (att.url) {
+                              const link = document.createElement('a');
+                              link.href = att.url;
+                              link.download = att.name;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              message.success(`Downloading ${att.name}...`);
+                            }
+                          }}
                         >
                           Download
                         </Button>
@@ -807,7 +831,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
             <div style={{ marginTop: 24 }}>
               <h4>Comment Trail & History</h4>
               <CommentTrail 
-                history={deferral.history} 
+                history={localDeferral.history} 
                 isLoading={loadingComments}
               />
             </div>
@@ -817,7 +841,7 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
               open={addCommentVisible}
               onClose={() => setAddCommentVisible(false)}
               onAddComment={handleAddComment}
-              deferralId={deferral._id}
+              deferralId={localDeferral._id}
             />
           </>
         )}
