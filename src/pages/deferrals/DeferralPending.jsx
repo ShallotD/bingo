@@ -67,6 +67,7 @@ const MOCK_RM_PENDING_DEFERRALS = [
     customerNumber: "CUST001",
     customerName: "Javan Dave",
     businessName: "JAVAN DAVE AND SONS",
+    loanType: "Mortgage DCL",
     deferralTitle: "Bank Statements",
     documentType: "Financial Statements",
     deferralType: "New",
@@ -117,6 +118,7 @@ const MOCK_RM_PENDING_DEFERRALS = [
     customerNumber: "CUST002",
     customerName: "Diana Mwangi",
     businessName: "DIANA MWANGI AND DAUGHTERS",
+    loanType: "Buy & Build",
     deferralTitle: "CR12 Certificate",
     documentType: "Registration Documents",
     deferralType: "Extension",
@@ -168,6 +170,7 @@ const MOCK_RM_PENDING_DEFERRALS = [
     customerNumber: "CUST003",
     customerName: "Lucy Nyambura",
     businessName: "LUCY NYAMBURA AND SONS",
+    loanType: "Construction Loan",
     deferralTitle: "Lease Agreement",
     documentType: "Legal Documents",
     deferralType: "New",
@@ -217,6 +220,88 @@ const MOCK_RM_PENDING_DEFERRALS = [
         date: "2025-01-21T10:30:00Z", 
         notes: "Deferral approved with comments",
         comment: "Approved. Please ensure document is submitted before expiry date. Note that further extensions may not be granted.",
+        userRole: "Deferral Management"
+      }
+    ]
+  },
+  {
+    _id: "4",
+    deferralNumber: "DEF-2024-004",
+    dclNo: "DCL-2024-055",
+    customerNumber: "CUST004",
+    customerName: "John Kamau",
+    businessName: "KAMAU ENTERPRISES LTD",
+    loanType: "Secured Loan DCL",
+    deferralTitle: "Title Deed",
+    documentType: "Legal Documents",
+    deferralType: "New",
+    status: "deferral_requested",
+    daysSought: 20,
+    requestedExpiry: "2025-02-15T23:59:59Z",
+    originalDueDate: "2025-01-25T23:59:59Z",
+    currentApprover: { _id: "creator2", name: "Diana Jebet", email: "diana.j@ncba.co.ke" },
+    rmReason: "Title deed currently at lands office for registration. Process expected to take 3 weeks.",
+    createdAt: "2025-01-15T10:30:00Z",
+    updatedAt: "2025-01-15T10:30:00Z",
+    slaExpiry: "2025-01-22T23:59:59Z",
+    canEdit: true,
+    canWithdraw: true,
+    attachments: [
+      { id: "att1", name: "lands_receipt.pdf", size: "1.5 MB", type: "pdf", uploadDate: "2025-01-15T10:40:00Z" }
+    ],
+    history: [
+      { 
+        action: "Requested", 
+        user: "Sarah Johnson (RM)",
+        date: "2025-01-15T10:30:00Z", 
+        notes: "Deferral request submitted",
+        comment: "Title deed currently at lands office for registration. Process expected to take 3 weeks.",
+        userRole: "RM"
+      }
+    ]
+  },
+  {
+    _id: "5",
+    deferralNumber: "DEF-2024-005",
+    dclNo: "DCL-2024-063",
+    customerNumber: "CUST005",
+    customerName: "Mary Wanjiku",
+    businessName: "MWANIKI TRADERS",
+    loanType: "Stock Loan DCL",
+    deferralTitle: "Stock Valuation Report",
+    documentType: "Financial Statements",
+    deferralType: "Extension",
+    status: "deferral_approved",
+    daysSought: 30,
+    requestedExpiry: "2025-02-28T23:59:59Z",
+    originalDueDate: "2025-01-28T23:59:59Z",
+    currentApprover: { _id: "creator5", name: "Raphael Eric", email: "raphael.e@ncba.co.ke" },
+    rmReason: "Valuer unavailable due to medical leave. Alternative valuer has been assigned.",
+    createdAt: "2025-01-18T14:45:00Z",
+    updatedAt: "2025-01-19T11:20:00Z",
+    approvedDate: "2025-01-19T11:20:00Z",
+    canEdit: false,
+    canWithdraw: false,
+    canUpload: true,
+    attachments: [
+      { id: "att1", name: "valuer_medical_leave.pdf", size: "1.1 MB", type: "pdf", uploadDate: "2025-01-18T14:55:00Z" },
+      { id: "att2", name: "new_valuer_assignment.docx", size: "680 KB", type: "word", uploadDate: "2025-01-18T15:10:00Z" }
+    ],
+    history: [
+      { 
+        action: "Requested", 
+        user: "Sarah Johnson (RM)",
+        date: "2025-01-18T14:45:00Z", 
+        notes: "Deferral request submitted",
+        comment: "Valuer unavailable due to medical leave. Alternative valuer has been assigned.",
+        userRole: "RM"
+      },
+      { 
+        action: "Approved", 
+        user: "Raphael Eric (Deferral Management Team)", 
+        date: "2025-01-19T11:20:00Z", 
+        notes: "Deferral approved",
+        comment: "Approved due to unforeseen circumstances. Please ensure valuation report is submitted before new deadline.",
         userRole: "Deferral Management"
       }
     ]
@@ -389,10 +474,19 @@ const AddCommentModal = ({ open, onClose, onAddComment, deferralId }) => {
   );
 };
 
+// Helper function to get file extension type
+const getFileExtension = (filename) => {
+  const ext = filename.split('.').pop().toLowerCase();
+  if (['pdf'].includes(ext)) return 'pdf';
+  if (['doc', 'docx'].includes(ext)) return 'word';
+  if (['xls', 'xlsx', 'csv'].includes(ext)) return 'excel';
+  if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) return 'image';
+  return 'other';
+};
+
 // Redesigned Deferral Details Modal
 const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
   const [addCommentVisible, setAddCommentVisible] = useState(false);
-  const [uploadVisible, setUploadVisible] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   
   const getStatusConfig = (status) => {
@@ -449,12 +543,43 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
     }
   };
 
-  const handleUpload = (info) => {
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} uploaded successfully`);
-      setUploadVisible(false);
-      if (onAction) onAction('upload', deferral._id, info.file);
-    }
+  const handleDirectFileUpload = (file) => {
+    // Show loading message
+    message.loading(`Uploading ${file.name}...`, 2);
+    
+    // Simulate upload process
+    setTimeout(() => {
+      // Create new attachment object
+      const newAttachment = {
+        id: `att_${Date.now()}`,
+        name: file.name,
+        size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        type: getFileExtension(file.name),
+        uploadDate: new Date().toISOString(),
+        url: URL.createObjectURL(file) // Create URL for preview
+      };
+      
+      // Add to attachments
+      if (onAction) {
+        onAction('uploadComplete', deferral._id, [newAttachment]);
+      }
+      
+      message.success(`${file.name} uploaded successfully!`);
+      
+      // Add to history
+      const historyEntry = {
+        action: 'Document Uploaded',
+        user: 'Sarah Johnson (RM)',
+        date: new Date().toISOString(),
+        notes: `Document uploaded: ${file.name}`,
+        comment: 'Document uploaded by RM as requested.',
+        userRole: 'RM'
+      };
+      
+      if (onAction) {
+        onAction('addComment', deferral._id, historyEntry);
+      }
+    }, 1500);
   };
 
   const handleWithdraw = () => {
@@ -469,17 +594,6 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
         onClose();
       }
     });
-  };
-
-  const calculateTimelineProgress = () => {
-    if (!deferral) return 0;
-    
-    const totalDays = dayjs(deferral.requestedExpiry).diff(dayjs(deferral.originalDueDate), 'days');
-    const elapsedDays = dayjs().diff(dayjs(deferral.originalDueDate), 'days');
-    
-    if (totalDays <= 0) return 100;
-    const progress = Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100));
-    return Math.round(progress);
   };
 
   if (!deferral) return null;
@@ -520,15 +634,44 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
             </Popconfirm>
           ),
           deferral.canUpload && (
-            <Button
-              key="upload"
-              type="primary"
-              style={{ backgroundColor: SUCCESS_GREEN, borderColor: SUCCESS_GREEN }}
-              icon={<UploadOutlined />}
-              onClick={() => setUploadVisible(true)}
+            <Upload
+              accept=".pdf,.PDF,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+              beforeUpload={(file) => {
+                // File validation
+                const allowedTypes = ['.pdf', '.PDF', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg'];
+                const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                
+                if (!allowedTypes.includes(fileExtension)) {
+                  message.error(`File type not allowed. Please upload: ${allowedTypes.join(', ')}`);
+                  return false;
+                }
+                
+                // Check file size (max 10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                  message.error('File size exceeds 10MB limit');
+                  return false;
+                }
+                
+                // Handle the upload
+                handleDirectFileUpload(file);
+                return false; // Prevent auto upload
+              }}
+              fileList={[]}
+              showUploadList={false}
             >
-              Upload Document
-            </Button>
+              <Button
+                key="upload"
+                type="primary"
+                style={{ 
+                  backgroundColor: SUCCESS_GREEN, 
+                  borderColor: SUCCESS_GREEN 
+                }}
+                icon={<UploadOutlined />}
+              >
+                Upload Document
+              </Button>
+            </Upload>
           )
         ]}
       >
@@ -567,6 +710,11 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
                 <Descriptions.Item label="Customer">
                   <div style={{ fontWeight: 500 }}>
                     {deferral.customerName}
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Loan Type">
+                  <div style={{ fontWeight: 500 }}>
+                    {deferral.loanType}
                   </div>
                 </Descriptions.Item>
                 <Descriptions.Item label="Document">
@@ -671,35 +819,6 @@ const DeferralDetailsModal = ({ deferral, open, onClose, onAction }) => {
               onAddComment={handleAddComment}
               deferralId={deferral._id}
             />
-
-            {/* Upload Document Modal */}
-            <Modal
-              title="Upload Document"
-              open={uploadVisible}
-              onCancel={() => setUploadVisible(false)}
-              footer={null}
-              width={500}
-            >
-              <div style={{ padding: 16 }}>
-                <Upload.Dragger
-                  name="file"
-                  multiple={true}
-                  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                  onChange={handleUpload}
-                >
-                  <p className="ant-upload-drag-icon">
-                    <UploadOutlined />
-                  </p>
-                  <p className="ant-upload-text">Click or drag file to upload</p>
-                  <p className="ant-upload-hint">
-                    Upload the completed document for {deferral.deferralTitle}
-                  </p>
-                </Upload.Dragger>
-                <div style={{ marginTop: 16, fontSize: 12, color: '#666' }}>
-                  Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)
-                </div>
-              </div>
-            </Modal>
           </>
         )}
       </Modal>
@@ -740,7 +859,8 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         d.dclNo.toLowerCase().includes(searchText.toLowerCase()) ||
         d.customerNumber.toLowerCase().includes(searchText.toLowerCase()) ||
         d.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
-        d.deferralTitle.toLowerCase().includes(searchText.toLowerCase())
+        d.deferralTitle.toLowerCase().includes(searchText.toLowerCase()) ||
+        (d.loanType && d.loanType.toLowerCase().includes(searchText.toLowerCase()))
       );
     }
     
@@ -767,8 +887,14 @@ const DeferralPending = ({ userId = "rm_current" }) => {
           } : d
         ));
         break;
-      case 'upload':
-        // Handle upload action
+      case 'uploadComplete':
+        // Add uploaded files to attachments
+        setMockData(prev => prev.map(d => 
+          d._id === deferralId ? { 
+            ...d, 
+            attachments: [...d.attachments, ...data]
+          } : d
+        ));
         break;
       default:
         break;
@@ -780,7 +906,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
     setSearchText("");
   };
 
-  // Updated Columns to show deferralTitle (specific document names) instead of documentType
+  // Updated Columns - No sorting functionality
   const columns = [
     {
       title: "Deferral No",
@@ -792,8 +918,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
           <FileTextOutlined style={{ color: SECONDARY_PURPLE }} />
           {text}
         </div>
-      ),
-      sorter: (a, b) => a.deferralNumber.localeCompare(b.deferralNumber)
+      )
     },
     {
       title: "DCL No",
@@ -804,8 +929,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         <div style={{ color: SECONDARY_PURPLE, fontWeight: 500, fontSize: 13 }}>
           {text}
         </div>
-      ),
-      sorter: (a, b) => a.dclNo.localeCompare(b.dclNo)
+      )
     },
     {
       title: "Customer Name",
@@ -819,8 +943,35 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         }}>
           {text}
         </div>
+      )
+    },
+    {
+      title: "Loan Type",
+      dataIndex: "loanType",
+      key: "loanType",
+      width: 140,
+      render: (text) => (
+        <div style={{
+          fontSize: 12,
+          fontWeight: 500,
+          color: PRIMARY_BLUE,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis"
+        }}>
+          {text || "Not Specified"}
+        </div>
       ),
-      sorter: (a, b) => a.customerName.localeCompare(b.customerName)
+      filters: [
+        { text: 'Buy & Build', value: 'Buy & Build' },
+        { text: 'Mortgage DCL', value: 'Mortgage DCL' },
+        { text: 'Construction Loan', value: 'Construction Loan' },
+        { text: 'Secured Loan DCL', value: 'Secured Loan DCL' },
+        { text: 'Stock Loan DCL', value: 'Stock Loan DCL' },
+        { text: 'Equity Release Loan', value: 'Equity Release Loan' },
+        { text: 'Shamba Loan', value: 'Shamba Loan' }
+      ],
+      onFilter: (value, record) => record.loanType === value
     },
     {
       title: "Document",
@@ -832,11 +983,12 @@ const DeferralPending = ({ userId = "rm_current" }) => {
           {text}
         </div>
       ),
-      sorter: (a, b) => a.deferralTitle.localeCompare(b.deferralTitle),
       filters: [
         { text: 'Bank Statements', value: 'Bank Statements' },
         { text: 'CR12 Certificate', value: 'CR12 Certificate' },
-        { text: 'Lease Agreement', value: 'Lease Agreement' }
+        { text: 'Lease Agreement', value: 'Lease Agreement' },
+        { text: 'Title Deed', value: 'Title Deed' },
+        { text: 'Stock Valuation Report', value: 'Stock Valuation Report' }
       ],
       onFilter: (value, record) => record.deferralTitle === value,
     },
@@ -858,8 +1010,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         { text: 'New', value: 'New' },
         { text: 'Extension', value: 'Extension' }
       ],
-      onFilter: (value, record) => record.deferralType === value,
-      sorter: (a, b) => a.deferralType.localeCompare(b.deferralType)
+      onFilter: (value, record) => record.deferralType === value
     },
     {
       title: "Status",
@@ -890,8 +1041,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         { text: 'Pending', value: 'deferral_requested' },
         { text: 'Approved', value: 'deferral_approved' }
       ],
-      onFilter: (value, record) => record.status === value,
-      sorter: (a, b) => a.status.localeCompare(b.status)
+      onFilter: (value, record) => record.status === value
     },
     {
       title: "Days Sought",
@@ -911,8 +1061,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         }}>
           {days} days
         </div>
-      ),
-      sorter: (a, b) => a.daysSought - b.daysSought
+      )
     },
     {
       title: "SLA",
@@ -954,12 +1103,11 @@ const DeferralPending = ({ userId = "rm_current" }) => {
             {text}
           </Tag>
         );
-      },
-      sorter: (a, b) => dayjs(a.slaExpiry).diff(dayjs(b.slaExpiry))
+      }
     }
   ];
 
-  // Custom table styles
+  // Custom table styles - Remove sorting hover effects
   const customTableStyles = `
     .deferral-pending-table .ant-table-wrapper {
       border-radius: 12px;
@@ -971,16 +1119,20 @@ const DeferralPending = ({ userId = "rm_current" }) => {
       background-color: #f7f7f7 !important;
       color: ${PRIMARY_BLUE} !important;
       font-weight: 700;
-      fontSize: 13px;
+      font-size: 13px;
       padding: 14px 12px !important;
       border-bottom: 3px solid ${ACCENT_LIME} !important;
       border-right: none !important;
+      cursor: default !important;
+    }
+    .deferral-pending-table .ant-table-thead > tr > th:hover {
+      background-color: #f7f7f7 !important;
     }
     .deferral-pending-table .ant-table-tbody > tr > td {
       border-bottom: 1px solid #f0f0f0 !important;
       border-right: none !important;
       padding: 12px 12px !important;
-      fontSize: 13px;
+      font-size: 13px;
       color: #333;
     }
     .deferral-pending-table .ant-table-tbody > tr.ant-table-row:hover > td {
@@ -997,6 +1149,17 @@ const DeferralPending = ({ userId = "rm_current" }) => {
     .deferral-pending-table .ant-pagination .ant-pagination-item-active a {
       color: ${PRIMARY_BLUE} !important;
       font-weight: 600;
+    }
+    
+    /* Remove sorting icons completely */
+    .deferral-pending-table .ant-table-column-sorter {
+      display: none !important;
+    }
+    .deferral-pending-table .ant-table-column-sorters {
+      cursor: default !important;
+    }
+    .deferral-pending-table .ant-table-column-sorters:hover {
+      background: none !important;
     }
   `;
 
@@ -1061,7 +1224,7 @@ const DeferralPending = ({ userId = "rm_current" }) => {
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} sm={12} md={8}>
             <Input
-              placeholder="Search by Deferral No, DCL No, Customer, or Document"
+              placeholder="Search by Deferral No, DCL No, Customer, Loan Type, or Document"
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}

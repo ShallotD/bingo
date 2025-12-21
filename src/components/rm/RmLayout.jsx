@@ -4,6 +4,7 @@ import { Menu } from "antd";
 import { useNavigate, Routes, Route, useLocation } from "react-router-dom";
 import {
   CheckCircle,
+  Inbox,
   BarChart2,
   Clock,
   ClipboardList,
@@ -89,7 +90,7 @@ const Sidebar = ({
           {
             key: "myqueue",
             label: "My Queue",
-            icon: <ClipboardList size={20} style={{ color: "#e5e7eb" }} />,
+            icon: <Inbox size={16} style={{ color: "#e5e7eb" }} />,
           },
           {
             key: "completed",

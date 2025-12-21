@@ -62,9 +62,12 @@ const MyQueue = () => {
   const [deferrals, setDeferrals] = useState([
     {
       id: "DF-001",
+      deferralNumber: "DEF-2024-001",
       customerName: "JOHN DOE ENTERPRISES",
       dclNumber: "DCL-2024-001",
       deferralTitle: "Annual Report Submission Deferral",
+      document: "Annual Financial Statements",
+      loanType: "Term Loan",
       deferralType: "New",
       daysSought: 30,
       requestedBy: "Sarah Johnson (RM)",
@@ -90,9 +93,12 @@ const MyQueue = () => {
     },
     {
       id: "DF-002",
+      deferralNumber: "DEF-2024-002",
       customerName: "SMART TECH SOLUTIONS",
       dclNumber: "DCL-2024-002",
       deferralTitle: "Financial Statement Extension",
+      document: "Financial Statements",
+      loanType: "Working Capital",
       deferralType: "Extension",
       daysSought: 45,
       requestedBy: "Michael Brown (RM)",
@@ -117,9 +123,12 @@ const MyQueue = () => {
     },
     {
       id: "DF-003",
+      deferralNumber: "DEF-2024-003",
       customerName: "GLOBAL LOGISTICS LTD",
       dclNumber: "DCL-2024-003",
       deferralTitle: "Audit Report Deferral",
+      document: "Audit Report",
+      loanType: "Asset Finance",
       deferralType: "New",
       daysSought: 15,
       requestedBy: "Emma Wilson (RM)",
@@ -145,9 +154,12 @@ const MyQueue = () => {
     },
     {
       id: "DF-004",
+      deferralNumber: "DEF-2024-004",
       customerName: "TECHNOLOGY PARTNERS LTD",
       dclNumber: "DCL-2024-004",
       deferralTitle: "Quarterly Report Deferral",
+      document: "Quarterly Report",
+      loanType: "Term Loan",
       deferralType: "New",
       daysSought: 20,
       requestedBy: "Robert Kim (RM)",
@@ -171,9 +183,12 @@ const MyQueue = () => {
     },
     {
       id: "DF-005",
+      deferralNumber: "DEF-2024-005",
       customerName: "GLOBAL MANUFACTURING INC",
       dclNumber: "DCL-2024-005",
       deferralTitle: "Audit Completion Extension",
+      document: "Audit Completion Certificate",
+      loanType: "Corporate Overdraft",
       deferralType: "Extension",
       daysSought: 60,
       requestedBy: "Lisa Wong (RM)",
@@ -226,10 +241,11 @@ const MyQueue = () => {
       filtered = filtered.filter(d =>
         d.customerName.toLowerCase().includes(q) ||
         d.dclNumber.toLowerCase().includes(q) ||
-        d.id.toLowerCase().includes(q) ||
+        d.deferralNumber.toLowerCase().includes(q) ||
         d.requestedBy.toLowerCase().includes(q) ||
         d.deferralTitle.toLowerCase().includes(q) ||
-        d.customerNumber.toLowerCase().includes(q)
+        d.customerNumber.toLowerCase().includes(q) ||
+        d.document.toLowerCase().includes(q)
       );
     }
     
@@ -263,7 +279,7 @@ const MyQueue = () => {
       content: (
         <div>
           <p>Are you sure you want to approve this deferral request?</p>
-          <p><strong>{record.id}</strong> - {record.customerName}</p>
+          <p><strong>{record.deferralNumber}</strong> - {record.customerName}</p>
           <p>Days Sought: <strong>{record.daysSought}</strong> days</p>
           {record.category === "Non-Allowable" && (
             <p style={{ color: ERROR_RED, fontWeight: 'bold' }}>
@@ -283,7 +299,7 @@ const MyQueue = () => {
           // Move to actioned and update status
           setDeferrals(prev => prev.filter(d => d.id !== record.id));
           setIsLoading(false);
-          message.success(`Deferral ${record.id} approved successfully!`);
+          message.success(`Deferral ${record.deferralNumber} approved successfully!`);
         }, 500);
       },
     });
@@ -297,7 +313,7 @@ const MyQueue = () => {
       content: (
         <div>
           <p>Are you sure you want to reject this deferral request?</p>
-          <p><strong>{record.id}</strong> - {record.customerName}</p>
+          <p><strong>{record.deferralNumber}</strong> - {record.customerName}</p>
           <p>Requested by: <strong>{record.rmName}</strong></p>
           <p>Please provide a reason for rejection:</p>
           <Input.TextArea rows={3} placeholder="Enter rejection reason..." style={{ marginTop: 8 }} />
@@ -314,7 +330,7 @@ const MyQueue = () => {
           // Move to actioned and update status
           setDeferrals(prev => prev.filter(d => d.id !== record.id));
           setIsLoading(false);
-          message.success(`Deferral ${record.id} rejected successfully!`);
+          message.success(`Deferral ${record.deferralNumber} rejected successfully!`);
         }, 500);
       },
     });
@@ -340,7 +356,7 @@ const MyQueue = () => {
       okType: 'default',
       cancelText: 'Cancel',
       onOk() {
-        message.success(`Deferral ${record.id} forwarded successfully!`);
+        message.success(`Deferral ${record.deferralNumber} forwarded successfully!`);
       },
     });
   };
@@ -374,32 +390,17 @@ const MyQueue = () => {
     });
   };
 
-  // Columns for the table
+  // Standardized Columns for the table
   const columns = [
     {
-      title: "Deferral ID",
-      dataIndex: "id",
+      title: "Deferral No",
+      dataIndex: "deferralNumber",
       width: 120,
       fixed: "left",
-      render: (id) => (
+      render: (deferralNumber) => (
         <div style={{ fontWeight: "bold", color: PRIMARY_BLUE }}>
           <FileTextOutlined style={{ marginRight: 6 }} />
-          {id}
-        </div>
-      ),
-    },
-    {
-      title: "Customer",
-      dataIndex: "customerName",
-      width: 180,
-      render: (name, record) => (
-        <div>
-          <Text strong style={{ color: PRIMARY_BLUE, fontSize: 13 }}>
-            {name}
-          </Text>
-          <div style={{ fontSize: 11, color: "#666" }}>
-            ID: {record.customerNumber}
-          </div>
+          {deferralNumber}
         </div>
       ),
     },
@@ -409,63 +410,48 @@ const MyQueue = () => {
       width: 100,
     },
     {
-      title: "Title",
-      dataIndex: "deferralTitle",
-      width: 200,
-      render: (title) => (
-        <Text ellipsis style={{ fontSize: 12 }}>
-          {title}
+      title: "Customer Name",
+      dataIndex: "customerName",
+      width: 180,
+      render: (name) => (
+        <Text strong style={{ color: PRIMARY_BLUE, fontSize: 13 }}>
+          {name}
         </Text>
       ),
     },
     {
-      title: "Requested By",
-      dataIndex: "requestedBy",
-      width: 150,
-      render: (by) => (
-        <div>
-          <UserOutlined style={{ marginRight: 6, color: PRIMARY_BLUE }} />
-          {by}
+      title: "Loan Type",
+      dataIndex: "loanType",
+      width: 120,
+      render: (loanType) => (
+        <div style={{ fontSize: 12, fontWeight: 500 }}>
+          {loanType}
         </div>
       ),
     },
     {
-      title: "Days",
-      dataIndex: "daysSought",
-      width: 80,
-      render: (days, record) => (
-        <Tag color={days > 30 ? ERROR_RED : days > 15 ? WARNING_ORANGE : SUCCESS_GREEN}>
-          {days}d
-        </Tag>
+      title: "Document",
+      dataIndex: "document",
+      width: 150,
+      render: (document) => (
+        <Text ellipsis style={{ fontSize: 12 }}>
+          {document}
+        </Text>
       ),
     },
     {
-      title: "Category",
-      dataIndex: "category",
-      width: 120,
-      render: (category) => (
-        <Tag color={category === "Allowable" ? "green" : "red"} style={{ fontWeight: "bold" }}>
-          {category}
-        </Tag>
-      ),
-    },
-    {
-      title: "Priority",
-      dataIndex: "priority",
+      title: "Type",
+      dataIndex: "deferralType",
       width: 100,
-      render: (priority) => {
-        const priorityConfig = {
-          high: { color: ERROR_RED, text: "High" },
-          medium: { color: WARNING_ORANGE, text: "Medium" },
-          low: { color: SUCCESS_GREEN, text: "Low" },
-        };
-        const config = priorityConfig[priority] || { color: "default", text: priority };
-        return (
-          <Tag color={config.color} style={{ fontWeight: "bold" }}>
-            {config.text}
-          </Tag>
-        );
-      },
+      render: (deferralType) => (
+        <div style={{
+          fontSize: 11,
+          fontWeight: "bold",
+          color: PRIMARY_BLUE
+        }}>
+          {deferralType}
+        </div>
+      ),
     },
     {
       title: "Status",
@@ -489,6 +475,17 @@ const MyQueue = () => {
           </Tag>
         );
       },
+    },
+    {
+      title: "Days Sought",
+      dataIndex: "daysSought",
+      width: 100,
+      align: "center",
+      render: (daysSought) => (
+        <Tag color={daysSought > 30 ? ERROR_RED : daysSought > 15 ? WARNING_ORANGE : SUCCESS_GREEN}>
+          {daysSought}d
+        </Tag>
+      ),
     },
     {
       title: "SLA",
@@ -521,20 +518,6 @@ const MyQueue = () => {
       },
     },
     {
-      title: "Risk",
-      dataIndex: "riskLevel",
-      width: 90,
-      render: (risk) => (
-        <Tag color={
-          risk === 'High' ? ERROR_RED :
-          risk === 'Medium' ? WARNING_ORANGE :
-          SUCCESS_GREEN
-        }>
-          {risk}
-        </Tag>
-      ),
-    },
-    {
       title: "Actions",
       width: 200,
       fixed: "right",
@@ -546,7 +529,7 @@ const MyQueue = () => {
             icon={<EyeOutlined />}
             onClick={() => {
               // Open detailed view modal
-              message.info(`Opening detailed view for ${record.id}`);
+              message.info(`Opening detailed view for ${record.deferralNumber}`);
             }}
             style={{
               background: PRIMARY_BLUE,
@@ -729,7 +712,7 @@ const MyQueue = () => {
             onRow={(record) => ({
               onClick: () => {
                 // Open detailed view
-                message.info(`Opening detailed view for ${record.id}`);
+                message.info(`Opening detailed view for ${record.deferralNumber}`);
               },
             })}
           />
@@ -740,3 +723,12 @@ const MyQueue = () => {
 };
 
 export default MyQueue;
+
+
+
+
+
+
+
+
+
